@@ -1,29 +1,9 @@
-/* raylib-sys
-   build.rs - Cargo build script
-
-Copyright (c) 2018-2019 Paul Clement (@deltaphc)
-
-This software is provided "as-is", without any express or implied warranty. In no event will the authors be held liable for any damages arising from the use of this software.
-
-Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
-
-  1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
-
-  2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
-
-  3. This notice may not be removed or altered from any source distribution.
-*/
-#![allow(dead_code)]
-
 extern crate bindgen;
 
 use std::collections::HashSet;
 use std::env;
 use std::path::{Path, PathBuf};
-
-/// latest version on github's release page as of time or writing
-const LATEST_RAYLIB_VERSION: &str = "5.0.0";
-const LATEST_RAYLIB_API_VERSION: &str = "5";
+use std::process::exit;
 
 #[derive(Debug)]
 struct IgnoreMacros(HashSet<String>);
@@ -37,6 +17,55 @@ impl bindgen::callbacks::ParseCallbacks for IgnoreMacros {
         }
     }
 }
+
+fn main() {
+    println!("cargo:rerun-if-changed=build.rs");
+    println!("cargo:rerun-if-changed=./binding/binding.h");
+    let target = env::var("TARGET").expect("Cargo build scripts always have TARGET");
+    let _ = env::current_dir()
+        .unwrap()
+        .join("raylib")
+        .read_dir()
+        .unwrap_or_else(|_| {
+            println!(" ERROR Could not find the raylib source code directory");
+            exit(1)
+        })
+        .next()
+        .unwrap_or_else(|| {
+            println!(
+                " ERROR You need to initialize the submodules of this repository to compile the library."
+            );
+            exit(1)
+        });
+
+    // make sure cmake knows that it should bundle glfw in
+    if target.contains("wasm") {
+        if let Err(e) = env::var("EMCC_CFLAGS") {
+            if e == std::env::VarError::NotPresent {
+                panic!("\nYou must set the following environment variables yourself to compile for WASM. We are sorry for the inconvienence; this will be fixed in 5.1.0.\n{}{}\"\n",{
+                    #[cfg(target_family = "windows")]
+                    {"Paste this before executing the command: set EMCC_CFLAGS="}
+                    #[cfg(not(target_family = "windows"))]
+                    {"Prefix your command with this (you may want to make a build script for obvious reasons...): EMCC_CFLAGS="}
+                },"\"-O3 -sUSE_GLFW=3 -sGL_ENABLE_GET_PROC_ADDRESS -sWASM=1 -sALLOW_MEMORY_GROWTH=1 -sWASM_MEM_MAX=512MB -sTOTAL_MEMORY=512MB -sABORTING_MALLOC=0 -sASYNCIFY -sFORCE_FILESYSTEM=1 -sASSERTIONS=1 -sERROR_ON_UNDEFINED_SYMBOLS=0 -sEXPORTED_RUNTIME_METHODS=ccallcwrap\"");
+            } else {
+                panic!("\nError regarding EMCC_CFLAGS: {:?}\n", e);
+            }
+        }
+    }
+    let (platform, platform_os) = platform_from_target(&target);
+
+    // Donwload raylib source
+    let src = cp_raylib();
+    build_with_cmake(&src);
+
+    gen_bindings();
+
+    link(platform, platform_os);
+
+    // gen_rgui();
+}
+
 #[cfg(feature = "nobuild")]
 fn build_with_cmake(_src_path: &str) {}
 
@@ -131,7 +160,6 @@ fn build_with_cmake(src_path: &str) {
         Platform::Web => conf
             .define("PLATFORM", "Web")
             .define("CMAKE_C_FLAGS", "-s ASYNCIFY"),
-        Platform::RPI => conf.define("PLATFORM", "Raspberry Pi"),
     };
 
     let dst = conf.build();
@@ -172,7 +200,6 @@ fn gen_bindings() {
 
     let plat = match platform {
         Platform::Desktop => "-DPLATFORM_DESKTOP",
-        Platform::RPI => "-DPLATFORM_RPI",
         Platform::Web => "-DPLATFORM_WEB",
     };
 
@@ -216,30 +243,6 @@ fn gen_bindings() {
         .expect("Couldn't write bindings!");
 }
 
-// fn gen_rgui() {
-//     // Compile the code and link with cc crate
-//     #[cfg(target_os = "windows")]
-//     {
-//         cc::Build::new()
-//             .files(vec!["binding/rgui_wrapper.cpp", "binding/utils_log.cpp"])
-//             .include("binding")
-//             .warnings(false)
-//             // .flag("-std=c99")
-//             .extra_warnings(false)
-//             .compile("rgui");
-//     }
-//     #[cfg(not(target_os = "windows"))]
-//     {
-//         cc::Build::new()
-//             .files(vec!["binding/rgui_wrapper.c", "binding/utils_log.c"])
-//             .include("binding")
-//             .warnings(false)
-//             // .flag("-std=c99")
-//             .extra_warnings(false)
-//             .compile("rgui");
-//     }
-// }
-
 #[cfg(feature = "nobuild")]
 fn link(_platform: Platform, _platform_os: PlatformOS) {}
 
@@ -280,48 +283,9 @@ fn link(platform: Platform, platform_os: PlatformOS) {
     }
     if platform == Platform::Web {
         println!("cargo:rustc-link-lib=glfw");
-    } else if platform == Platform::RPI {
-        println!("cargo:rustc-link-search=/opt/vc/lib");
-        println!("cargo:rustc-link-lib=bcm_host");
-        println!("cargo:rustc-link-lib=brcmEGL");
-        println!("cargo:rustc-link-lib=brcmGLESv2");
-        println!("cargo:rustc-link-lib=vcos");
     }
 
     println!("cargo:rustc-link-lib=static=raylib");
-}
-
-fn main() {
-    println!("cargo:rerun-if-changed=build.rs");
-    println!("cargo:rerun-if-changed=./binding/binding.h");
-    let target = env::var("TARGET").expect("Cargo build scripts always have TARGET");
-
-    // make sure cmake knows that it should bundle glfw in
-    if target.contains("wasm") {
-        if let Err(e) = env::var("EMCC_CFLAGS") {
-            if e == std::env::VarError::NotPresent {
-                panic!("\nYou must set the following environment variables yourself to compile for WASM. We are sorry for the inconvienence; this will be fixed in 5.1.0.\n{}{}\"\n",{
-                    #[cfg(target_family = "windows")]
-                    {"Paste this before executing the command: set EMCC_CFLAGS="}
-                    #[cfg(not(target_family = "windows"))]
-                    {"Prefix your command with this (you may want to make a build script for obvious reasons...): EMCC_CFLAGS="}
-                },"\"-O3 -sUSE_GLFW=3 -sGL_ENABLE_GET_PROC_ADDRESS -sWASM=1 -sALLOW_MEMORY_GROWTH=1 -sWASM_MEM_MAX=512MB -sTOTAL_MEMORY=512MB -sABORTING_MALLOC=0 -sASYNCIFY -sFORCE_FILESYSTEM=1 -sASSERTIONS=1 -sERROR_ON_UNDEFINED_SYMBOLS=0 -sEXPORTED_RUNTIME_METHODS=ccallcwrap\"");
-            } else {
-                panic!("\nError regarding EMCC_CFLAGS: {:?}\n", e);
-            }
-        }
-    }
-    let (platform, platform_os) = platform_from_target(&target);
-
-    // Donwload raylib source
-    let src = cp_raylib();
-    build_with_cmake(&src);
-
-    gen_bindings();
-
-    link(platform, platform_os);
-
-    // gen_rgui();
 }
 
 // cp_raylib copy raylib to an out dir
@@ -337,27 +301,9 @@ fn cp_raylib() -> String {
     out.join("raylib").to_string_lossy().to_string()
 }
 
-// run_command runs a command to completion or panics. Used for running curl and powershell.
-fn run_command(cmd: &str, args: &[&str]) {
-    use std::process::Command;
-    match Command::new(cmd).args(args).output() {
-        Ok(output) => {
-            if !output.status.success() {
-                let error = std::str::from_utf8(&output.stderr).unwrap();
-                panic!("Command '{}' failed: {}", cmd, error);
-            }
-        }
-        Err(error) => {
-            panic!("Error running command '{}': {:#}", cmd, error);
-        }
-    }
-}
-
 fn platform_from_target(target: &str) -> (Platform, PlatformOS) {
     let platform = if target.contains("wasm") {
         Platform::Web
-    } else if target.contains("armv7-unknown-linux") {
-        Platform::RPI
     } else {
         Platform::Desktop
     };
@@ -386,13 +332,6 @@ fn platform_from_target(target: &str) -> (Platform, PlatformOS) {
                 _ => panic!("Unknown platform {}", uname()),
             }
         }
-    } else if platform == Platform::RPI {
-        let un: &str = &uname();
-        if un == "Linux" {
-            PlatformOS::Linux
-        } else {
-            PlatformOS::Unknown
-        }
     } else {
         PlatformOS::Unknown
     };
@@ -416,7 +355,6 @@ fn uname() -> String {
 enum Platform {
     Web,
     Desktop,
-    RPI, // raspberry pi
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -426,22 +364,4 @@ enum PlatformOS {
     BSD,
     OSX,
     Unknown,
-}
-
-#[derive(Debug, PartialEq)]
-enum LibType {
-    Static,
-    _Shared,
-}
-
-#[derive(Debug, PartialEq)]
-enum BuildMode {
-    Release,
-    Debug,
-}
-
-struct BuildSettings {
-    pub platform: Platform,
-    pub platform_os: PlatformOS,
-    pub bundled_glfw: bool,
 }
