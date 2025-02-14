@@ -1,4 +1,4 @@
 [workspace]
 
-members = ["rustyray", "rustyray-sys"]
+members = ["rustyray", "rustyray-ffi"]
 resolver = "3"

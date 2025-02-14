@@ -1,3 +1,5 @@
+extern crate rustyray;
+
 use rand::Rng;
 use rustyray::prelude::*;
 
@@ -12,7 +14,7 @@ const MAX_BUNNIES: usize = 50000;
 
 fn main() {
     let mut window = Window::new(1280, 720, String::from("Bunnymark"));
-    let tex = Texture::new(&String::from("assets/wabbit_alpha.png"));
+    let tex = OwnedTexture::new(String::from("assets/wabbit_alpha.png"));
     let mut rng = rand::rng();
 
     let mut bunnies = Vec::<Bunny>::new();
