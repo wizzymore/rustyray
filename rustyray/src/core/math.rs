@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
@@ -31,6 +33,25 @@ impl Vector2 {
     pub fn new(x: f32, y: f32) -> Self {
         Self { x, y }
     }
+
+    pub fn normalized(&self) -> Self {
+        let mut result = self.clone();
+        result.normalize();
+        result
+    }
+
+    pub fn normalize(&mut self) {
+        let length = f32::sqrt((self.x * self.x) + (self.y * self.y));
+
+        if length > 0. {
+            let ilength = 1. / length;
+            self.x = self.x * ilength;
+            self.y = self.y * ilength;
+        } else {
+            self.x = 0.;
+            self.y = 0.;
+        }
+    }
 }
 
 impl Vector2i {
@@ -47,6 +68,30 @@ impl Rectangle {
             width,
             height,
         }
+    }
+}
+
+impl Display for Vector2 {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(format!("Vector2{{x: {},y: {}}}", self.x, self.y).as_str())
+    }
+}
+
+impl Display for Vector2i {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(format!("Vector2i{{x: {},y: {}}}", self.x, self.y).as_str())
+    }
+}
+
+impl Display for Rectangle {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(
+            format!(
+                "Rectangle{{x: {}, y: {}, width: {}, height: {}}}",
+                self.x, self.y, self.width, self.height
+            )
+            .as_str(),
+        )
     }
 }
 
@@ -74,6 +119,12 @@ impl From<Vector2i> for Vector2 {
 impl From<&Vector2i> for Vector2 {
     fn from(value: &Vector2i) -> Self {
         value.to_owned().into()
+    }
+}
+
+impl From<rustyray_sys::Vector2> for Vector2 {
+    fn from(value: rustyray_sys::Vector2) -> Self {
+        unsafe { std::mem::transmute(value) }
     }
 }
 

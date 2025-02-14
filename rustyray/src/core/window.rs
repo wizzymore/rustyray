@@ -5,7 +5,11 @@ use std::{
 
 use rustyray_sys::ConfigFlags;
 
-use super::draw::{DrawHandler, RenderTexture};
+use super::{
+    draw::{DrawHandler, RenderTexture},
+    math::{Vector2, Vector2i},
+    MouseButton,
+};
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
@@ -79,7 +83,7 @@ impl Window {
         callback: impl Fn(DrawHandler),
     ) {
         unsafe {
-            rustyray_sys::BeginTextureMode(*(&render_texture.0));
+            rustyray_sys::BeginTextureMode(render_texture.into());
         }
 
         callback(DrawHandler {});
@@ -98,6 +102,11 @@ impl Window {
         self
     }
 
+    pub fn fps(self, v: i32) -> Self {
+        self.set_fps(v);
+        self
+    }
+
     pub fn change_size(width: i32, height: i32) {
         unsafe {
             rustyray_sys::SetWindowSize(width, height);
@@ -112,6 +121,39 @@ impl Window {
                 rustyray_sys::ClearWindowState(ConfigFlags::FLAG_VSYNC_HINT as u32);
             }
         }
+    }
+
+    pub fn is_mouse_down(&self, mb: MouseButton) -> bool {
+        unsafe { rustyray_sys::IsMouseButtonDown(mb as i32) }
+    }
+
+    pub fn get_mouse_pos(&self) -> Vector2 {
+        unsafe { rustyray_sys::GetMousePosition().into() }
+    }
+
+    pub fn get_screen_size(&self) -> Vector2i {
+        Vector2i {
+            x: self.get_screen_width(),
+            y: self.get_screen_height(),
+        }
+    }
+
+    pub fn get_screen_width(&self) -> i32 {
+        unsafe { rustyray_sys::GetScreenWidth() }
+    }
+
+    pub fn get_screen_height(&self) -> i32 {
+        unsafe { rustyray_sys::GetScreenHeight() }
+    }
+
+    pub fn set_fps(&self, v: i32) {
+        unsafe {
+            rustyray_sys::SetTargetFPS(v);
+        }
+    }
+
+    pub fn dt(&self) -> f32 {
+        unsafe { rustyray_sys::GetFrameTime() }
     }
 }
 
