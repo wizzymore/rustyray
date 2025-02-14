@@ -1,20 +1,15 @@
-use std::{
-    error::Error,
-    fmt::{Debug, Display},
-};
-
-use rustyray_sys::ConfigFlags;
+use std::fmt::Debug;
 
 use super::{
     draw::{DrawHandler, RenderTexture},
     math::{Vector2, Vector2i},
-    MouseButton,
+    ConfigFlags, MouseButton,
 };
 
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 #[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
 pub struct Window {
     width: i32,
@@ -22,58 +17,41 @@ pub struct Window {
     title: String,
 }
 
-pub struct DrawAlreadyStarted;
-
-impl Display for DrawAlreadyStarted {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str("Window's begin_draw function called twice in the same scope.")
-    }
-}
-
-impl Debug for DrawAlreadyStarted {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str("Window's begin_draw function called twice in the same scope.")
-    }
-}
-
-impl Error for DrawAlreadyStarted {}
-
 impl Window {
     pub fn new(width: i32, height: i32, title: String) -> Window {
-        let mut window = Window {
-            width: width,
-            height: height,
-            title: title,
-        };
-
-        window.init_window();
-
-        window
+        Window {
+            width,
+            height,
+            title,
+        }
+        .init_window()
     }
 
-    fn init_window(&mut self) {
+    fn init_window(self) -> Self {
         unsafe {
             if self.is_window_ready() {
                 panic!("You can't create two windows at the same time.");
             }
 
-            rustyray_sys::InitWindow(self.width, self.height, self.title.as_ptr() as *const i8);
+            rustyray_ffi::InitWindow(self.width, self.height, self.title.as_ptr() as *const i8);
         }
+
+        self
     }
 
     fn is_window_ready(&self) -> bool {
-        unsafe { rustyray_sys::IsWindowReady() }
+        unsafe { rustyray_ffi::IsWindowReady() }
     }
 
     pub fn draw(&mut self, callback: impl Fn(DrawHandler)) {
         unsafe {
-            rustyray_sys::BeginDrawing();
+            rustyray_ffi::BeginDrawing();
         }
 
         callback(DrawHandler {});
 
         unsafe {
-            rustyray_sys::EndDrawing();
+            rustyray_ffi::EndDrawing();
         }
     }
 
@@ -83,18 +61,18 @@ impl Window {
         callback: impl Fn(DrawHandler),
     ) {
         unsafe {
-            rustyray_sys::BeginTextureMode(render_texture.into());
+            rustyray_ffi::BeginTextureMode(render_texture.into());
         }
 
         callback(DrawHandler {});
 
         unsafe {
-            rustyray_sys::EndTextureMode();
+            rustyray_ffi::EndTextureMode();
         }
     }
 
     pub fn should_close(&self) -> bool {
-        unsafe { rustyray_sys::WindowShouldClose() }
+        unsafe { rustyray_ffi::WindowShouldClose() }
     }
 
     pub fn vsync(self, v: bool) -> Self {
@@ -102,33 +80,39 @@ impl Window {
         self
     }
 
+    pub fn set_vsync(&self, v: bool) {
+        unsafe {
+            if v {
+                rustyray_ffi::SetWindowState(ConfigFlags::FlagVsyncHint.into());
+            } else {
+                rustyray_ffi::ClearWindowState(ConfigFlags::FlagVsyncHint.into());
+            }
+        }
+    }
+
     pub fn fps(self, v: i32) -> Self {
         self.set_fps(v);
         self
     }
 
-    pub fn change_size(width: i32, height: i32) {
+    pub fn set_fps(&self, v: i32) {
         unsafe {
-            rustyray_sys::SetWindowSize(width, height);
+            rustyray_ffi::SetTargetFPS(v);
         }
     }
 
-    pub fn set_vsync(&self, v: bool) {
+    pub fn change_size(width: i32, height: i32) {
         unsafe {
-            if v {
-                rustyray_sys::SetWindowState(ConfigFlags::FLAG_VSYNC_HINT as u32);
-            } else {
-                rustyray_sys::ClearWindowState(ConfigFlags::FLAG_VSYNC_HINT as u32);
-            }
+            rustyray_ffi::SetWindowSize(width, height);
         }
     }
 
     pub fn is_mouse_down(&self, mb: MouseButton) -> bool {
-        unsafe { rustyray_sys::IsMouseButtonDown(mb as i32) }
+        unsafe { rustyray_ffi::IsMouseButtonDown(mb as i32) }
     }
 
     pub fn get_mouse_pos(&self) -> Vector2 {
-        unsafe { rustyray_sys::GetMousePosition().into() }
+        unsafe { rustyray_ffi::GetMousePosition().into() }
     }
 
     pub fn get_screen_size(&self) -> Vector2i {
@@ -139,28 +123,22 @@ impl Window {
     }
 
     pub fn get_screen_width(&self) -> i32 {
-        unsafe { rustyray_sys::GetScreenWidth() }
+        unsafe { rustyray_ffi::GetScreenWidth() }
     }
 
     pub fn get_screen_height(&self) -> i32 {
-        unsafe { rustyray_sys::GetScreenHeight() }
-    }
-
-    pub fn set_fps(&self, v: i32) {
-        unsafe {
-            rustyray_sys::SetTargetFPS(v);
-        }
+        unsafe { rustyray_ffi::GetScreenHeight() }
     }
 
     pub fn dt(&self) -> f32 {
-        unsafe { rustyray_sys::GetFrameTime() }
+        unsafe { rustyray_ffi::GetFrameTime() }
     }
 }
 
 impl Drop for Window {
     fn drop(&mut self) {
         unsafe {
-            rustyray_sys::CloseWindow();
+            rustyray_ffi::CloseWindow();
         }
     }
 }

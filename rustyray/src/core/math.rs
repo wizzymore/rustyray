@@ -95,13 +95,13 @@ impl Display for Rectangle {
     }
 }
 
-impl From<Vector2> for rustyray_sys::Vector2 {
+impl From<Vector2> for rustyray_ffi::Vector2 {
     fn from(value: Vector2) -> Self {
         unsafe { std::mem::transmute(value) }
     }
 }
 
-impl From<&Vector2> for rustyray_sys::Vector2 {
+impl From<&Vector2> for rustyray_ffi::Vector2 {
     fn from(value: &Vector2) -> Self {
         value.to_owned().into()
     }
@@ -122,13 +122,13 @@ impl From<&Vector2i> for Vector2 {
     }
 }
 
-impl From<rustyray_sys::Vector2> for Vector2 {
-    fn from(value: rustyray_sys::Vector2) -> Self {
+impl From<rustyray_ffi::Vector2> for Vector2 {
+    fn from(value: rustyray_ffi::Vector2) -> Self {
         unsafe { std::mem::transmute(value) }
     }
 }
 
-impl From<Vector2i> for rustyray_sys::Vector2 {
+impl From<Vector2i> for rustyray_ffi::Vector2 {
     fn from(value: Vector2i) -> Self {
         Self {
             x: value.x as f32,
@@ -137,7 +137,7 @@ impl From<Vector2i> for rustyray_sys::Vector2 {
     }
 }
 
-impl From<&Vector2i> for rustyray_sys::Vector2 {
+impl From<&Vector2i> for rustyray_ffi::Vector2 {
     fn from(value: &Vector2i) -> Self {
         value.to_owned().into()
     }
@@ -158,13 +158,13 @@ impl From<&Vector2> for Vector2i {
     }
 }
 
-impl From<Rectangle> for rustyray_sys::Rectangle {
+impl From<Rectangle> for rustyray_ffi::Rectangle {
     fn from(value: Rectangle) -> Self {
         unsafe { std::mem::transmute(value) }
     }
 }
 
-impl From<&Rectangle> for rustyray_sys::Rectangle {
+impl From<&Rectangle> for rustyray_ffi::Rectangle {
     fn from(value: &Rectangle) -> Self {
         value.to_owned().into()
     }

@@ -18,19 +18,19 @@ impl Color {
     }
 }
 
-impl From<rustyray_sys::Color> for Color {
-    fn from(value: rustyray_sys::Color) -> Self {
+impl From<rustyray_ffi::Color> for Color {
+    fn from(value: rustyray_ffi::Color) -> Self {
         unsafe { std::mem::transmute(value) }
     }
 }
 
-impl From<Color> for rustyray_sys::Color {
+impl From<Color> for rustyray_ffi::Color {
     fn from(value: Color) -> Self {
         unsafe { std::mem::transmute(value) }
     }
 }
 
-impl From<&Color> for rustyray_sys::Color {
+impl From<&Color> for rustyray_ffi::Color {
     fn from(value: &Color) -> Self {
         value.to_owned().into()
     }

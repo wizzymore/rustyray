@@ -278,12 +278,12 @@ name = "rustyray"
 version = "0.1.0"
 dependencies = [
  "rand",
- "rustyray-sys",
+ "rustyray-ffi",
  "serde",
 ]
 
 [[package]]
-name = "rustyray-sys"
+name = "rustyray-ffi"
 version = "0.1.0"
 dependencies = [
  "bindgen",
