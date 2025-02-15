@@ -2,7 +2,7 @@ use std::ffi::CString;
 use std::fmt::Debug;
 use std::fs;
 
-use libc::{c_int, c_uint};
+use libc::{c_int, c_uint, c_void};
 use thiserror::Error;
 
 use crate::ffi::{is_window_ready, load_render_texture, load_texture};
@@ -17,6 +17,22 @@ pub struct Texture {
     /// Texture base width
     width: c_int,
     /// Texture base height
+    height: c_int,
+    /// Mipmap levels, 1 by default
+    mipmaps: c_int,
+    /// Data format (PixelFormat type)
+    format: c_int,
+}
+
+/// Image, pixel data stored in CPU memory (RAM)
+#[repr(C)]
+#[derive(Debug, Clone)]
+pub struct Image {
+    /// Image raw data
+    data: *mut c_void,
+    /// Image base width
+    width: c_int,
+    /// Image base height
     height: c_int,
     /// Mipmap levels, 1 by default
     mipmaps: c_int,

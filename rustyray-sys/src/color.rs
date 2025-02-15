@@ -1,5 +1,5 @@
 #[repr(C)]
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Color {
     r: u8,
     g: u8,
@@ -10,6 +10,34 @@ pub struct Color {
 impl Color {
     pub const fn new(r: u8, g: u8, b: u8, a: u8) -> Self {
         Self { r, g, b, a }
+    }
+
+    /// Get color with alpha applied, alpha goes from 0.0 to 1.0
+    pub fn fade(&mut self, mut alpha: f32) -> &mut Self {
+        if alpha < 0. {
+            alpha = 0.
+        } else if alpha > 1. {
+            alpha = 1.
+        }
+        self.a = (255.0 * alpha) as u8;
+        self
+    }
+
+    /// Get hexadecimal value for a [Color] (0xRRGGBBAA)
+    pub fn to_int(&self) -> i32 {
+        let result = ((self.r << 24) | (self.g << 16) | (self.b << 8) | self.a) as i32;
+
+        result
+    }
+
+    /// Get [Color] multiplied with another [Color]
+    pub fn tint(&mut self, color: &Color) -> &mut Self {
+        self.r = ((self.r as i32 * color.r as i32) / 255) as u8;
+        self.g = ((self.g as i32 * color.g as i32) / 255) as u8;
+        self.b = ((self.b as i32 * color.b as i32) / 255) as u8;
+        self.a = ((self.a as i32 * color.a as i32) / 255) as u8;
+
+        self
     }
 }
 

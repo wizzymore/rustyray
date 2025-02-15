@@ -82,13 +82,13 @@
 *
 **********************************************************************************************/
 
-use libc::{c_char, c_double, c_float, c_int};
+use libc::{c_char, c_double, c_float, c_int, c_void};
 
 use crate::{
     color::Color,
     consts::{ConfigFlag, MouseButton},
     rectangle::Rectangle,
-    texture::{RenderTexture, RenderTexture2D, Texture},
+    texture::{Image, RenderTexture, RenderTexture2D, Texture},
     vector::Vector2,
 };
 
@@ -166,6 +166,42 @@ unsafe extern "C" {
     /// ```
     #[link_name = "ClearWindowState"]
     pub fn clear_window_state(flags: ConfigFlag);
+    /// Toggle window state: fullscreen/windowed, resizes monitor to match window resolution
+    #[link_name = "ToggleFullscreen"]
+    pub fn toggle_fullscreen();
+    /// Toggle window state: borderless windowed, resizes window to match monitor resolution
+    #[link_name = "ToggleBorderlessWindowed"]
+    pub fn toggle_borderless_windowed();
+    /// Set window state: maximized, if resizable
+    #[link_name = "MaximizeWindow"]
+    pub fn maximize_window();
+    /// Set window state: minimized, if resizable
+    #[link_name = "MinimizeWindow"]
+    pub fn minimize_window();
+    /// Set window state: not minimized/maximized
+    #[link_name = "RestoreWindow"]
+    pub fn restore_window();
+    /// Set icon for window (single image, RGBA 32bit)
+    #[link_name = "SetWindowIcon"]
+    pub fn set_window_icon(image: Image);
+    /// Set icon for window (multiple images, RGBA 32bit)
+    #[link_name = "SetWindowIcons"]
+    pub fn set_window_icons(images: *const Image);
+    /// Set title for window
+    #[link_name = "SetWindowTitle"]
+    pub fn set_window_title(images: *const c_char);
+    /// Set window position on screen
+    #[link_name = "SetWindowPosition"]
+    pub fn set_window_position(x: c_int, y: c_int);
+    /// Set monitor for the current window
+    #[link_name = "SetWindowMonitor"]
+    pub fn set_window_monitor(monitor: c_int);
+    /// Set window minimum dimensions (for [ConfigFlag::WindowResizable])
+    #[link_name = "SetWindowMinSize"]
+    pub fn set_window_min_size(width: c_int, height: c_int);
+    /// Set window maximum dimensions (for [ConfigFlag::WindowResizable])
+    #[link_name = "SetWindowMaxSize"]
+    pub fn set_window_max_size(width: c_int, height: c_int);
     /// Set window dimension
     #[link_name = "SetWindowSize"]
     pub fn set_window_size(width: c_int, height: c_int);
@@ -181,6 +217,82 @@ unsafe extern "C" {
     /// Get current screen height
     #[link_name = "GetScreenHeight"]
     pub fn get_screen_height() -> c_int;
+    /// Get current render width (it considers HiDPI)
+    #[link_name = "GetRenderWidth"]
+    pub fn get_render_width() -> c_int;
+    /// Get current render height (it considers HiDPI)
+    #[link_name = "GetRenderHeight"]
+    pub fn get_render_height() -> c_int;
+    /// Get number of connected monitors
+    #[link_name = "GetMonitorCount"]
+    pub fn get_monitor_count() -> c_int;
+    /// Get current monitor where window is placed
+    #[link_name = "GetCurrentMonitor"]
+    pub fn get_current_monitor() -> c_int;
+    /// Get specified monitor position
+    #[link_name = "GetMonitorPosition"]
+    pub fn get_monitor_position(monitor: c_int) -> Vector2;
+    /// Get specified monitor width (current video mode used by monitor)
+    #[link_name = "GetMonitorWidth"]
+    pub fn get_monitor_width(monitor: c_int) -> c_int;
+    /// Get specified monitor height (current video mode used by monitor)
+    #[link_name = "GetMonitorHeight"]
+    pub fn get_monitor_height(monitor: c_int) -> c_int;
+    /// Get specified monitor physical width in millimetres
+    #[link_name = "GetMonitorPhysicalWidth"]
+    pub fn get_monitor_physical_width(monitor: c_int) -> c_int;
+    /// Get specified monitor physical height in millimetres
+    #[link_name = "GetMonitorPhysicalHeight"]
+    pub fn get_monitor_physical_height(monitor: c_int) -> c_int;
+    /// Get specified monitor refresh rate
+    #[link_name = "GetMonitorRefreshRate"]
+    pub fn get_monitor_refresh_rate(monitor: c_int) -> c_int;
+    /// Get position XY on monitor
+    #[link_name = "GetWindowPosition"]
+    pub fn get_window_position() -> Vector2;
+    /// Get window scale DPI factor
+    #[link_name = "GetWindowScaleDPI"]
+    pub fn get_window_scale_dpi() -> Vector2;
+    /// Get the human-readable, UTF-8 encoded name of the specified monitor
+    #[link_name = "GetMonitorName"]
+    pub fn get_monitor_name(monitor: c_int) -> *const c_char;
+    /// Set clipboard text content
+    #[link_name = "SetClipboardText"]
+    pub fn set_clipboard_text(text: *const c_char);
+    /// Get clipboard text content
+    #[link_name = "GetClipboardText"]
+    pub fn get_clipboard_text() -> *const c_char;
+    /// Get clipboard image content
+    #[link_name = "GetClipboardImage"]
+    pub fn get_clipboard_image() -> Image;
+    /// Enable waiting for events on [end_drawing], no automatic event polling
+    #[link_name = "EnableEventWaiting"]
+    pub fn enable_event_waiting();
+    /// Disable waiting for events on [end_drawing], automatic event polling
+    #[link_name = "DisableEventWaiting"]
+    pub fn disable_event_waiting();
+}
+
+// Cursor-related functions
+unsafe extern "C" {
+    /// Shows cursor
+    #[link_name = "ShowCursor"]
+    pub fn show_cursor();
+    /// Hides cursor
+    #[link_name = "HideCursor"]
+    pub fn hide_cursor();
+    /// Check if cursor is not visible
+    #[link_name = "IsCursorHidden"]
+    pub fn is_cursor_hidden();
+    /// Enables cursor (unlock cursor)
+    #[link_name = "EnableCursor"]
+    pub fn enable_cursor();
+    /// Disabled cursor (lock cursor)
+    #[link_name = "DisableCursor"]
+    pub fn disable_cursor();
+    /// Check if cursor is on the screen
+    #[link_name = "IsCursorOnScreen"]
+    pub fn is_cursor_on_screen();
 }
 
 // Drawing related functions
@@ -188,22 +300,96 @@ unsafe extern "C" {
     /// Set background color (framebuffer clear color)
     #[link_name = "ClearBackground"]
     pub fn clear_background(color: Color);
+    /// Setup canvas (framebuffer) to start drawing
     #[link_name = "BeginDrawing"]
     pub fn begin_drawing();
+    /// End canvas drawing and swap buffers (double buffering)
     #[link_name = "EndDrawing"]
     pub fn end_drawing();
+    /// Begin drawing to render texture
     #[link_name = "BeginTextureMode"]
     pub fn begin_texture_mode(render_texture: RenderTexture2D);
+    /// Ends drawing to render texture
     #[link_name = "EndTextureMode"]
     pub fn end_texture_mode();
+}
+
+// Texture loading functions
+// Note: These function require GPU access
+unsafe extern "C" {
+    /// Load texture from file into GPU memory (VRAM)
     #[link_name = "LoadTexture"]
     pub fn load_texture(path: *const c_char) -> Texture;
+    /// Load texture from image data
+    #[link_name = "LoadTextureFromImage"]
+    pub fn load_texture_from_image(image: Image) -> Texture;
+    /// Load texture for rendering (framebuffer)
     #[link_name = "LoadRenderTexture"]
     pub fn load_render_texture(width: c_int, height: c_int) -> RenderTexture;
+    /// Check if a texture is valid (loaded in GPU)
+    #[link_name = "IsTextureValid"]
+    pub fn is_texture_valid(texture: Texture) -> bool;
+    /// Unload texture from GPU memory (VRAM)
     #[link_name = "UnloadTexture"]
     pub fn unload_texture(texture: Texture);
+    /// Check if a render texture is valid (loaded in GPU)
+    #[link_name = "IsRenderTextureValid"]
+    pub fn is_render_texture_valid(target: RenderTexture) -> bool;
+    /// Unload render texture from GPU memory (VRAM)
     #[link_name = "UnloadRenderTexture"]
     pub fn unload_render_texture(render_texture: RenderTexture);
+    /// Update GPU texture with new data
+    #[link_name = "UpdateTexture"]
+    pub fn update_texture(texture: Texture, pixels: *const c_void);
+    /// Update GPU texture rectangle with new data
+    #[link_name = "UpdateTextureRec"]
+    pub fn update_texture_rec(texture: Texture, rec: Rectangle, pixels: *const c_void);
+}
+
+// Texture configuration function
+unsafe extern "C" {
+    /// Generate GPU mipmaps for a texture
+    #[link_name = "GenTextureMipmaps"]
+    pub fn gen_texture_mipmaps(texture: *mut Texture);
+    /// Set texture scaling filter mode
+    #[link_name = "SetTextureFilter"]
+    pub fn set_texture_filter(texture: Texture, filter: c_int);
+    /// Set texture wrapping mode
+    #[link_name = "SetTextureWrap"]
+    pub fn set_texture_wrap(texture: Texture, wrap: c_int);
+}
+
+// Texture drawing functions
+unsafe extern "C" {
+    /// Draw a [Texture]
+    #[link_name = "DrawTexture"]
+    pub fn draw_texture(texture: Texture, pos_x: c_int, pos_y: c_int, tint: Color);
+    /// Draw a [Texture] with position defined as [Vector2]
+    #[link_name = "DrawTextureV"]
+    pub fn draw_texture_v(texture: Texture, pos: Vector2, tint: Color);
+    /// Draw a [Texture] with extended parameters
+    #[link_name = "DrawTextureEx"]
+    pub fn draw_texture_ex(
+        texture: Texture,
+        pos: Vector2,
+        rotation: c_float,
+        scale: c_float,
+        tint: Color,
+    );
+    /// Draw a part of a [Texture] defined by a [Rectangle]
+    #[link_name = "DrawTextureRec"]
+    pub fn draw_texture_rec(texture: Texture, source: Rectangle, position: Vector2, tint: Color);
+    /// Draw a part of a [Texture] defined by a [Rectangle] with 'pro' parameters
+    #[link_name = "DrawTexturePro"]
+    pub fn draw_texture_pro(
+        texture: Texture,
+        source: Rectangle,
+        dest: Rectangle,
+        origin: Vector2,
+        rotation: c_float,
+        tint: Color,
+    );
+    // TODO: Add draw_texture_npatch when NPatchInfo is implemented
 }
 
 // Text drawing functions
@@ -222,21 +408,11 @@ unsafe extern "C" {
     );
 }
 
-// Texture drawing functions
+// Text font info functions
 unsafe extern "C" {
-    /// Draw a [Texture]
-    #[link_name = "DrawTexture"]
-    pub fn draw_texture(texture: Texture, pos_x: c_int, pos_y: c_int, tint: Color);
-    /// Draw a part of a [Texture] defined by a [Rectangle] with 'pro' parameters
-    #[link_name = "DrawTexturePro"]
-    pub fn draw_texture_pro(
-        texture: Texture,
-        source: Rectangle,
-        dest: Rectangle,
-        origin: Vector2,
-        rotation: c_float,
-        tint: Color,
-    );
+    /// Measure string width for default font
+    #[link_name = "MeasureText"]
+    pub fn measure_text(text: *const c_char, font_size: c_int);
 }
 
 // Basic shapes drawing functions
@@ -294,4 +470,23 @@ unsafe extern "C" {
     /// ```
     #[link_name = "SetConfigFlags"]
     pub fn set_config_flags(flags: ConfigFlag);
+}
+
+// Audio device management functions
+unsafe extern "C" {
+    /// Initialize audio device and context
+    #[link_name = "InitAudioDevice"]
+    pub fn init_audio_device();
+    /// Close the audio device and context
+    #[link_name = "CloseAudioDevice"]
+    pub fn close_audio_device();
+    /// Check if audio device has been initialized successfully
+    #[link_name = "IsAudioDeviceReady"]
+    pub fn is_audio_device_ready() -> bool;
+    /// Set master volume (listener)
+    #[link_name = "SetMasterVolume"]
+    pub fn set_master_volume(volume: c_float);
+    /// Get master volume (listener)
+    #[link_name = "GetMasterVolume"]
+    pub fn get_master_volume() -> c_float;
 }
