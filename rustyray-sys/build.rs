@@ -23,6 +23,7 @@ fn main() {
 
     // make sure cmake knows that it should bundle glfw in
     if target.contains("wasm") {
+        panic!("Currently wasm is not supported");
         if let Err(e) = env::var("EMCC_CFLAGS") {
             if e == std::env::VarError::NotPresent {
                 panic!("\nYou must set the following environment variables yourself to compile for WASM. We are sorry for the inconvienence; this will be fixed in 5.1.0.\n{}{}\"\n",{
