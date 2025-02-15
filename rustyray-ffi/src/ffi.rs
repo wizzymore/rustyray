@@ -47,10 +47,10 @@ unsafe extern "C" {
     /// Use this value as a bitmask.
     ///
     /// # Examples
-    /// ```
-    /// use rustyray_ffi::{is_window_state, ConfigFlag};
+    /// ```no_run
+    /// use rustyray_ffi::{ffi::is_window_state, consts::ConfigFlag};
     ///
-    /// is_window_state(ConfigFlag::VsyncHint | ConfigFlag::FullscreenMode)
+    /// unsafe { is_window_state(ConfigFlag::VsyncHint | ConfigFlag::FullscreenMode) };
     /// ```
     #[link_name = "IsWindowState"]
     pub fn is_window_state(flags: ConfigFlag) -> bool;
@@ -61,10 +61,10 @@ unsafe extern "C" {
     /// Use this value as a bitmask.
     ///
     /// # Examples
-    /// ```
-    /// use rustyray_ffi::{set_window_state, ConfigFlag};
+    /// ```no_run
+    /// use rustyray_ffi::{ffi::set_window_state, consts::ConfigFlag};
     ///
-    /// set_window_state(ConfigFlag::VsyncHint | ConfigFlag::FullscreenMode)
+    /// unsafe { set_window_state(ConfigFlag::VsyncHint | ConfigFlag::FullscreenMode); }
     /// ```
     #[link_name = "SetWindowState"]
     pub fn set_window_state(flags: ConfigFlag);
@@ -75,10 +75,10 @@ unsafe extern "C" {
     /// Use this value as a bitmask.
     ///
     /// # Examples
-    /// ```
-    /// use rustyray_ffi::{clear_window_state, ConfigFlag};
+    /// ```no_run
+    /// use rustyray_ffi::{ffi::clear_window_state, consts::ConfigFlag};
     ///
-    /// clear_window_state(ConfigFlag::VsyncHint | ConfigFlag::FullscreenMode)
+    /// unsafe { clear_window_state(ConfigFlag::VsyncHint | ConfigFlag::FullscreenMode); }
     /// ```
     #[link_name = "ClearWindowState"]
     pub fn clear_window_state(flags: ConfigFlag);
@@ -203,10 +203,10 @@ unsafe extern "C" {
     /// Use this value as a bitmask.
     ///
     /// # Examples
-    /// ```
-    /// use rustyray_ffi::{set_config_flags, ConfigFlag};
+    /// ```no_run
+    /// use rustyray_ffi::{ffi::set_config_flags, consts::ConfigFlag};
     ///
-    /// set_config_flags(ConfigFlag::FlagVsyncHint | ConfigFlag::FlagFullscreenMode)
+    /// unsafe { set_config_flags(ConfigFlag::VsyncHint | ConfigFlag::FullscreenMode) }
     /// ```
     #[link_name = "SetConfigFlags"]
     pub fn set_config_flags(flags: ConfigFlag);
