@@ -4,7 +4,6 @@ use std::process::exit;
 
 fn main() {
     println!("cargo:rerun-if-changed=build.rs");
-    println!("cargo:rerun-if-changed=./binding/binding.h");
     let target = env::var("TARGET").expect("Cargo build scripts always have TARGET");
     let _ = env::current_dir()
         .unwrap()
