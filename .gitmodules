@@ -1,3 +1,0 @@
-[submodule "rustyray-sys/raylib"]
-	path = rustyray-sys/raylib
-	url = https://github.com/raysan5/raylib
