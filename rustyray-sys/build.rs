@@ -10,12 +10,12 @@ fn main() {
         .join("raylib")
         .read_dir()
         .unwrap_or_else(|_| {
-            println!(" ERROR Could not find the raylib source code directory");
+            eprintln!(" ERROR Could not find the raylib source code directory");
             exit(1)
         })
         .next()
         .unwrap_or_else(|| {
-            println!(
+            eprintln!(
                 " ERROR You need to initialize the submodules of this repository to compile the library."
             );
             exit(1)
