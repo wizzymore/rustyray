@@ -7,19 +7,30 @@ use rustyray_ffi::{
     vector::Vector2,
 };
 
-/// This is a `raylib` texture that uses the concept of RAII.
+/// This is a [`rustyray_ffi::texture::Texture`] that uses the concept of RAII.
 ///
 /// It implements the Drop trait so when it goes out of scope the texture will automatically unload.
 ///
 /// # Examples
-/// ```
-/// use rustyray::core::draw::OwnedTexture;
+/// ```no_run
+/// use rustyray::prelude::OwnedTexture;
+///
 /// let texture = OwnedTexture::new(String::from("assets/character.png"));
 /// ```
 #[repr(C)]
 #[derive(Debug)]
 pub struct OwnedTexture(pub Texture);
 
+/// This is a `raylib` [`rustyray_ffi::texture::RenderTexture`] that uses the concept of RAII.
+///
+/// It implements the Drop trait so when it goes out of scope the texture will automatically unload.
+///
+/// # Examples
+/// ```no_run
+/// use rustyray::prelude::OwnedTexture;
+///
+/// let texture = OwnedTexture::new(String::from("assets/character.png"));
+/// ```
 #[repr(C)]
 #[derive(Debug)]
 pub struct OwnedRenderTexture(pub RenderTexture);
@@ -55,7 +66,8 @@ impl DrawHandler {
         }
     }
 
-    pub fn draw_render_texture(&self, render_texture: &RenderTexture) {
+    pub fn draw_render_texture<T: AsRef<RenderTexture>>(&self, render_texture_ref: T) {
+        let render_texture = render_texture_ref.as_ref();
         let size = render_texture.texture.size();
         unsafe {
             let screen_height = rustyray_ffi::ffi::get_screen_height() as f32;
@@ -72,9 +84,9 @@ impl DrawHandler {
     }
 
     #[inline]
-    pub fn draw_texture(&self, texture: &OwnedTexture, x: i32, y: i32, tint: Color) {
+    pub fn draw_texture<T: AsRef<Texture>>(&self, texture: T, x: i32, y: i32, tint: Color) {
         unsafe {
-            rustyray_ffi::ffi::draw_texture(texture.0.clone(), x, y, tint);
+            rustyray_ffi::ffi::draw_texture(texture.as_ref().clone(), x, y, tint);
         }
     }
 
@@ -93,7 +105,7 @@ impl DrawHandler {
                 pos_x,
                 pos_y,
                 size,
-                tint.into(),
+                tint,
             );
         }
     }
@@ -112,5 +124,17 @@ impl Drop for OwnedRenderTexture {
         unsafe {
             rustyray_ffi::ffi::unload_render_texture(self.0.clone());
         }
+    }
+}
+
+impl AsRef<Texture> for OwnedTexture {
+    fn as_ref(&self) -> &Texture {
+        &self.0
+    }
+}
+
+impl AsRef<RenderTexture> for OwnedRenderTexture {
+    fn as_ref(&self) -> &RenderTexture {
+        &self.0
     }
 }
