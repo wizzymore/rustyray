@@ -13,24 +13,14 @@ impl Color {
     }
 
     /// Get color with alpha applied, alpha goes from 0.0 to 1.0
-    pub fn fade(&mut self, mut alpha: f32) -> &mut Self {
-        if alpha < 0. {
-            alpha = 0.
-        } else if alpha > 1. {
-            alpha = 1.
-        }
-        self.a = (255.0 * alpha) as u8;
+    pub fn fade(&mut self, alpha: f32) -> &mut Self {
+        self.a = (255.0 * alpha.clamp(0., 1.)) as u8;
         self
     }
 
     /// Get hexadecimal value for a [Color] (0xRRGGBBAA)
     pub fn to_int(&self) -> i32 {
-        let result = ((self.r as i32) << 24)
-            | ((self.g as i32) << 16)
-            | ((self.b as i32) << 8)
-            | self.a as i32;
-
-        result
+        ((self.r as i32) << 24) | ((self.g as i32) << 16) | ((self.b as i32) << 8) | self.a as i32
     }
 
     /// Get [Color] multiplied with another [Color]
