@@ -360,6 +360,34 @@ impl ops::AddAssign<i32> for Vector2 {
     }
 }
 
+impl ops::MulAssign<Vector2> for Vector2 {
+    fn mul_assign(&mut self, rhs: Vector2) {
+        self.x *= rhs.x;
+        self.y *= rhs.y;
+    }
+}
+
+impl ops::MulAssign<Vector2i> for Vector2 {
+    fn mul_assign(&mut self, rhs: Vector2i) {
+        self.x *= rhs.x as f32;
+        self.y *= rhs.y as f32;
+    }
+}
+
+impl ops::MulAssign<f32> for Vector2 {
+    fn mul_assign(&mut self, rhs: f32) {
+        self.x *= rhs;
+        self.y *= rhs;
+    }
+}
+
+impl ops::MulAssign<i32> for Vector2 {
+    fn mul_assign(&mut self, rhs: i32) {
+        self.x *= rhs as f32;
+        self.y *= rhs as f32;
+    }
+}
+
 impl ops::Add<Vector2> for Vector2i {
     type Output = Vector2i;
 
@@ -517,5 +545,33 @@ impl ops::AddAssign<i32> for Vector2i {
     fn add_assign(&mut self, rhs: i32) {
         self.x += rhs;
         self.y += rhs;
+    }
+}
+
+impl ops::MulAssign<Vector2> for Vector2i {
+    fn mul_assign(&mut self, rhs: Vector2) {
+        self.x *= rhs.x as i32;
+        self.y *= rhs.y as i32;
+    }
+}
+
+impl ops::MulAssign<Vector2i> for Vector2i {
+    fn mul_assign(&mut self, rhs: Vector2i) {
+        self.x *= rhs.x;
+        self.y *= rhs.y;
+    }
+}
+
+impl ops::MulAssign<f32> for Vector2i {
+    fn mul_assign(&mut self, rhs: f32) {
+        self.x *= rhs as i32;
+        self.y *= rhs as i32;
+    }
+}
+
+impl ops::MulAssign<i32> for Vector2i {
+    fn mul_assign(&mut self, rhs: i32) {
+        self.x *= rhs;
+        self.y *= rhs;
     }
 }
