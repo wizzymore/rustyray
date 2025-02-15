@@ -24,18 +24,18 @@ fn main() {
     // make sure cmake knows that it should bundle glfw in
     if target.contains("wasm") {
         panic!("Currently wasm is not supported");
-        if let Err(e) = env::var("EMCC_CFLAGS") {
-            if e == std::env::VarError::NotPresent {
-                panic!("\nYou must set the following environment variables yourself to compile for WASM. We are sorry for the inconvienence; this will be fixed in 5.1.0.\n{}{}\"\n",{
-                    #[cfg(target_family = "windows")]
-                    {"Paste this before executing the command: set EMCC_CFLAGS="}
-                    #[cfg(not(target_family = "windows"))]
-                    {"Prefix your command with this (you may want to make a build script for obvious reasons...): EMCC_CFLAGS="}
-                },"\"-O3 -sUSE_GLFW=3 -sGL_ENABLE_GET_PROC_ADDRESS -sWASM=1 -sALLOW_MEMORY_GROWTH=1 -sWASM_MEM_MAX=512MB -sTOTAL_MEMORY=512MB -sABORTING_MALLOC=0 -sASYNCIFY -sFORCE_FILESYSTEM=1 -sASSERTIONS=1 -sERROR_ON_UNDEFINED_SYMBOLS=0 -sEXPORTED_RUNTIME_METHODS=ccallcwrap\"");
-            } else {
-                panic!("\nError regarding EMCC_CFLAGS: {:?}\n", e);
-            }
-        }
+        // if let Err(e) = env::var("EMCC_CFLAGS") {
+        //     if e == std::env::VarError::NotPresent {
+        //         panic!("\nYou must set the following environment variables yourself to compile for WASM. We are sorry for the inconvienence; this will be fixed in 5.1.0.\n{}{}\"\n",{
+        //             #[cfg(target_family = "windows")]
+        //             {"Paste this before executing the command: set EMCC_CFLAGS="}
+        //             #[cfg(not(target_family = "windows"))]
+        //             {"Prefix your command with this (you may want to make a build script for obvious reasons...): EMCC_CFLAGS="}
+        //         },"\"-O3 -sUSE_GLFW=3 -sGL_ENABLE_GET_PROC_ADDRESS -sWASM=1 -sALLOW_MEMORY_GROWTH=1 -sWASM_MEM_MAX=512MB -sTOTAL_MEMORY=512MB -sABORTING_MALLOC=0 -sASYNCIFY -sFORCE_FILESYSTEM=1 -sASSERTIONS=1 -sERROR_ON_UNDEFINED_SYMBOLS=0 -sEXPORTED_RUNTIME_METHODS=ccallcwrap\"");
+        //     } else {
+        //         panic!("\nError regarding EMCC_CFLAGS: {:?}\n", e);
+        //     }
+        // }
     }
     let (platform, platform_os) = platform_from_target(&target);
 
