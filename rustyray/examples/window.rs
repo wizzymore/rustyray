@@ -1,7 +1,7 @@
 use rustyray::prelude::*;
 
 fn main() {
-    let mut window = Window::new(1280, 720, String::from("Hello from Rust")).vsync(true);
+    let window = Window::new(1280, 720, String::from("Hello from Rust")).vsync(true);
     let rt = RenderTexture::new(640, 360);
 
     while !window.should_close() {
