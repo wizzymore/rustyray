@@ -7,7 +7,7 @@ repository = "https://github.com/wizzymore/rustyray"
 license-file.workspace = true
 
 [dependencies]
-rustyray-ffi = { version = "*", path = "../rustyray-ffi" }
+rustyray-ffi = { version = "0.1.0", path = "../rustyray-ffi" }
 serde = { version = "1.0.217", features = ["derive"] }
 
 [features]
