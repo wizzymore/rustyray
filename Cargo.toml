@@ -1,5 +1,6 @@
 [workspace]
 members = ["rustyray", "rustyray-sys"]
 resolver = "2"
+package.readme = "README.md"
 package.license = "MIT"
 package.license-file = "LICENSE.txt"

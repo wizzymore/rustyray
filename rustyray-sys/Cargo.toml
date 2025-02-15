@@ -12,7 +12,7 @@ exclude = [
     "raylib/.github",
 ]
 readme = "README.md"
-license = "MIT"
+license.workspace = true
 license-file.workspace = true
 
 [dependencies]
