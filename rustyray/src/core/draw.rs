@@ -168,7 +168,7 @@ impl Drop for OwnedTexture {
     fn drop(&mut self) {
         println!("Dropped texture");
         unsafe {
-            rustyray_ffi::UnloadTexture(*(&self.0));
+            rustyray_ffi::UnloadTexture(self.0);
         }
     }
 }
