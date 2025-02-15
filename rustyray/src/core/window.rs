@@ -1,4 +1,4 @@
-use std::fmt::Debug;
+use std::{ffi::CString, fmt::Debug};
 
 use super::{
     draw::{DrawHandler, RenderTexture},
@@ -33,7 +33,11 @@ impl Window {
                 panic!("You can't create two windows at the same time.");
             }
 
-            rustyray_ffi::InitWindow(self.width, self.height, self.title.as_ptr() as *const i8);
+            rustyray_ffi::InitWindow(
+                self.width,
+                self.height,
+                CString::new(self.title.clone()).unwrap().as_ptr(),
+            );
         }
 
         self

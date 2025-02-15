@@ -19,6 +19,8 @@ fn main() {
 
     let mut bunnies = Vec::<Bunny>::new();
     bunnies.reserve_exact(MAX_BUNNIES);
+    let screen_size = window.get_screen_size();
+    let bar_rect = Rectangle::new(0., 0., screen_size.x as f32, 40.);
 
     while !window.should_close() {
         let dt = window.dt();
@@ -44,31 +46,27 @@ fn main() {
             }
         }
 
-        let screen_size = window.get_screen_size();
-        for bunny in &mut bunnies {
+        bunnies.iter_mut().for_each(|bunny| {
             bunny.dir.normalize();
-            bunny.pos.x += bunny.speed.x * bunny.dir.x * dt;
-            bunny.pos.y += bunny.speed.y * bunny.dir.y * dt;
+            bunny.pos += bunny.speed * bunny.dir * dt;
 
-            let pos_x = bunny.pos.x as i32 + tex.width() / 2;
-            let pos_y = bunny.pos.y as i32 + tex.height() / 2;
-            if pos_x > screen_size.x || pos_x < 0 {
+            let pos = bunny.pos.to_vector2i() + tex.size() / 2;
+            if pos.x > screen_size.x || pos.x < 0 {
                 bunny.dir.x *= -1.;
             }
-            if pos_y > screen_size.y || pos_y - tex.height() < 0 {
+            if pos.y > screen_size.y || pos.y - tex.height() < 0 {
                 bunny.dir.y *= -1.;
             }
-        }
+        });
 
         window.draw(|d| {
             d.clear(Color::WHITE);
-            for bunny in &bunnies {
+
+            bunnies.iter().for_each(|bunny| {
                 d.draw_texture(&tex, bunny.pos.x as i32, bunny.pos.y as i32, bunny.color);
-            }
-            d.draw_rect(
-                Rectangle::new(0., 0., screen_size.x as f32, 40.),
-                Color::BLACK,
-            );
+            });
+
+            d.draw_rect(bar_rect, Color::BLACK);
             d.draw_text(
                 format!("bunnies: {}", bunnies.len()),
                 120,
