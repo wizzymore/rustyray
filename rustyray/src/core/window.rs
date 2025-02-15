@@ -4,6 +4,8 @@ use super::draw::DrawHandler;
 
 use rustyray_ffi::{
     consts::{ConfigFlag, MouseButton},
+    ffi,
+    texture::RenderTexture,
     vector::{Vector2, Vector2i},
 };
 
@@ -30,7 +32,7 @@ impl Window {
                 panic!("You can't create two windows at the same time.");
             }
 
-            rustyray_ffi::ffi::init_window(
+            ffi::init_window(
                 self.width,
                 self.height,
                 CString::new(self.title.clone()).unwrap().as_ptr(),
@@ -41,39 +43,39 @@ impl Window {
     }
 
     fn is_window_ready(&self) -> bool {
-        unsafe { rustyray_ffi::ffi::is_window_ready() }
+        unsafe { ffi::is_window_ready() }
     }
 
     pub fn draw(&self, callback: impl Fn(DrawHandler)) {
         unsafe {
-            rustyray_ffi::ffi::begin_drawing();
+            ffi::begin_drawing();
         }
 
         callback(DrawHandler {});
 
         unsafe {
-            rustyray_ffi::ffi::end_drawing();
+            ffi::end_drawing();
         }
     }
 
-    pub fn draw_render_texture(
+    pub fn draw_render_texture<T: AsRef<RenderTexture>>(
         &self,
-        render_texture: impl AsRef<rustyray_ffi::texture::RenderTexture>,
+        render_texture: T,
         callback: impl Fn(DrawHandler),
     ) {
         unsafe {
-            rustyray_ffi::ffi::begin_texture_mode(render_texture.as_ref().clone());
+            ffi::begin_texture_mode(render_texture.as_ref().clone());
         }
 
         callback(DrawHandler {});
 
         unsafe {
-            rustyray_ffi::ffi::end_texture_mode();
+            ffi::end_texture_mode();
         }
     }
 
     pub fn should_close(&self) -> bool {
-        unsafe { rustyray_ffi::ffi::window_should_close() }
+        unsafe { ffi::window_should_close() }
     }
 
     pub fn vsync(self, v: bool) -> Self {
@@ -84,9 +86,9 @@ impl Window {
     pub fn set_vsync(&self, v: bool) {
         unsafe {
             if v {
-                rustyray_ffi::ffi::set_window_state(ConfigFlag::VsyncHint);
+                ffi::set_window_state(ConfigFlag::VsyncHint);
             } else {
-                rustyray_ffi::ffi::clear_window_state(ConfigFlag::VsyncHint);
+                ffi::clear_window_state(ConfigFlag::VsyncHint);
             }
         }
     }
@@ -98,22 +100,22 @@ impl Window {
 
     pub fn set_fps(&self, v: i32) {
         unsafe {
-            rustyray_ffi::ffi::set_target_fps(v);
+            ffi::set_target_fps(v);
         }
     }
 
     pub fn change_size(width: i32, height: i32) {
         unsafe {
-            rustyray_ffi::ffi::set_window_size(width, height);
+            ffi::set_window_size(width, height);
         }
     }
 
     pub fn is_mouse_down(&self, button: MouseButton) -> bool {
-        unsafe { rustyray_ffi::ffi::is_mouse_button_down(button) }
+        unsafe { ffi::is_mouse_button_down(button) }
     }
 
     pub fn get_mouse_pos(&self) -> Vector2 {
-        unsafe { rustyray_ffi::ffi::get_mouse_position() }
+        unsafe { ffi::get_mouse_position() }
     }
 
     pub fn get_screen_size(&self) -> Vector2i {
@@ -124,22 +126,22 @@ impl Window {
     }
 
     pub fn get_screen_width(&self) -> i32 {
-        unsafe { rustyray_ffi::ffi::get_screen_width() }
+        unsafe { ffi::get_screen_width() }
     }
 
     pub fn get_screen_height(&self) -> i32 {
-        unsafe { rustyray_ffi::ffi::get_screen_height() }
+        unsafe { ffi::get_screen_height() }
     }
 
     pub fn dt(&self) -> f32 {
-        unsafe { rustyray_ffi::ffi::get_frame_time() }
+        unsafe { ffi::get_frame_time() }
     }
 }
 
 impl Drop for Window {
     fn drop(&mut self) {
         unsafe {
-            rustyray_ffi::ffi::close_window();
+            ffi::close_window();
         }
     }
 }
