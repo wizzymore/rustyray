@@ -82,9 +82,10 @@
 *
 **********************************************************************************************/
 
-use libc::{c_char, c_double, c_float, c_int, c_void};
+use libc::{c_char, c_double, c_float, c_int, c_uchar, c_uint, c_void};
 
 use crate::{
+    audio::{AudioCallback, AudioStream, Music, Sound, Wave},
     color::Color,
     consts::{ConfigFlag, MouseButton},
     rectangle::Rectangle,
@@ -489,4 +490,215 @@ unsafe extern "C" {
     /// Get master volume (listener)
     #[link_name = "GetMasterVolume"]
     pub fn get_master_volume() -> c_float;
+}
+
+// Wave/Sound loading/unloading functions
+unsafe extern "C" {
+    /// Load wave data from file
+    #[link_name = "LoadWave"]
+    pub fn load_wave(file_name: *const c_char) -> Wave;
+    /// Load wave from memory buffer, file_type refers to extension: i.e. `.wav`
+    #[link_name = "LoadWaveFromMemory"]
+    pub fn load_wave_from_memory(
+        file_type: *const c_char,
+        file_data: *const c_uchar,
+        data_size: c_int,
+    ) -> Wave;
+    /// Checks if wave data is valid (data loaded and parameters)
+    #[link_name = "IsWaveValid"]
+    pub fn is_wave_valid(wave: Wave) -> bool;
+    /// Load sound from file
+    #[link_name = "LoadSound"]
+    pub fn load_sound(file_name: *const c_char) -> Sound;
+    /// Load sound from wave data
+    #[link_name = "LoadSoundFromWave"]
+    pub fn load_sound_from_wave(wave: Wave) -> Sound;
+    /// Create a new sound that shares the same sample data as the source sound, does not own the sound data
+    #[link_name = "LoadSoundAlias"]
+    pub fn load_sound_alias(source: Sound) -> Sound;
+    /// Checks if sound is valid (data loaded and buffers initialized)
+    #[link_name = "IsSoundValid"]
+    pub fn is_sound_valid(sound: Sound) -> bool;
+    /// Update sound buffer with new data
+    #[link_name = "UpdateSound"]
+    pub fn update_sound(sound: Sound, data: *const c_void, sample_count: c_int);
+    /// Unload wave data
+    #[link_name = "UnloadWave"]
+    pub fn unload_wave(wave: Wave);
+    /// Unload sound
+    #[link_name = "UnloadSound"]
+    pub fn unload_sound(sound: Sound);
+    /// Unload a sound alias (does not deallocate sample data)
+    #[link_name = "UnloadSoundAlias"]
+    pub fn unload_sound_alias(alias: Sound);
+    /// Export wave data to file, returns true on success
+    #[link_name = "ExportWave"]
+    pub fn export_wave(wave: Wave, file_name: *const c_char) -> bool;
+    /// Export wave sample data to code (.h), returns true on success
+    #[link_name = "ExportWaveAsCode"]
+    pub fn export_wave_as_code(wave: Wave, file_name: *const c_char) -> bool;
+}
+
+// Wave/Sound management functions
+unsafe extern "C" {
+    /// Play a sound
+    #[link_name = "PlaySound"]
+    pub fn play_sound(sound: Sound);
+    /// Stop playing a sound
+    #[link_name = "StopSound"]
+    pub fn stop_sound(sound: Sound);
+    /// Pause a sound
+    #[link_name = "PauseSound"]
+    pub fn pause_sound(sound: Sound);
+    /// Resume a paused sound
+    #[link_name = "ResumeSound"]
+    pub fn resume_sound(sound: Sound);
+    /// Check if a sound is currently playing
+    #[link_name = "IsSoundPlaying"]
+    pub fn is_sound_playing(sound: Sound) -> bool;
+    /// Set volume for a sound (1.0 is max level)
+    #[link_name = "SetSoundVolume"]
+    pub fn set_sound_volume(sound: Sound, volume: c_float);
+    /// Set pitch for a sound (1.0 is base level)
+    #[link_name = "SetSoundPitch"]
+    pub fn set_sound_pitch(sound: Sound, pitch: c_float);
+    /// Set pan for a sound (0.5 is center)
+    #[link_name = "SetSoundPan"]
+    pub fn set_sound_pan(sound: Sound, pan: c_float);
+    /// Copy the wave to a new wave
+    #[link_name = "WaveCopy"]
+    pub fn wave_copy(wave: Wave);
+    /// Crop a wave to defined frames range
+    #[link_name = "WaveCrop"]
+    pub fn wave_crop(wave: *mut Wave, init_frame: c_int, final_frame: c_int);
+    /// Convert wave data to desired format
+    #[link_name = "WaveFormat"]
+    pub fn wave_format(wave: *mut Wave, sample_rate: c_int, sample_size: c_int, channels: c_int);
+    /// Load samples data from wave as a 32bit float data array
+    #[link_name = "LoadWaveSamples"]
+    pub fn load_wave_samples(wave: Wave) -> *const c_float;
+    /// Unload samples data loaded with LoadWaveSamples()
+    #[link_name = "UnloadWaveSamples"]
+    pub fn unload_wave_samples(samples: *const c_float);
+}
+
+unsafe extern "C" {
+    /// Load music stream from file
+    #[link_name = "LoadMusicStream"]
+    pub fn load_music_stream(file_name: *const c_char) -> Music;
+    /// Load music stream from file
+    #[link_name = "LoadMusicStreamFromMemory"]
+    pub fn load_music_stream_from_memory(
+        file_type: *const c_char,
+        data: *const c_uchar,
+        data_size: c_int,
+    ) -> Music;
+    /// Checks if a music stream is valid (context and buffers initialized)
+    #[link_name = "IsMusicValid"]
+    pub fn is_music_valid(music: Music) -> bool;
+    /// Unload music stream
+    #[link_name = "UnloadMusicStream"]
+    pub fn unload_music_stream(music: Music);
+    /// Start music playing
+    #[link_name = "PlayMusicStream"]
+    pub fn play_music_stream(music: Music);
+    /// Checks if music is playing
+    #[link_name = "IsMusicStreamPlaying"]
+    pub fn is_music_stream_playing(music: Music) -> bool;
+    /// Updates buffers for music streaming
+    #[link_name = "UpdateMusicStream"]
+    pub fn update_music_stream(music: Music);
+    /// Stop music playing
+    #[link_name = "StopMusicStream"]
+    pub fn stop_music_stream(music: Music);
+    /// Pause music playing
+    #[link_name = "PauseMusicStream"]
+    pub fn pause_music_stream(music: Music);
+    /// Resume playing paused music
+    #[link_name = "ResumeMusicStream"]
+    pub fn resume_music_stream(music: Music);
+    /// Seek music to a position (in seconds)
+    #[link_name = "SeekMusicStream"]
+    pub fn seek_music_stream(music: Music, position: c_float);
+    /// Set volume for music (1.0 is max level)
+    #[link_name = "SetMusicVolume"]
+    pub fn set_music_volume(music: Music, volume: c_float);
+    /// Set pitch for music (1.0 is base level)
+    #[link_name = "SetMusicPitch"]
+    pub fn set_music_pitch(music: Music, pitch: c_float);
+    /// Set pan for music (0.5 is center)
+    #[link_name = "SetMusicPan"]
+    pub fn set_music_pan(music: Music, pan: c_float);
+    /// Get music time length (in seconds)
+    #[link_name = "GetMusicTimeLength"]
+    pub fn get_music_time_length(music: Music) -> c_float;
+    /// Get current music time played (in seconds)
+    #[link_name = "GetMusicTimePlayed"]
+    pub fn get_music_time_played(music: Music) -> c_float;
+}
+
+// AudioStream management functions
+unsafe extern "C" {
+    /// Load audio stream (to stream raw audio pcm data)
+    #[link_name = "LoadAudioStream"]
+    pub fn load_audio_stream(
+        sample_rate: c_uint,
+        sample_size: c_uint,
+        channels: c_uint,
+    ) -> AudioStream;
+    /// Checks if an audio stream is valid (buffers initialized)
+    #[link_name = "IsAudioStreamValid"]
+    pub fn is_audio_stream_valid(stream: AudioStream) -> bool;
+    /// Unload audio stream and free memory
+    #[link_name = "UnloadStreamValid"]
+    pub fn unload_stream_valid(stream: AudioStream);
+    /// Update audio stream buffers with data
+    #[link_name = "UpdateStreamValid"]
+    pub fn update_stream_valid(stream: AudioStream, data: *const c_void, frame_count: c_int);
+    /// Check if any audio stream buffers requires refill
+    #[link_name = "IsAudioStreamProcessed"]
+    pub fn is_audio_stream_processed(stream: AudioStream) -> bool;
+    /// Play audio stream
+    #[link_name = "PlayAudioStream"]
+    pub fn play_audio_stream(stream: AudioStream);
+    /// Pause audio stream
+    #[link_name = "PauseAudioStream"]
+    pub fn pause_audio_stream(stream: AudioStream);
+    /// Resume audio stream
+    #[link_name = "ResumeAudioStream"]
+    pub fn resume_audio_stream(stream: AudioStream);
+    /// Check if audio stream is playing
+    #[link_name = "IsAudioStreamPlaying"]
+    pub fn is_audio_stream_playing(stream: AudioStream) -> bool;
+    /// Stop audio stream
+    #[link_name = "StopAudioStream"]
+    pub fn stop_audio_stream(stream: AudioStream);
+    /// Set volume for audio stream (1.0 is max level)
+    #[link_name = "SetAudioStreamVolume"]
+    pub fn set_audio_stream_volume(stream: AudioStream, volume: c_float);
+    /// Set pitch for audio stream (1.0 is base level)
+    #[link_name = "SetAudioStreamPitch"]
+    pub fn set_audio_stream_pitch(stream: AudioStream, pitch: c_float);
+    /// Set pan for audio stream (0.5 is centered)
+    #[link_name = "SetAudioStreamPan"]
+    pub fn set_audio_stream_pan(stream: AudioStream, pan: c_float);
+    /// Default size for new audio streams
+    #[link_name = "SetAudioStreamBufferSizeDefault"]
+    pub fn set_audio_stream_buffer_size_default(size: c_int);
+    /// Audio thread callback to request new data
+    #[link_name = "SetAudioStreamCallback"]
+    pub fn set_audio_stream_callback(stream: AudioStream, callback: AudioCallback);
+
+    /// Attach audio stream processor to stream, receives the samples as 'float'
+    #[link_name = "AttachAudioStreamProcessor"]
+    pub fn attach_audio_stream_processor(stream: AudioStream, processor: AudioCallback);
+    /// Detach audio stream processor from stream
+    #[link_name = "DetachAudioStreamProcessor"]
+    pub fn detach_audio_stream_processor(stream: AudioStream, processor: AudioCallback);
+    /// Attach audio stream processor to the entire audio pipeline, receives the samples as 'float'
+    #[link_name = "AttachAudioMixedProcessor"]
+    pub fn attach_audio_mixed_processor(processor: AudioCallback);
+    /// Detach audio stream processor from the entire audio pipeline
+    #[link_name = "DetachAudioMixedProcessor"]
+    pub fn detach_audio_mixed_processor(processor: AudioCallback);
 }
