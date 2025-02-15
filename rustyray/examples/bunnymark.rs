@@ -5,7 +5,7 @@ use rustyray::prelude::*;
 
 struct Bunny {
     pos: Vector2,
-    speed: Vector2,
+    speed: f32,
     color: Color,
     dir: Vector2,
 }
@@ -30,10 +30,7 @@ fn main() {
                     let mouse_pos = window.get_mouse_pos();
                     bunnies.push(Bunny {
                         pos: mouse_pos,
-                        speed: Vector2::new(
-                            rng.random_range(1.0..250.0),
-                            rng.random_range(1.0..250.0),
-                        ),
+                        speed: rng.random_range(1.0..250.0),
                         color: Color::new(
                             rng.random_range(50..240),
                             rng.random_range(80..240),
