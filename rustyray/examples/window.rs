@@ -5,13 +5,13 @@ fn main() {
     let rt = OwnedRenderTexture::new(640, 360);
 
     while !window.should_close() {
-        window.draw_render_texture(&rt.0, |d| {
+        window.draw_render_texture(&rt, |d| {
             d.clear(Color::BLACK);
             d.draw_fps(10, 10);
         });
         window.draw(|d| {
             d.clear(Color::BLANK);
-            d.draw_render_texture(&rt.0);
+            d.draw_render_texture(&rt);
         });
     }
 }

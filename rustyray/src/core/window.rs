@@ -58,11 +58,11 @@ impl Window {
 
     pub fn draw_render_texture(
         &self,
-        render_texture: &rustyray_ffi::texture::RenderTexture,
+        render_texture: impl AsRef<rustyray_ffi::texture::RenderTexture>,
         callback: impl Fn(DrawHandler),
     ) {
         unsafe {
-            rustyray_ffi::ffi::begin_texture_mode(render_texture.clone());
+            rustyray_ffi::ffi::begin_texture_mode(render_texture.as_ref().clone());
         }
 
         callback(DrawHandler {});
