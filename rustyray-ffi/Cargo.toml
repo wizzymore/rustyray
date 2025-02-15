@@ -4,7 +4,13 @@ description = "Native bindings to Raylib"
 version = "0.1.0"
 edition = "2021"
 repository = "https://github.com/wizzymore/rustyray"
-exclude = ["raylib"]
+exclude = [
+    "raylib/examples",
+    "raylib/logo",
+    "raylib/parser",
+    "raylib/projects",
+    "raylib/.github",
+]
 
 [dependencies]
 
