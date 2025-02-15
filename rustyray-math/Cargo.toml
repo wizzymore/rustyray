@@ -3,6 +3,7 @@ name = "rustyray-math"
 description = "Math library for Rustyray"
 version = "0.1.0"
 edition = "2021"
+repository = "https://github.com/wizzymore/rustyray"
 
 [dependencies]
 rustyray-ffi = { version = "*", path = "../rustyray-ffi" }
