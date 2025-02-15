@@ -13,7 +13,6 @@ exclude = [
 ]
 readme = "README.md"
 license.workspace = true
-license-file.workspace = true
 
 [dependencies]
 bitmask-enum = "2.2.5"
