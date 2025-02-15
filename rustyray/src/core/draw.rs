@@ -1,8 +1,10 @@
 use std::ffi::CString;
 
-use super::{
+use rustyray_ffi::{
     color::Color,
-    math::{Rectangle, Vector2, Vector2i},
+    rectangle::Rectangle,
+    texture::{RenderTexture, Texture, TextureLoadError},
+    vector::Vector2,
 };
 
 /// This is a `raylib` texture that uses the concept of RAII.
@@ -16,92 +18,25 @@ use super::{
 /// ```
 #[repr(C)]
 #[derive(Debug)]
-pub struct OwnedTexture(pub(crate) rustyray_ffi::Texture);
-/// This is the same type as [OwnedTexture], but,
-/// instead of implementing Drop and unloading the texture,
-/// the [WeakTexture] implements Copy so you can move the texture around easily,
-/// or use it in another structs that clean their own textures like [RenderTexture]
-///
-/// You should not create a WeakTexture manually.
-#[repr(C)]
-#[derive(Debug, Clone, Copy)]
-pub(crate) struct WeakTexture(pub(crate) rustyray_ffi::Texture);
+pub struct OwnedTexture(pub Texture);
 
 #[repr(C)]
 #[derive(Debug)]
-pub struct RenderTexture {
-    id: u32,
-    texture: WeakTexture,
-    depth: WeakTexture,
-}
+pub struct OwnedRenderTexture(pub RenderTexture);
 
 pub struct DrawHandler;
 
-pub trait Texture {
-    fn size(&self) -> Vector2i;
-    fn width(&self) -> i32;
-    fn height(&self) -> i32;
-}
-
 impl OwnedTexture {
-    /// Creates a new [`OwnedTexture`] from the specified path.
-    ///
-    /// This will also load the texture in the GPU's memory.
     #[inline]
-    pub fn new(path: String) -> Self {
-        unsafe { rustyray_ffi::LoadTexture(CString::new(path).unwrap().as_ptr()).into() }
+    pub fn new(path: String) -> Result<Self, TextureLoadError> {
+        Ok(Self(Texture::new(path)?))
     }
 }
 
-// impl OwnedTexture {
-//     pub(crate) fn weak(&self) -> WeakTexture {
-//         WeakTexture(self.0)
-//     }
-// }
-
-impl Texture for OwnedTexture {
-    #[inline]
-    fn size(&self) -> Vector2i {
-        Vector2i::new(self.width(), self.height())
-    }
-
-    #[inline]
-    fn width(&self) -> i32 {
-        self.0.width
-    }
-
-    #[inline]
-    fn height(&self) -> i32 {
-        self.0.height
-    }
-}
-
-impl Texture for WeakTexture {
-    #[inline]
-    fn size(&self) -> Vector2i {
-        Vector2i::new(self.width(), self.height())
-    }
-
-    #[inline]
-    fn width(&self) -> i32 {
-        self.0.width
-    }
-
-    #[inline]
-    fn height(&self) -> i32 {
-        self.0.height
-    }
-}
-
-impl RenderTexture {
+impl OwnedRenderTexture {
     #[inline]
     pub fn new(width: i32, height: i32) -> Self {
-        unsafe { rustyray_ffi::LoadRenderTexture(width, height).into() }
-    }
-
-    #[inline]
-    pub fn size(&self) -> Vector2i {
-        self.texture.size()
+        Self(RenderTexture::new(width, height))
     }
 }
 
@@ -109,29 +44,29 @@ impl DrawHandler {
     #[inline]
     pub fn draw_fps(&self, x: i32, y: i32) {
         unsafe {
-            rustyray_ffi::DrawFPS(x, y);
+            rustyray_ffi::ffi::draw_fps(x, y);
         }
     }
 
     #[inline]
-    pub fn clear(&self, color: impl Into<rustyray_ffi::Color>) {
+    pub fn clear(&self, color: Color) {
         unsafe {
-            rustyray_ffi::ClearBackground(color.into());
+            rustyray_ffi::ffi::clear_background(color);
         }
     }
 
     pub fn draw_render_texture(&self, render_texture: &RenderTexture) {
-        let size: Vector2 = render_texture.size().into();
+        let size = render_texture.texture.size();
         unsafe {
-            let screen_height = rustyray_ffi::GetScreenHeight() as f32;
-            let screen_width = rustyray_ffi::GetScreenWidth() as f32;
-            rustyray_ffi::DrawTexturePro(
-                render_texture.into(),
-                Rectangle::new(0.0, 0.0, size.x, -size.y).into(),
-                Rectangle::new(0.0, 0.0, screen_width, screen_height).into(),
-                Vector2::new(0.0, 0.0).into(),
+            let screen_height = rustyray_ffi::ffi::get_screen_height() as f32;
+            let screen_width = rustyray_ffi::ffi::get_screen_width() as f32;
+            rustyray_ffi::ffi::draw_texture_pro(
+                render_texture.texture.clone(),
+                Rectangle::new(0.0, 0.0, size.x as f32, -size.y as f32),
+                Rectangle::new(0.0, 0.0, screen_width, screen_height),
+                Vector2::zero(),
                 0.0,
-                Color::WHITE.into(),
+                Color::WHITE,
             );
         }
     }
@@ -139,21 +74,21 @@ impl DrawHandler {
     #[inline]
     pub fn draw_texture(&self, texture: &OwnedTexture, x: i32, y: i32, tint: Color) {
         unsafe {
-            rustyray_ffi::DrawTexture(texture.into(), x, y, tint.into());
+            rustyray_ffi::ffi::draw_texture(texture.0.clone(), x, y, tint);
         }
     }
 
     #[inline]
     pub fn draw_rect(&self, rect: Rectangle, tint: Color) {
         unsafe {
-            rustyray_ffi::DrawRectangleRec(rect.into(), tint.into());
+            rustyray_ffi::ffi::draw_rectangle_rec(rect, tint);
         }
     }
 
     #[inline]
     pub fn draw_text(&self, text: String, pos_x: i32, pos_y: i32, size: i32, tint: Color) {
         unsafe {
-            rustyray_ffi::DrawText(
+            rustyray_ffi::ffi::draw_text(
                 CString::new(text).unwrap().as_ptr(),
                 pos_x,
                 pos_y,
@@ -166,64 +101,16 @@ impl DrawHandler {
 
 impl Drop for OwnedTexture {
     fn drop(&mut self) {
-        println!("Dropped texture");
         unsafe {
-            rustyray_ffi::UnloadTexture(self.0);
+            rustyray_ffi::ffi::unload_texture(self.0.clone());
         }
     }
 }
 
-impl Drop for RenderTexture {
+impl Drop for OwnedRenderTexture {
     fn drop(&mut self) {
-        println!("Dropped render_texture");
         unsafe {
-            rustyray_ffi::UnloadRenderTexture((&*self).into());
+            rustyray_ffi::ffi::unload_render_texture(self.0.clone());
         }
-    }
-}
-
-impl From<&OwnedTexture> for rustyray_ffi::Texture {
-    fn from(value: &OwnedTexture) -> Self {
-        value.0
-    }
-}
-
-impl From<&RenderTexture> for rustyray_ffi::RenderTexture {
-    fn from(value: &RenderTexture) -> Self {
-        unsafe { std::mem::transmute_copy(value) }
-    }
-}
-
-impl From<&RenderTexture> for rustyray_ffi::Texture {
-    fn from(value: &RenderTexture) -> Self {
-        value.texture.into()
-    }
-}
-
-impl From<WeakTexture> for rustyray_ffi::Texture {
-    fn from(value: WeakTexture) -> Self {
-        value.0
-    }
-}
-
-impl From<rustyray_ffi::Texture> for WeakTexture {
-    fn from(value: rustyray_ffi::Texture) -> Self {
-        Self(value)
-    }
-}
-
-impl From<rustyray_ffi::RenderTexture> for RenderTexture {
-    fn from(value: rustyray_ffi::RenderTexture) -> Self {
-        Self {
-            id: value.id,
-            texture: value.texture.into(),
-            depth: value.depth.into(),
-        }
-    }
-}
-
-impl From<rustyray_ffi::Texture> for OwnedTexture {
-    fn from(value: rustyray_ffi::Texture) -> Self {
-        Self(value)
     }
 }

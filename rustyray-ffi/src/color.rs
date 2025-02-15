@@ -1,9 +1,5 @@
-#[cfg(feature = "serde")]
-use serde::{Deserialize, Serialize};
-
 #[repr(C)]
-#[derive(Debug, Clone, Copy, Default)]
-#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[derive(Debug, Clone, Copy)]
 pub struct Color {
     r: u8,
     g: u8,
@@ -11,32 +7,12 @@ pub struct Color {
     a: u8,
 }
 
-/// Base implementation
 impl Color {
     pub const fn new(r: u8, g: u8, b: u8, a: u8) -> Self {
         Self { r, g, b, a }
     }
 }
 
-impl From<rustyray_ffi::Color> for Color {
-    fn from(value: rustyray_ffi::Color) -> Self {
-        unsafe { std::mem::transmute(value) }
-    }
-}
-
-impl From<Color> for rustyray_ffi::Color {
-    fn from(value: Color) -> Self {
-        unsafe { std::mem::transmute(value) }
-    }
-}
-
-impl From<&Color> for rustyray_ffi::Color {
-    fn from(value: &Color) -> Self {
-        value.to_owned().into()
-    }
-}
-
-/// Color constants
 impl Color {
     pub const INDIANRED: Color = Color::new(205, 92, 92, 255);
     pub const LIGHTCORAL: Color = Color::new(240, 128, 128, 255);

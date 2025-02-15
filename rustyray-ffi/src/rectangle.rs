@@ -1,13 +1,9 @@
 use std::fmt::Display;
 
-#[cfg(feature = "serde")]
-use serde::{Deserialize, Serialize};
-
 use crate::vector::*;
 
 #[repr(C)]
-#[derive(Debug, Clone, Copy, Default)]
-#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
+#[derive(Debug, Clone, Copy)]
 pub struct Rectangle {
     pub x: f32,
     pub y: f32,
@@ -51,17 +47,5 @@ impl Display for Rectangle {
             )
             .as_str(),
         )
-    }
-}
-
-impl From<Rectangle> for rustyray_ffi::Rectangle {
-    fn from(value: Rectangle) -> Self {
-        unsafe { std::mem::transmute(value) }
-    }
-}
-
-impl From<&Rectangle> for rustyray_ffi::Rectangle {
-    fn from(value: &Rectangle) -> Self {
-        value.to_owned().into()
     }
 }

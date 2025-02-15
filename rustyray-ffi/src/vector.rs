@@ -1,19 +1,14 @@
 use std::{fmt::Display, ops};
 
-#[cfg(feature = "serde")]
-use serde::{Deserialize, Serialize};
-
 #[repr(C)]
-#[derive(Debug, Clone, Copy, Default)]
-#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
+#[derive(Debug, Clone, Copy)]
 pub struct Vector2 {
     pub x: f32,
     pub y: f32,
 }
 
 #[repr(C)]
-#[derive(Debug, Clone, Copy, Default)]
-#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
+#[derive(Debug, Clone, Copy)]
 pub struct Vector2i {
     pub x: i32,
     pub y: i32,
@@ -22,6 +17,10 @@ pub struct Vector2i {
 impl Vector2 {
     pub fn new(x: f32, y: f32) -> Self {
         Self { x, y }
+    }
+
+    pub fn zero() -> Self {
+        Self { x: 0., y: 0. }
     }
 
     pub fn normalized(&self) -> Self {
@@ -56,6 +55,10 @@ impl Vector2i {
         Self { x, y }
     }
 
+    pub fn zero() -> Self {
+        Self { x: 0, y: 0 }
+    }
+
     pub fn to_vector2(&self) -> Vector2 {
         Vector2 {
             x: self.x as f32,
@@ -66,25 +69,13 @@ impl Vector2i {
 
 impl Display for Vector2 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str(format!("Vector2{{x: {},y: {}}}", self.x, self.y).as_str())
+        f.write_str(format!("Vector2{{x: {}, y: {}}}", self.x, self.y).as_str())
     }
 }
 
 impl Display for Vector2i {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str(format!("Vector2i{{x: {},y: {}}}", self.x, self.y).as_str())
-    }
-}
-
-impl From<Vector2> for rustyray_ffi::Vector2 {
-    fn from(value: Vector2) -> Self {
-        unsafe { std::mem::transmute(value) }
-    }
-}
-
-impl From<&Vector2> for rustyray_ffi::Vector2 {
-    fn from(value: &Vector2) -> Self {
-        value.to_owned().into()
+        f.write_str(format!("Vector2i{{x: {}, y: {}}}", self.x, self.y).as_str())
     }
 }
 
@@ -98,27 +89,6 @@ impl From<Vector2i> for Vector2 {
 }
 
 impl From<&Vector2i> for Vector2 {
-    fn from(value: &Vector2i) -> Self {
-        value.to_owned().into()
-    }
-}
-
-impl From<rustyray_ffi::Vector2> for Vector2 {
-    fn from(value: rustyray_ffi::Vector2) -> Self {
-        unsafe { std::mem::transmute(value) }
-    }
-}
-
-impl From<Vector2i> for rustyray_ffi::Vector2 {
-    fn from(value: Vector2i) -> Self {
-        Self {
-            x: value.x as f32,
-            y: value.y as f32,
-        }
-    }
-}
-
-impl From<&Vector2i> for rustyray_ffi::Vector2 {
     fn from(value: &Vector2i) -> Self {
         value.to_owned().into()
     }
