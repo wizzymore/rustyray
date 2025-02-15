@@ -25,7 +25,7 @@ impl Vector2 {
     }
 
     pub fn normalized(&self) -> Self {
-        let mut result = self.clone();
+        let mut result = *self;
         result.normalize();
         result
     }
@@ -35,8 +35,8 @@ impl Vector2 {
 
         if length > 0. {
             let ilength = 1. / length;
-            self.x = self.x * ilength;
-            self.y = self.y * ilength;
+            self.x *= ilength;
+            self.y *= ilength;
         } else {
             self.x = 0.;
             self.y = 0.;

@@ -271,7 +271,7 @@ fn link(platform: Platform, platform_os: PlatformOS) {
                 println!("cargo:rustc-link-lib=glfw"); // Link against locally installed glfw
             }
         }
-        PlatformOS::OSX => {
+        PlatformOS::Osx => {
             println!("cargo:rustc-link-search=native=/usr/local/lib");
             println!("cargo:rustc-link-lib=framework=OpenGL");
             println!("cargo:rustc-link-lib=framework=Cocoa");
@@ -324,11 +324,11 @@ fn platform_from_target(target: &str) -> (Platform, PlatformOS) {
             let un: &str = &uname();
             match un {
                 "Linux" => PlatformOS::Linux,
-                "FreeBSD" => PlatformOS::BSD,
-                "OpenBSD" => PlatformOS::BSD,
-                "NetBSD" => PlatformOS::BSD,
-                "DragonFly" => PlatformOS::BSD,
-                "Darwin" => PlatformOS::OSX,
+                "FreeBSD" => PlatformOS::Bsd,
+                "OpenBSD" => PlatformOS::Bsd,
+                "NetBSD" => PlatformOS::Bsd,
+                "DragonFly" => PlatformOS::Bsd,
+                "Darwin" => PlatformOS::Osx,
                 _ => panic!("Unknown platform {}", uname()),
             }
         }
@@ -361,7 +361,7 @@ enum Platform {
 enum PlatformOS {
     Windows,
     Linux,
-    BSD,
-    OSX,
+    Bsd,
+    Osx,
     Unknown,
 }
