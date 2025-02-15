@@ -14,9 +14,11 @@ exclude = [
 license-file.workspace = true
 
 [dependencies]
+bitmask-enum = "2.2.5"
+libc = "0.2"
+thiserror = "2.0.11"
 
 [build-dependencies]
-bindgen = "0.71.1"
 cmake = "0.1.54"
 fs_extra = "1.3.0"
 

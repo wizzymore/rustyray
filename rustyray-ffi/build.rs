@@ -1,22 +1,6 @@
-extern crate bindgen;
-
-use std::collections::HashSet;
 use std::env;
 use std::path::{Path, PathBuf};
 use std::process::exit;
-
-#[derive(Debug)]
-struct IgnoreMacros(HashSet<String>);
-
-impl bindgen::callbacks::ParseCallbacks for IgnoreMacros {
-    fn will_parse_macro(&self, name: &str) -> bindgen::callbacks::MacroParsingBehavior {
-        if self.0.contains(name) {
-            bindgen::callbacks::MacroParsingBehavior::Ignore
-        } else {
-            bindgen::callbacks::MacroParsingBehavior::Default
-        }
-    }
-}
 
 fn main() {
     println!("cargo:rerun-if-changed=build.rs");
@@ -58,8 +42,6 @@ fn main() {
     // Donwload raylib source
     let src = cp_raylib();
     build_with_cmake(&src);
-
-    gen_bindings();
 
     link(platform, platform_os);
 
@@ -192,55 +174,6 @@ fn build_with_cmake(src_path: &str) {
     }
     // println!("cmake build {}", c.display());
     println!("cargo:rustc-link-search=native={}", dst_lib.display());
-}
-
-fn gen_bindings() {
-    let target = env::var("TARGET").expect("Cargo build scripts always have TARGET");
-    let (platform, os) = platform_from_target(&target);
-
-    let plat = match platform {
-        Platform::Desktop => "-DPLATFORM_DESKTOP",
-        Platform::Web => "-DPLATFORM_WEB",
-    };
-
-    let ignored_macros = IgnoreMacros(
-        vec![
-            "FP_INFINITE".into(),
-            "FP_NAN".into(),
-            "FP_NORMAL".into(),
-            "FP_SUBNORMAL".into(),
-            "FP_ZERO".into(),
-            "IPPORT_RESERVED".into(),
-        ]
-        .into_iter()
-        .collect(),
-    );
-
-    let mut builder = bindgen::Builder::default()
-        .header("binding/binding.h")
-        .rustified_enum(".+")
-        .clang_arg("-std=c99")
-        .clang_arg(plat)
-        .parse_callbacks(Box::new(ignored_macros));
-
-    if platform == Platform::Desktop && os == PlatformOS::Windows {
-        // odd workaround for booleans being broken
-        builder = builder.clang_arg("-D__STDC__");
-    }
-
-    if platform == Platform::Web {
-        builder = builder
-            .clang_arg("-fvisibility=default")
-            .clang_arg("--target=wasm32-emscripten");
-    }
-
-    // Build
-    let bindings = builder.generate().expect("Unable to generate bindings");
-
-    let out_path = PathBuf::from(env::var("OUT_DIR").unwrap());
-    bindings
-        .write_to_file(out_path.join("bindings.rs"))
-        .expect("Couldn't write bindings!");
 }
 
 #[cfg(feature = "nobuild")]

@@ -1,6 +1,6 @@
-#![allow(non_upper_case_globals)]
-#![allow(non_camel_case_types)]
-#![allow(non_snake_case)]
-#![allow(clippy::approx_constant)]
-
-include!(concat!(env!("OUT_DIR"), "/bindings.rs"));
+pub mod color;
+pub mod consts;
+pub mod ffi;
+pub mod rectangle;
+pub mod texture;
+pub mod vector;

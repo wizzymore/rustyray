@@ -14,7 +14,7 @@ const MAX_BUNNIES: usize = 50000;
 
 fn main() {
     let window = Window::new(1280, 720, String::from("Bunnymark"));
-    let tex = OwnedTexture::new(String::from("assets/wabbit_alpha.png"));
+    let tex = OwnedTexture::new(String::from("assets/wabbit_alpha.png")).unwrap();
     let mut rng = rand::rng();
 
     let mut bunnies = Vec::<Bunny>::new();
@@ -24,7 +24,7 @@ fn main() {
 
     while !window.should_close() {
         let dt = window.dt();
-        if window.is_mouse_down(MouseButton::MouseButtonLeft) {
+        if window.is_mouse_down(MouseButton::Left) {
             for _ in 0..100 {
                 if bunnies.len() < bunnies.capacity() {
                     let mouse_pos = window.get_mouse_pos();
@@ -50,11 +50,11 @@ fn main() {
             bunny.dir.normalize();
             bunny.pos += bunny.speed * bunny.dir * dt;
 
-            let pos = bunny.pos.to_vector2i() + tex.size() / 2;
+            let pos = bunny.pos.to_vector2i() + tex.0.size() / 2;
             if pos.x > screen_size.x || pos.x < 0 {
                 bunny.dir.x *= -1.;
             }
-            if pos.y > screen_size.y || pos.y - tex.height() < 0 {
+            if pos.y > screen_size.y || pos.y - tex.0.height() < 0 {
                 bunny.dir.y *= -1.;
             }
         });
