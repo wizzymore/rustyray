@@ -60,7 +60,7 @@ impl Window {
     }
 
     pub fn draw_render_texture(
-        &mut self,
+        &self,
         render_texture: &RenderTexture,
         callback: impl Fn(DrawHandler),
     ) {
