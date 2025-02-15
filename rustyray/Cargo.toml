@@ -1,9 +1,11 @@
 [package]
 name = "rustyray"
-description = "Safe bindings for Raylib done in a rust fashion."
+description = "High-level wrapper on top of the low-level rustyray-sys bindings"
 version = "0.1.0"
 edition = "2021"
 repository = "https://github.com/wizzymore/rustyray"
+readme.workspace = true
+license.workspace = true
 license-file.workspace = true
 
 [dependencies]
