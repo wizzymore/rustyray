@@ -47,7 +47,7 @@ impl Window {
         unsafe { rustyray_ffi::IsWindowReady() }
     }
 
-    pub fn draw(&mut self, callback: impl Fn(DrawHandler)) {
+    pub fn draw(&self, callback: impl Fn(DrawHandler)) {
         unsafe {
             rustyray_ffi::BeginDrawing();
         }

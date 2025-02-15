@@ -1,5 +1,6 @@
 [package]
 name = "rustyray"
+description = "Safe bindings for Raylib done in a rust fashion."
 version = "0.1.0"
 edition = "2021"
 
