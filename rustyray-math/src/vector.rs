@@ -41,7 +41,7 @@ impl Vector2 {
     }
 
     pub fn normalize(&mut self) {
-        let length = f32::sqrt((self.x * self.x) + (self.y * self.y));
+        let length = ((self.x * self.x) + (self.y * self.y)).sqrt();
 
         if length > 0. {
             let ilength = 1. / length;
@@ -773,5 +773,535 @@ impl ops::DivAssign<i32> for Vector2i {
     fn div_assign(&mut self, rhs: i32) {
         self.x /= rhs;
         self.y /= rhs;
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::vector::{Vector2, Vector2i};
+
+    #[test]
+    fn vector2_add_vector2() {
+        let result = Vector2::new(0., 0.) + Vector2::new(1., 1.);
+        assert_eq!(result.x, 1.);
+        assert_eq!(result.y, 1.);
+    }
+
+    #[test]
+    fn vector2_add_vector2i() {
+        let result = Vector2::new(0., 0.) + Vector2i::new(1, 1);
+        assert_eq!(result.x, 1.);
+        assert_eq!(result.y, 1.);
+    }
+
+    #[test]
+    fn vector2_add_f32() {
+        let result = Vector2::new(0., 0.) + 1.;
+        assert_eq!(result.x, 1.);
+        assert_eq!(result.y, 1.);
+    }
+
+    #[test]
+    fn vector2_add_i32() {
+        let result = Vector2::new(0., 0.) + 1;
+        assert_eq!(result.x, 1.);
+        assert_eq!(result.y, 1.);
+    }
+
+    #[test]
+    fn vector2_sub_vector2() {
+        let result = Vector2::new(1., 1.) - Vector2::new(1., 1.);
+        assert_eq!(result.x, 0.);
+        assert_eq!(result.y, 0.);
+    }
+
+    #[test]
+    fn vector2_sub_vector2i() {
+        let result = Vector2::new(1., 1.) - Vector2i::new(1, 1);
+        assert_eq!(result.x, 0.);
+        assert_eq!(result.y, 0.);
+    }
+
+    #[test]
+    fn vector2_sub_f32() {
+        let result = Vector2::new(1., 1.) - 1.;
+        assert_eq!(result.x, 0.);
+        assert_eq!(result.y, 0.);
+    }
+
+    #[test]
+    fn vector2_sub_i32() {
+        let result = Vector2::new(1., 1.) - 1;
+        assert_eq!(result.x, 0.);
+        assert_eq!(result.y, 0.);
+    }
+
+    #[test]
+    fn vector2_mul_vector2() {
+        let result = Vector2::new(1., 1.) * Vector2::new(2., 2.);
+        assert_eq!(result.x, 2.);
+        assert_eq!(result.y, 2.);
+    }
+
+    #[test]
+    fn vector2_mul_vector2i() {
+        let result = Vector2::new(1., 1.) * Vector2i::new(2, 2);
+        assert_eq!(result.x, 2.);
+        assert_eq!(result.y, 2.);
+    }
+
+    #[test]
+    fn vector2_mul_f32() {
+        let result = Vector2::new(1., 1.) * 2.;
+        assert_eq!(result.x, 2.);
+        assert_eq!(result.y, 2.);
+    }
+
+    #[test]
+    fn vector2_mul_i32() {
+        let result = Vector2::new(1., 1.) * 2;
+        assert_eq!(result.x, 2.);
+        assert_eq!(result.y, 2.);
+    }
+
+    #[test]
+    fn vector2_div_vector2() {
+        let result = Vector2::new(2., 2.) / Vector2::new(2., 2.);
+        assert_eq!(result.x, 1.);
+        assert_eq!(result.y, 1.);
+    }
+
+    #[test]
+    fn vector2_div_vector2i() {
+        let result = Vector2::new(2., 2.) / Vector2i::new(2, 2);
+        assert_eq!(result.x, 1.);
+        assert_eq!(result.y, 1.);
+    }
+
+    #[test]
+    fn vector2_div_f32() {
+        let result = Vector2::new(2., 2.) / 2.;
+        assert_eq!(result.x, 1.);
+        assert_eq!(result.y, 1.);
+    }
+
+    #[test]
+    fn vector2_div_i32() {
+        let result = Vector2::new(2., 2.) / 2;
+        assert_eq!(result.x, 1.);
+        assert_eq!(result.y, 1.);
+    }
+
+    #[test]
+    fn vector2_add_assign_vector2() {
+        let mut result = Vector2::new(0., 0.);
+        result += Vector2::new(1., 1.);
+        assert_eq!(result.x, 1.);
+        assert_eq!(result.y, 1.);
+    }
+
+    #[test]
+    fn vector2_add_assign_vector2i() {
+        let mut result = Vector2::new(0., 0.);
+        result += Vector2i::new(1, 1);
+        assert_eq!(result.x, 1.);
+        assert_eq!(result.y, 1.);
+    }
+
+    #[test]
+    fn vector2_add_assign_f32() {
+        let mut result = Vector2::new(0., 0.);
+        result += 1.;
+        assert_eq!(result.x, 1.);
+        assert_eq!(result.y, 1.);
+    }
+
+    #[test]
+    fn vector2_add_assign_i32() {
+        let mut result = Vector2::new(0., 0.);
+        result += 1;
+        assert_eq!(result.x, 1.);
+        assert_eq!(result.y, 1.);
+    }
+
+    #[test]
+    fn vector2_sub_assign_vector2() {
+        let mut result = Vector2::new(2., 2.);
+        result -= Vector2::new(1., 1.);
+        assert_eq!(result.x, 1.);
+        assert_eq!(result.y, 1.);
+    }
+
+    #[test]
+    fn vector2_sub_assign_vector2i() {
+        let mut result = Vector2::new(2., 2.);
+        result -= Vector2i::new(1, 1);
+        assert_eq!(result.x, 1.);
+        assert_eq!(result.y, 1.);
+    }
+
+    #[test]
+    fn vector2_sub_assign_f32() {
+        let mut result = Vector2::new(2., 2.);
+        result -= 1.;
+        assert_eq!(result.x, 1.);
+        assert_eq!(result.y, 1.);
+    }
+
+    #[test]
+    fn vector2_sub_assign_i32() {
+        let mut result = Vector2::new(2., 2.);
+        result -= 1;
+        assert_eq!(result.x, 1.);
+        assert_eq!(result.y, 1.);
+    }
+
+    #[test]
+    fn vector2_mul_assign_vector2() {
+        let mut result = Vector2::new(2., 2.);
+        result *= Vector2::new(1., 1.);
+        assert_eq!(result.x, 2.);
+        assert_eq!(result.y, 2.);
+    }
+
+    #[test]
+    fn vector2_mul_assign_vector2i() {
+        let mut result = Vector2::new(2., 2.);
+        result *= Vector2i::new(1, 1);
+        assert_eq!(result.x, 2.);
+        assert_eq!(result.y, 2.);
+    }
+
+    #[test]
+    fn vector2_mul_assign_f32() {
+        let mut result = Vector2::new(2., 2.);
+        result *= 1.;
+        assert_eq!(result.x, 2.);
+        assert_eq!(result.y, 2.);
+    }
+
+    #[test]
+    fn vector2_mul_assign_i32() {
+        let mut result = Vector2::new(2., 2.);
+        result *= 1;
+        assert_eq!(result.x, 2.);
+        assert_eq!(result.y, 2.);
+    }
+
+    #[test]
+    fn vector2_div_assign_vector2() {
+        let mut result = Vector2::new(2., 2.);
+        result /= Vector2::new(1., 1.);
+        assert_eq!(result.x, 2.);
+        assert_eq!(result.y, 2.);
+    }
+
+    #[test]
+    fn vector2_div_assign_vector2i() {
+        let mut result = Vector2::new(2., 2.);
+        result /= Vector2i::new(1, 1);
+        assert_eq!(result.x, 2.);
+        assert_eq!(result.y, 2.);
+    }
+
+    #[test]
+    fn vector2_div_assign_f32() {
+        let mut result = Vector2::new(2., 2.);
+        result /= 1.;
+        assert_eq!(result.x, 2.);
+        assert_eq!(result.y, 2.);
+    }
+
+    #[test]
+    fn vector2_div_assign_i32() {
+        let mut result = Vector2::new(2., 2.);
+        result /= 1;
+        assert_eq!(result.x, 2.);
+        assert_eq!(result.y, 2.);
+    }
+
+    #[test]
+    fn vector2i_add_vector2() {
+        let result = Vector2i::new(0, 0) + Vector2::new(1., 1.);
+        assert_eq!(result.x, 1);
+        assert_eq!(result.y, 1);
+    }
+
+    #[test]
+    fn vector2i_add_vector2i() {
+        let result = Vector2i::new(0, 0) + Vector2i::new(1, 1);
+        assert_eq!(result.x, 1);
+        assert_eq!(result.y, 1);
+    }
+
+    #[test]
+    fn vector2i_add_f32() {
+        let result = Vector2i::new(0, 0) + 1.;
+        assert_eq!(result.x, 1);
+        assert_eq!(result.y, 1);
+    }
+
+    #[test]
+    fn vector2i_add_i32() {
+        let result = Vector2i::new(0, 0) + 1;
+        assert_eq!(result.x, 1);
+        assert_eq!(result.y, 1);
+    }
+
+    #[test]
+    fn vector2i_sub_vector2() {
+        let result = Vector2i::new(1, 1) - Vector2::new(1., 1.);
+        assert_eq!(result.x, 0);
+        assert_eq!(result.y, 0);
+    }
+
+    #[test]
+    fn vector2i_sub_vector2i() {
+        let result = Vector2i::new(1, 1) - Vector2i::new(1, 1);
+        assert_eq!(result.x, 0);
+        assert_eq!(result.y, 0);
+    }
+
+    #[test]
+    fn vector2i_sub_f32() {
+        let result = Vector2i::new(1, 1) - 1.;
+        assert_eq!(result.x, 0);
+        assert_eq!(result.y, 0);
+    }
+
+    #[test]
+    fn vector2i_sub_i32() {
+        let result = Vector2i::new(1, 1) - 1;
+        assert_eq!(result.x, 0);
+        assert_eq!(result.y, 0);
+    }
+
+    #[test]
+    fn vector2i_mul_vector2() {
+        let result = Vector2i::new(1, 1) * Vector2::new(2., 2.);
+        assert_eq!(result.x, 2);
+        assert_eq!(result.y, 2);
+    }
+
+    #[test]
+    fn vector2i_mul_vector2i() {
+        let result = Vector2i::new(1, 1) * Vector2i::new(2, 2);
+        assert_eq!(result.x, 2);
+        assert_eq!(result.y, 2);
+    }
+
+    #[test]
+    fn vector2i_mul_f32() {
+        let result = Vector2i::new(1, 1) * 2.;
+        assert_eq!(result.x, 2);
+        assert_eq!(result.y, 2);
+    }
+
+    #[test]
+    fn vector2i_mul_i32() {
+        let result = Vector2i::new(1, 1) * 2;
+        assert_eq!(result.x, 2);
+        assert_eq!(result.y, 2);
+    }
+
+    #[test]
+    fn vector2i_div_vector2() {
+        let result = Vector2i::new(2, 2) / Vector2::new(2., 2.);
+        assert_eq!(result.x, 1);
+        assert_eq!(result.y, 1);
+    }
+
+    #[test]
+    fn vector2i_div_vector2i() {
+        let result = Vector2i::new(2, 2) / Vector2i::new(2, 2);
+        assert_eq!(result.x, 1);
+        assert_eq!(result.y, 1);
+    }
+
+    #[test]
+    fn vector2i_div_f32() {
+        let result = Vector2i::new(2, 2) / 2.;
+        assert_eq!(result.x, 1);
+        assert_eq!(result.y, 1);
+    }
+
+    #[test]
+    fn vector2i_div_i32() {
+        let result = Vector2i::new(2, 2) / 2;
+        assert_eq!(result.x, 1);
+        assert_eq!(result.y, 1);
+    }
+
+    #[test]
+    fn vector2i_add_assign_vector2() {
+        let mut result = Vector2i::new(0, 0);
+        result += Vector2::new(1., 1.);
+        assert_eq!(result.x, 1);
+        assert_eq!(result.y, 1);
+    }
+
+    #[test]
+    fn vector2i_add_assign_vector2i() {
+        let mut result = Vector2i::new(0, 0);
+        result += Vector2i::new(1, 1);
+        assert_eq!(result.x, 1);
+        assert_eq!(result.y, 1);
+    }
+
+    #[test]
+    fn vector2i_add_assign_f32() {
+        let mut result = Vector2i::new(0, 0);
+        result += 1.;
+        assert_eq!(result.x, 1);
+        assert_eq!(result.y, 1);
+    }
+
+    #[test]
+    fn vector2i_add_assign_i32() {
+        let mut result = Vector2i::new(0, 0);
+        result += 1;
+        assert_eq!(result.x, 1);
+        assert_eq!(result.y, 1);
+    }
+
+    #[test]
+    fn vector2i_sub_assign_vector2() {
+        let mut result = Vector2i::new(2, 2);
+        result -= Vector2::new(1., 1.);
+        assert_eq!(result.x, 1);
+        assert_eq!(result.y, 1);
+    }
+
+    #[test]
+    fn vector2i_sub_assign_vector2i() {
+        let mut result = Vector2i::new(2, 2);
+        result -= Vector2i::new(1, 1);
+        assert_eq!(result.x, 1);
+        assert_eq!(result.y, 1);
+    }
+
+    #[test]
+    fn vector2i_sub_assign_f32() {
+        let mut result = Vector2i::new(2, 2);
+        result -= 1.;
+        assert_eq!(result.x, 1);
+        assert_eq!(result.y, 1);
+    }
+
+    #[test]
+    fn vector2i_sub_assign_i32() {
+        let mut result = Vector2i::new(2, 2);
+        result -= 1;
+        assert_eq!(result.x, 1);
+        assert_eq!(result.y, 1);
+    }
+
+    #[test]
+    fn vector2i_mul_assign_vector2() {
+        let mut result = Vector2i::new(2, 2);
+        result *= Vector2::new(1., 1.);
+        assert_eq!(result.x, 2);
+        assert_eq!(result.y, 2);
+    }
+
+    #[test]
+    fn vector2i_mul_assign_vector2i() {
+        let mut result = Vector2i::new(2, 2);
+        result *= Vector2i::new(1, 1);
+        assert_eq!(result.x, 2);
+        assert_eq!(result.y, 2);
+    }
+
+    #[test]
+    fn vector2i_mul_assign_f32() {
+        let mut result = Vector2i::new(2, 2);
+        result *= 1.;
+        assert_eq!(result.x, 2);
+        assert_eq!(result.y, 2);
+    }
+
+    #[test]
+    fn vector2i_mul_assign_i32() {
+        let mut result = Vector2i::new(2, 2);
+        result *= 1;
+        assert_eq!(result.x, 2);
+        assert_eq!(result.y, 2);
+    }
+
+    #[test]
+    fn vector2i_div_assign_vector2() {
+        let mut result = Vector2i::new(2, 2);
+        result /= Vector2::new(1., 1.);
+        assert_eq!(result.x, 2);
+        assert_eq!(result.y, 2);
+    }
+
+    #[test]
+    fn vector2i_div_assign_vector2i() {
+        let mut result = Vector2i::new(2, 2);
+        result /= Vector2i::new(1, 1);
+        assert_eq!(result.x, 2);
+        assert_eq!(result.y, 2);
+    }
+
+    #[test]
+    fn vector2i_div_assign_f32() {
+        let mut result = Vector2i::new(2, 2);
+        result /= 1.;
+        assert_eq!(result.x, 2);
+        assert_eq!(result.y, 2);
+    }
+
+    #[test]
+    fn vector2i_div_assign_i32() {
+        let mut result = Vector2i::new(2, 2);
+        result /= 1;
+        assert_eq!(result.x, 2);
+        assert_eq!(result.y, 2);
+    }
+
+    #[test]
+    fn vector2_normalize() {
+        let mut result = Vector2::new(1., 0.);
+        result.normalize();
+        assert_eq!(result.x, 1.);
+        assert_eq!(result.y, 0.);
+    }
+
+    #[test]
+    fn vector2_normalize_2() {
+        let mut result = Vector2::new(0.2, 0.);
+        result.normalize();
+        assert_eq!(result.x, 1.);
+        assert_eq!(result.y, 0.);
+    }
+
+    #[test]
+    fn vector2_normalize_3() {
+        let mut result = Vector2::new(0.2, 0.2);
+        result.normalize();
+        assert_eq!(result.x, 0.70710677);
+        assert_eq!(result.y, 0.70710677);
+    }
+
+    #[test]
+    fn vector2_normalized() {
+        let result = Vector2::new(1., 0.).normalized();
+        assert_eq!(result.x, 1.);
+        assert_eq!(result.y, 0.);
+    }
+
+    #[test]
+    fn vector2_normalized_2() {
+        let result = Vector2::new(0.2, 0.).normalized();
+        assert_eq!(result.x, 1.);
+        assert_eq!(result.y, 0.);
+    }
+
+    #[test]
+    fn vector2_normalized_3() {
+        let result = Vector2::new(0.2, 0.2).normalized();
+        assert_eq!(result.x, 0.70710677);
+        assert_eq!(result.y, 0.70710677);
     }
 }

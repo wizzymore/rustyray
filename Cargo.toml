@@ -1,4 +1,4 @@
 [workspace]
 
-members = ["rustyray", "rustyray-ffi"]
-resolver = "3"
+members = ["rustyray", "rustyray-ffi", "rustyray-math"]
+resolver = "2"

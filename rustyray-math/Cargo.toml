@@ -1,19 +1,11 @@
 [package]
-name = "rustyray"
+name = "rustyray-math"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-rand = "0.9.0"
 rustyray-ffi = { path = "../rustyray-ffi" }
-rustyray-math = { path = "../rustyray-math" }
 serde = { version = "1.0.217", features = ["derive"] }
-
-[[example]]
-name = "window"
-
-[[example]]
-name = "bunnymark"
 
 [features]
 default = ["serde"]
