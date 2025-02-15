@@ -6,7 +6,7 @@
 
 [raylib](https://github.com/raysan5/raylib) is a simple and easy-to-use library to enjoy videogames programming.
 
-This crate is a low-level wrapper for the raylib C library.
+This crate is a low-level bindings for the raylib C library.
 
 ### Usage
 
