@@ -135,12 +135,12 @@ name = "rustyray"
 version = "0.1.0"
 dependencies = [
  "rand",
- "rustyray-ffi",
+ "rustyray-sys",
  "serde",
 ]
 
 [[package]]
-name = "rustyray-ffi"
+name = "rustyray-sys"
 version = "0.1.0"
 dependencies = [
  "bitmask-enum",

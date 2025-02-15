@@ -1,7 +1,8 @@
 use std::ffi::CString;
 
-use rustyray_ffi::{
+use rustyray_sys::{
     color::Color,
+    ffi,
     rectangle::Rectangle,
     texture::{RenderTexture, Texture, TextureLoadError},
     vector::Vector2,
@@ -55,14 +56,14 @@ impl DrawHandler {
     #[inline]
     pub fn draw_fps(&self, x: i32, y: i32) {
         unsafe {
-            rustyray_ffi::ffi::draw_fps(x, y);
+            ffi::draw_fps(x, y);
         }
     }
 
     #[inline]
     pub fn clear(&self, color: Color) {
         unsafe {
-            rustyray_ffi::ffi::clear_background(color);
+            ffi::clear_background(color);
         }
     }
 
@@ -70,9 +71,9 @@ impl DrawHandler {
         let render_texture = render_texture_ref.as_ref();
         let size = render_texture.texture.size();
         unsafe {
-            let screen_height = rustyray_ffi::ffi::get_screen_height() as f32;
-            let screen_width = rustyray_ffi::ffi::get_screen_width() as f32;
-            rustyray_ffi::ffi::draw_texture_pro(
+            let screen_height = ffi::get_screen_height() as f32;
+            let screen_width = ffi::get_screen_width() as f32;
+            ffi::draw_texture_pro(
                 render_texture.texture.clone(),
                 Rectangle::new(0.0, 0.0, size.x as f32, -size.y as f32),
                 Rectangle::new(0.0, 0.0, screen_width, screen_height),
@@ -86,21 +87,21 @@ impl DrawHandler {
     #[inline]
     pub fn draw_texture<T: AsRef<Texture>>(&self, texture: T, x: i32, y: i32, tint: Color) {
         unsafe {
-            rustyray_ffi::ffi::draw_texture(texture.as_ref().clone(), x, y, tint);
+            ffi::draw_texture(texture.as_ref().clone(), x, y, tint);
         }
     }
 
     #[inline]
     pub fn draw_rect(&self, rect: Rectangle, tint: Color) {
         unsafe {
-            rustyray_ffi::ffi::draw_rectangle_rec(rect, tint);
+            ffi::draw_rectangle_rec(rect, tint);
         }
     }
 
     #[inline]
     pub fn draw_text(&self, text: String, pos_x: i32, pos_y: i32, size: i32, tint: Color) {
         unsafe {
-            rustyray_ffi::ffi::draw_text(
+            ffi::draw_text(
                 CString::new(text).unwrap().as_ptr(),
                 pos_x,
                 pos_y,
@@ -114,7 +115,7 @@ impl DrawHandler {
 impl Drop for OwnedTexture {
     fn drop(&mut self) {
         unsafe {
-            rustyray_ffi::ffi::unload_texture(self.0.clone());
+            ffi::unload_texture(self.0.clone());
         }
     }
 }
@@ -122,7 +123,7 @@ impl Drop for OwnedTexture {
 impl Drop for OwnedRenderTexture {
     fn drop(&mut self) {
         unsafe {
-            rustyray_ffi::ffi::unload_render_texture(self.0.clone());
+            ffi::unload_render_texture(self.0.clone());
         }
     }
 }

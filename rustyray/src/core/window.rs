@@ -2,7 +2,7 @@ use std::{ffi::CString, fmt::Debug};
 
 use super::draw::DrawHandler;
 
-use rustyray_ffi::{
+use rustyray_sys::{
     consts::{ConfigFlag, MouseButton},
     ffi,
     texture::RenderTexture,
