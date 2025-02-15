@@ -8,8 +8,8 @@ license-file.workspace = true
 
 [dependencies]
 rand = "0.9.0"
-rustyray-ffi = { version = "*", path = "../rustyray-ffi" }
-rustyray-math = { version = "*", path = "../rustyray-math" }
+rustyray-ffi = { version = "0.1.0", path = "../rustyray-ffi" }
+rustyray-math = { version = "0.1.0", path = "../rustyray-math" }
 serde = { version = "1.0.217", features = ["derive"] }
 
 [[example]]
