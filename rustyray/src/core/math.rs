@@ -244,6 +244,50 @@ impl ops::Add<i32> for Vector2 {
     }
 }
 
+impl ops::Sub<Vector2> for Vector2 {
+    type Output = Vector2;
+
+    fn sub(self, rhs: Vector2) -> Self::Output {
+        Self::Output {
+            x: self.x - rhs.x,
+            y: self.y - rhs.y,
+        }
+    }
+}
+
+impl ops::Sub<Vector2i> for Vector2 {
+    type Output = Vector2;
+
+    fn sub(self, rhs: Vector2i) -> Self::Output {
+        Self::Output {
+            x: self.x - rhs.x as f32,
+            y: self.y - rhs.y as f32,
+        }
+    }
+}
+
+impl ops::Sub<f32> for Vector2 {
+    type Output = Vector2;
+
+    fn sub(self, rhs: f32) -> Self::Output {
+        Self::Output {
+            x: self.x - rhs,
+            y: self.y - rhs,
+        }
+    }
+}
+
+impl ops::Sub<i32> for Vector2 {
+    type Output = Vector2;
+
+    fn sub(self, rhs: i32) -> Self::Output {
+        Self::Output {
+            x: self.x - rhs as f32,
+            y: self.y - rhs as f32,
+        }
+    }
+}
+
 impl ops::Mul<Vector2> for Vector2 {
     type Output = Vector2;
 
@@ -360,6 +404,34 @@ impl ops::AddAssign<i32> for Vector2 {
     }
 }
 
+impl ops::SubAssign<Vector2> for Vector2 {
+    fn sub_assign(&mut self, rhs: Vector2) {
+        self.x -= rhs.x;
+        self.y -= rhs.y;
+    }
+}
+
+impl ops::SubAssign<Vector2i> for Vector2 {
+    fn sub_assign(&mut self, rhs: Vector2i) {
+        self.x -= rhs.x as f32;
+        self.y -= rhs.y as f32;
+    }
+}
+
+impl ops::SubAssign<f32> for Vector2 {
+    fn sub_assign(&mut self, rhs: f32) {
+        self.x -= rhs;
+        self.y -= rhs;
+    }
+}
+
+impl ops::SubAssign<i32> for Vector2 {
+    fn sub_assign(&mut self, rhs: i32) {
+        self.x -= rhs as f32;
+        self.y -= rhs as f32;
+    }
+}
+
 impl ops::MulAssign<Vector2> for Vector2 {
     fn mul_assign(&mut self, rhs: Vector2) {
         self.x *= rhs.x;
@@ -385,6 +457,34 @@ impl ops::MulAssign<i32> for Vector2 {
     fn mul_assign(&mut self, rhs: i32) {
         self.x *= rhs as f32;
         self.y *= rhs as f32;
+    }
+}
+
+impl ops::DivAssign<Vector2> for Vector2 {
+    fn div_assign(&mut self, rhs: Vector2) {
+        self.x /= rhs.x;
+        self.y /= rhs.y;
+    }
+}
+
+impl ops::DivAssign<Vector2i> for Vector2 {
+    fn div_assign(&mut self, rhs: Vector2i) {
+        self.x /= rhs.x as f32;
+        self.y /= rhs.y as f32;
+    }
+}
+
+impl ops::DivAssign<f32> for Vector2 {
+    fn div_assign(&mut self, rhs: f32) {
+        self.x /= rhs;
+        self.y /= rhs;
+    }
+}
+
+impl ops::DivAssign<i32> for Vector2 {
+    fn div_assign(&mut self, rhs: i32) {
+        self.x /= rhs as f32;
+        self.y /= rhs as f32;
     }
 }
 
@@ -428,6 +528,50 @@ impl ops::Add<i32> for Vector2i {
         Self::Output {
             x: self.x + rhs,
             y: self.y + rhs,
+        }
+    }
+}
+
+impl ops::Sub<Vector2> for Vector2i {
+    type Output = Vector2i;
+
+    fn sub(self, rhs: Vector2) -> Self::Output {
+        Self::Output {
+            x: self.x - rhs.x as i32,
+            y: self.y - rhs.y as i32,
+        }
+    }
+}
+
+impl ops::Sub<Vector2i> for Vector2i {
+    type Output = Vector2i;
+
+    fn sub(self, rhs: Vector2i) -> Self::Output {
+        Self::Output {
+            x: self.x - rhs.x,
+            y: self.y - rhs.y,
+        }
+    }
+}
+
+impl ops::Sub<f32> for Vector2i {
+    type Output = Vector2i;
+
+    fn sub(self, rhs: f32) -> Self::Output {
+        Self::Output {
+            x: self.x - rhs as i32,
+            y: self.y - rhs as i32,
+        }
+    }
+}
+
+impl ops::Sub<i32> for Vector2i {
+    type Output = Vector2i;
+
+    fn sub(self, rhs: i32) -> Self::Output {
+        Self::Output {
+            x: self.x - rhs,
+            y: self.y - rhs,
         }
     }
 }
@@ -548,6 +692,34 @@ impl ops::AddAssign<i32> for Vector2i {
     }
 }
 
+impl ops::SubAssign<Vector2> for Vector2i {
+    fn sub_assign(&mut self, rhs: Vector2) {
+        self.x -= rhs.x as i32;
+        self.y -= rhs.y as i32;
+    }
+}
+
+impl ops::SubAssign<Vector2i> for Vector2i {
+    fn sub_assign(&mut self, rhs: Vector2i) {
+        self.x -= rhs.x;
+        self.y -= rhs.y;
+    }
+}
+
+impl ops::SubAssign<f32> for Vector2i {
+    fn sub_assign(&mut self, rhs: f32) {
+        self.x -= rhs as i32;
+        self.y -= rhs as i32;
+    }
+}
+
+impl ops::SubAssign<i32> for Vector2i {
+    fn sub_assign(&mut self, rhs: i32) {
+        self.x -= rhs;
+        self.y -= rhs;
+    }
+}
+
 impl ops::MulAssign<Vector2> for Vector2i {
     fn mul_assign(&mut self, rhs: Vector2) {
         self.x *= rhs.x as i32;
@@ -573,5 +745,33 @@ impl ops::MulAssign<i32> for Vector2i {
     fn mul_assign(&mut self, rhs: i32) {
         self.x *= rhs;
         self.y *= rhs;
+    }
+}
+
+impl ops::DivAssign<Vector2> for Vector2i {
+    fn div_assign(&mut self, rhs: Vector2) {
+        self.x /= rhs.x as i32;
+        self.y /= rhs.y as i32;
+    }
+}
+
+impl ops::DivAssign<Vector2i> for Vector2i {
+    fn div_assign(&mut self, rhs: Vector2i) {
+        self.x /= rhs.x;
+        self.y /= rhs.y;
+    }
+}
+
+impl ops::DivAssign<f32> for Vector2i {
+    fn div_assign(&mut self, rhs: f32) {
+        self.x /= rhs as i32;
+        self.y /= rhs as i32;
+    }
+}
+
+impl ops::DivAssign<i32> for Vector2i {
+    fn div_assign(&mut self, rhs: i32) {
+        self.x /= rhs;
+        self.y /= rhs;
     }
 }
