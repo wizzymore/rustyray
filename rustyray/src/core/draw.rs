@@ -166,7 +166,6 @@ impl DrawHandler {
 
 impl Drop for OwnedTexture {
     fn drop(&mut self) {
-        println!("Dropped texture");
         unsafe {
             rustyray_ffi::UnloadTexture(self.0);
         }
@@ -175,7 +174,6 @@ impl Drop for OwnedTexture {
 
 impl Drop for RenderTexture {
     fn drop(&mut self) {
-        println!("Dropped render_texture");
         unsafe {
             rustyray_ffi::UnloadRenderTexture((&*self).into());
         }
