@@ -25,7 +25,10 @@ impl Color {
 
     /// Get hexadecimal value for a [Color] (0xRRGGBBAA)
     pub fn to_int(&self) -> i32 {
-        let result = ((self.r << 24) | (self.g << 16) | (self.b << 8) | self.a) as i32;
+        let result = ((self.r as i32) << 24)
+            | ((self.g as i32) << 16)
+            | ((self.b as i32) << 8)
+            | self.a as i32;
 
         result
     }
