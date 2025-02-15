@@ -1,4 +1,4 @@
 [workspace]
-members = ["rustyray", "rustyray-ffi"]
+members = ["rustyray", "rustyray-sys"]
 resolver = "2"
 package.license-file = "LICENSE.txt"

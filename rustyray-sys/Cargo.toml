@@ -1,5 +1,5 @@
 [package]
-name = "rustyray-ffi"
+name = "rustyray-sys"
 description = "Native bindings to Raylib"
 version = "0.1.0"
 edition = "2021"
@@ -11,6 +11,7 @@ exclude = [
     "raylib/projects",
     "raylib/.github",
 ]
+
 license-file.workspace = true
 
 [dependencies]
