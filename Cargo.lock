@@ -279,6 +279,7 @@ version = "0.1.0"
 dependencies = [
  "rand",
  "rustyray-ffi",
+ "rustyray-math",
  "serde",
 ]
 
@@ -289,6 +290,14 @@ dependencies = [
  "bindgen",
  "cmake",
  "fs_extra",
+]
+
+[[package]]
+name = "rustyray-math"
+version = "0.1.0"
+dependencies = [
+ "rustyray-ffi",
+ "serde",
 ]
 
 [[package]]

@@ -1,6 +1,6 @@
 pub mod color;
 pub mod draw;
-pub mod math;
+pub use rustyray_math as math;
 pub mod window;
 
 #[repr(i32)]
