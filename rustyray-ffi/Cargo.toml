@@ -1,5 +1,6 @@
 [package]
 name = "rustyray-ffi"
+description = "Native bindings to Raylib"
 version = "0.1.0"
 edition = "2021"
 
