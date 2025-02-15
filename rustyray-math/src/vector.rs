@@ -183,6 +183,28 @@ impl ops::Add<i32> for Vector2 {
     }
 }
 
+impl ops::Add<Vector2> for f32 {
+    type Output = Vector2;
+
+    fn add(self, rhs: Vector2) -> Self::Output {
+        Self::Output {
+            x: self + rhs.x,
+            y: self + rhs.y,
+        }
+    }
+}
+
+impl ops::Add<Vector2> for i32 {
+    type Output = Vector2;
+
+    fn add(self, rhs: Vector2) -> Self::Output {
+        Self::Output {
+            x: self as f32 + rhs.x,
+            y: self as f32 + rhs.y,
+        }
+    }
+}
+
 impl ops::Sub<Vector2> for Vector2 {
     type Output = Vector2;
 
@@ -223,6 +245,28 @@ impl ops::Sub<i32> for Vector2 {
         Self::Output {
             x: self.x - rhs as f32,
             y: self.y - rhs as f32,
+        }
+    }
+}
+
+impl ops::Sub<Vector2> for f32 {
+    type Output = Vector2;
+
+    fn sub(self, rhs: Vector2) -> Self::Output {
+        Self::Output {
+            x: self - rhs.x,
+            y: self - rhs.y,
+        }
+    }
+}
+
+impl ops::Sub<Vector2> for i32 {
+    type Output = Vector2;
+
+    fn sub(self, rhs: Vector2) -> Self::Output {
+        Self::Output {
+            x: self as f32 - rhs.x,
+            y: self as f32 - rhs.y,
         }
     }
 }
@@ -271,6 +315,28 @@ impl ops::Mul<i32> for Vector2 {
     }
 }
 
+impl ops::Mul<Vector2> for f32 {
+    type Output = Vector2;
+
+    fn mul(self, rhs: Vector2) -> Self::Output {
+        Self::Output {
+            x: self * rhs.x,
+            y: self * rhs.y,
+        }
+    }
+}
+
+impl ops::Mul<Vector2> for i32 {
+    type Output = Vector2;
+
+    fn mul(self, rhs: Vector2) -> Self::Output {
+        Self::Output {
+            x: self as f32 * rhs.x,
+            y: self as f32 * rhs.y,
+        }
+    }
+}
+
 impl ops::Div<Vector2> for Vector2 {
     type Output = Vector2;
 
@@ -311,6 +377,28 @@ impl ops::Div<i32> for Vector2 {
         Self::Output {
             x: self.x / rhs as f32,
             y: self.y / rhs as f32,
+        }
+    }
+}
+
+impl ops::Div<Vector2> for f32 {
+    type Output = Vector2;
+
+    fn div(self, rhs: Vector2) -> Self::Output {
+        Self::Output {
+            x: self / rhs.x,
+            y: self / rhs.y,
+        }
+    }
+}
+
+impl ops::Div<Vector2> for i32 {
+    type Output = Vector2;
+
+    fn div(self, rhs: Vector2) -> Self::Output {
+        Self::Output {
+            x: self as f32 / rhs.x,
+            y: self as f32 / rhs.y,
         }
     }
 }
@@ -471,6 +559,28 @@ impl ops::Add<i32> for Vector2i {
     }
 }
 
+impl ops::Add<Vector2i> for f32 {
+    type Output = Vector2i;
+
+    fn add(self, rhs: Vector2i) -> Self::Output {
+        Self::Output {
+            x: self as i32 + rhs.x,
+            y: self as i32 + rhs.y,
+        }
+    }
+}
+
+impl ops::Add<Vector2i> for i32 {
+    type Output = Vector2i;
+
+    fn add(self, rhs: Vector2i) -> Self::Output {
+        Self::Output {
+            x: self + rhs.x,
+            y: self + rhs.y,
+        }
+    }
+}
+
 impl ops::Sub<Vector2> for Vector2i {
     type Output = Vector2i;
 
@@ -511,6 +621,28 @@ impl ops::Sub<i32> for Vector2i {
         Self::Output {
             x: self.x - rhs,
             y: self.y - rhs,
+        }
+    }
+}
+
+impl ops::Sub<Vector2i> for f32 {
+    type Output = Vector2i;
+
+    fn sub(self, rhs: Vector2i) -> Self::Output {
+        Self::Output {
+            x: self as i32 - rhs.x,
+            y: self as i32 - rhs.y,
+        }
+    }
+}
+
+impl ops::Sub<Vector2i> for i32 {
+    type Output = Vector2i;
+
+    fn sub(self, rhs: Vector2i) -> Self::Output {
+        Self::Output {
+            x: self - rhs.x,
+            y: self - rhs.y,
         }
     }
 }
@@ -559,6 +691,28 @@ impl ops::Mul<i32> for Vector2i {
     }
 }
 
+impl ops::Mul<Vector2i> for f32 {
+    type Output = Vector2i;
+
+    fn mul(self, rhs: Vector2i) -> Self::Output {
+        Self::Output {
+            x: self as i32 * rhs.x,
+            y: self as i32 * rhs.y,
+        }
+    }
+}
+
+impl ops::Mul<Vector2i> for i32 {
+    type Output = Vector2i;
+
+    fn mul(self, rhs: Vector2i) -> Self::Output {
+        Self::Output {
+            x: self * rhs.x,
+            y: self * rhs.y,
+        }
+    }
+}
+
 impl ops::Div<Vector2> for Vector2i {
     type Output = Vector2i;
 
@@ -599,6 +753,28 @@ impl ops::Div<i32> for Vector2i {
         Self::Output {
             x: self.x / rhs,
             y: self.y / rhs,
+        }
+    }
+}
+
+impl ops::Div<Vector2i> for f32 {
+    type Output = Vector2i;
+
+    fn div(self, rhs: Vector2i) -> Self::Output {
+        Self::Output {
+            x: self as i32 / rhs.x,
+            y: self as i32 / rhs.y,
+        }
+    }
+}
+
+impl ops::Div<Vector2i> for i32 {
+    type Output = Vector2i;
+
+    fn div(self, rhs: Vector2i) -> Self::Output {
+        Self::Output {
+            x: self / rhs.x,
+            y: self / rhs.y,
         }
     }
 }
@@ -748,6 +924,20 @@ mod tests {
     }
 
     #[test]
+    fn f32_add_vector2() {
+        let result = 1. + Vector2::new(0., 0.);
+        assert_eq!(result.x, 1.);
+        assert_eq!(result.y, 1.);
+    }
+
+    #[test]
+    fn i32_add_vector2() {
+        let result = 1 + Vector2::new(0., 0.);
+        assert_eq!(result.x, 1.);
+        assert_eq!(result.y, 1.);
+    }
+
+    #[test]
     fn vector2_sub_vector2() {
         let result = Vector2::new(1., 1.) - Vector2::new(1., 1.);
         assert_eq!(result.x, 0.);
@@ -773,6 +963,20 @@ mod tests {
         let result = Vector2::new(1., 1.) - 1;
         assert_eq!(result.x, 0.);
         assert_eq!(result.y, 0.);
+    }
+
+    #[test]
+    fn f32_sub_vector2() {
+        let result = 0. - Vector2::new(1., 1.);
+        assert_eq!(result.x, -1.);
+        assert_eq!(result.y, -1.);
+    }
+
+    #[test]
+    fn i32_sub_vector2() {
+        let result = 0 - Vector2::new(1., 1.);
+        assert_eq!(result.x, -1.);
+        assert_eq!(result.y, -1.);
     }
 
     #[test]
@@ -804,6 +1008,20 @@ mod tests {
     }
 
     #[test]
+    fn f32_mul_vector2() {
+        let result = 1. * Vector2::new(2., 2.);
+        assert_eq!(result.x, 2.);
+        assert_eq!(result.y, 2.);
+    }
+
+    #[test]
+    fn i32_mul_vector2() {
+        let result = 1 * Vector2::new(2., 2.);
+        assert_eq!(result.x, 2.);
+        assert_eq!(result.y, 2.);
+    }
+
+    #[test]
     fn vector2_div_vector2() {
         let result = Vector2::new(2., 2.) / Vector2::new(2., 2.);
         assert_eq!(result.x, 1.);
@@ -829,6 +1047,20 @@ mod tests {
         let result = Vector2::new(2., 2.) / 2;
         assert_eq!(result.x, 1.);
         assert_eq!(result.y, 1.);
+    }
+
+    #[test]
+    fn f32_div_vector2() {
+        let result = 1. / Vector2::new(2., 2.);
+        assert_eq!(result.x, 0.5);
+        assert_eq!(result.y, 0.5);
+    }
+
+    #[test]
+    fn i32_div_vector2() {
+        let result = 1 / Vector2::new(2., 2.);
+        assert_eq!(result.x, 0.5);
+        assert_eq!(result.y, 0.5);
     }
 
     #[test]
@@ -988,6 +1220,20 @@ mod tests {
     }
 
     #[test]
+    fn f32_add_vector2i() {
+        let result = 1. + Vector2i::new(1, 1);
+        assert_eq!(result.x, 2);
+        assert_eq!(result.y, 2);
+    }
+
+    #[test]
+    fn i32_add_vector2i() {
+        let result = 1 + Vector2i::new(1, 1);
+        assert_eq!(result.x, 2);
+        assert_eq!(result.y, 2);
+    }
+
+    #[test]
     fn vector2i_sub_vector2() {
         let result = Vector2i::new(1, 1) - Vector2::new(1., 1.);
         assert_eq!(result.x, 0);
@@ -1013,6 +1259,20 @@ mod tests {
         let result = Vector2i::new(1, 1) - 1;
         assert_eq!(result.x, 0);
         assert_eq!(result.y, 0);
+    }
+
+    #[test]
+    fn f32_sub_vector2i() {
+        let result = 0. - Vector2i::new(1, 1);
+        assert_eq!(result.x, -1);
+        assert_eq!(result.y, -1);
+    }
+
+    #[test]
+    fn i32_sub_vector2i() {
+        let result = 0 - Vector2i::new(1, 1);
+        assert_eq!(result.x, -1);
+        assert_eq!(result.y, -1);
     }
 
     #[test]
@@ -1044,6 +1304,20 @@ mod tests {
     }
 
     #[test]
+    fn f32_mul_vector2i() {
+        let result = -1. * Vector2i::new(1, 1);
+        assert_eq!(result.x, -1);
+        assert_eq!(result.y, -1);
+    }
+
+    #[test]
+    fn i32_mul_vector2i() {
+        let result = -1 * Vector2i::new(1, 1);
+        assert_eq!(result.x, -1);
+        assert_eq!(result.y, -1);
+    }
+
+    #[test]
     fn vector2i_div_vector2() {
         let result = Vector2i::new(2, 2) / Vector2::new(2., 2.);
         assert_eq!(result.x, 1);
@@ -1069,6 +1343,20 @@ mod tests {
         let result = Vector2i::new(2, 2) / 2;
         assert_eq!(result.x, 1);
         assert_eq!(result.y, 1);
+    }
+
+    #[test]
+    fn f32_div_vector2i() {
+        let result = -4. / Vector2i::new(2, 2);
+        assert_eq!(result.x, -2);
+        assert_eq!(result.y, -2);
+    }
+
+    #[test]
+    fn i32_div_vector2i() {
+        let result = -4 / Vector2i::new(2, 2);
+        assert_eq!(result.x, -2);
+        assert_eq!(result.y, -2);
     }
 
     #[test]
