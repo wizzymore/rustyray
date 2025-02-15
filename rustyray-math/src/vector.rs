@@ -19,16 +19,6 @@ pub struct Vector2i {
     pub y: i32,
 }
 
-#[repr(C)]
-#[derive(Debug, Clone, Copy, Default)]
-#[cfg_attr(feature = "serde", derive(Deserialize, Serialize))]
-pub struct Rectangle {
-    pub x: f32,
-    pub y: f32,
-    pub width: f32,
-    pub height: f32,
-}
-
 impl Vector2 {
     pub fn new(x: f32, y: f32) -> Self {
         Self { x, y }
@@ -74,33 +64,6 @@ impl Vector2i {
     }
 }
 
-impl Rectangle {
-    pub fn new(x: f32, y: f32, width: f32, height: f32) -> Self {
-        Self {
-            x,
-            y,
-            width,
-            height,
-        }
-    }
-
-    /// Get the x and y position of the rectangle as a [Vector2]
-    pub fn position(&self) -> Vector2 {
-        Vector2 {
-            x: self.x,
-            y: self.y,
-        }
-    }
-
-    /// Get the width and height of the rectangle as a [Vector2]
-    pub fn size(&self) -> Vector2 {
-        Vector2 {
-            x: self.width,
-            y: self.height,
-        }
-    }
-}
-
 impl Display for Vector2 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str(format!("Vector2{{x: {},y: {}}}", self.x, self.y).as_str())
@@ -110,18 +73,6 @@ impl Display for Vector2 {
 impl Display for Vector2i {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str(format!("Vector2i{{x: {},y: {}}}", self.x, self.y).as_str())
-    }
-}
-
-impl Display for Rectangle {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        f.write_str(
-            format!(
-                "Rectangle{{x: {}, y: {}, width: {}, height: {}}}",
-                self.x, self.y, self.width, self.height
-            )
-            .as_str(),
-        )
     }
 }
 
@@ -184,18 +135,6 @@ impl From<Vector2> for Vector2i {
 
 impl From<&Vector2> for Vector2i {
     fn from(value: &Vector2) -> Self {
-        value.to_owned().into()
-    }
-}
-
-impl From<Rectangle> for rustyray_ffi::Rectangle {
-    fn from(value: Rectangle) -> Self {
-        unsafe { std::mem::transmute(value) }
-    }
-}
-
-impl From<&Rectangle> for rustyray_ffi::Rectangle {
-    fn from(value: &Rectangle) -> Self {
         value.to_owned().into()
     }
 }

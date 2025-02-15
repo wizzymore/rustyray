@@ -2,7 +2,7 @@ use std::ffi::CString;
 
 use super::{
     color::Color,
-    math::vector::{Rectangle, Vector2, Vector2i},
+    math::{Rectangle, Vector2, Vector2i},
 };
 
 /// This is a `raylib` texture that uses the concept of RAII.

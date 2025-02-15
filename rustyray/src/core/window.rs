@@ -2,7 +2,7 @@ use std::{ffi::CString, fmt::Debug};
 
 use super::{
     draw::{DrawHandler, RenderTexture},
-    math::vector::{Vector2, Vector2i},
+    math::{Vector2, Vector2i},
     ConfigFlags, MouseButton,
 };
 
