@@ -1,7 +1,7 @@
 [package]
 name = "rustyray-sys"
 description = "Low level bindings for raylib"
-version = "0.1.7"
+version = "0.1.8"
 edition = "2021"
 repository = "https://github.com/wizzymore/rustyray"
 exclude = [
