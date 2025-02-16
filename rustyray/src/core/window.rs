@@ -3,11 +3,12 @@ use std::{ffi::CString, fmt::Debug};
 use super::draw::DrawHandler;
 
 use rustyray_sys::{
-    consts::{ConfigFlag, MouseButton},
+    consts::{ConfigFlag, KeyboardKey, MouseButton},
     ffi,
     texture::RenderTexture,
     vector::{Vector2, Vector2i},
 };
+use thiserror::Error;
 
 #[derive(Debug)]
 pub struct Window {
@@ -16,6 +17,23 @@ pub struct Window {
     title: String,
 }
 
+#[derive(Error)]
+pub enum WindowError {
+    #[error("failed to initialize window")]
+    WindowNotReady,
+    #[error("audio device is already initialized")]
+    AudioDeviceAlreadyInitialized,
+    #[error("failed to initialize audio device")]
+    AudioDeviceFailedInitialize,
+}
+
+impl Debug for WindowError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self)
+    }
+}
+
+// Window-related functions
 impl Window {
     pub fn new(width: i32, height: i32, title: String) -> Window {
         Window {
@@ -42,42 +60,56 @@ impl Window {
         self
     }
 
-    fn is_window_ready(&self) -> bool {
+    pub fn init_audio(self) -> Result<Self, WindowError> {
+        if self.is_audio_device_ready() {
+            return Err(WindowError::AudioDeviceAlreadyInitialized);
+        }
+
+        unsafe {
+            ffi::init_audio_device();
+        }
+
+        if !self.is_audio_device_ready() {
+            return Err(WindowError::AudioDeviceFailedInitialize);
+        }
+
+        Ok(self)
+    }
+
+    pub fn is_window_ready(&self) -> bool {
         unsafe { ffi::is_window_ready() }
     }
 
-    pub fn draw(&self, callback: impl Fn(DrawHandler)) {
-        unsafe {
-            ffi::begin_drawing();
-        }
-
-        callback(DrawHandler {});
-
-        unsafe {
-            ffi::end_drawing();
-        }
-    }
-
-    pub fn draw_render_texture<T: AsRef<RenderTexture>>(
-        &self,
-        render_texture: T,
-        callback: impl Fn(DrawHandler),
-    ) {
-        unsafe {
-            ffi::begin_texture_mode(render_texture.as_ref().clone());
-        }
-
-        callback(DrawHandler {});
-
-        unsafe {
-            ffi::end_texture_mode();
-        }
+    pub fn is_audio_device_ready(&self) -> bool {
+        unsafe { ffi::is_audio_device_ready() }
     }
 
     pub fn should_close(&self) -> bool {
         unsafe { ffi::window_should_close() }
     }
 
+    pub fn get_screen_size(&self) -> Vector2i {
+        Vector2i {
+            x: self.get_screen_width(),
+            y: self.get_screen_height(),
+        }
+    }
+
+    pub fn get_screen_width(&self) -> i32 {
+        unsafe { ffi::get_screen_width() }
+    }
+
+    pub fn get_screen_height(&self) -> i32 {
+        unsafe { ffi::get_screen_height() }
+    }
+
+    pub fn dt(&self) -> f32 {
+        unsafe { ffi::get_frame_time() }
+    }
+}
+
+// Configuration-related functions
+impl Window {
     pub fn vsync(self, v: bool) -> Self {
         self.set_vsync(v);
         self
@@ -109,32 +141,20 @@ impl Window {
             ffi::set_window_size(width, height);
         }
     }
+}
 
+// Input-related functions
+impl Window {
     pub fn is_mouse_down(&self, button: MouseButton) -> bool {
         unsafe { ffi::is_mouse_button_down(button) }
     }
 
+    pub fn is_key_down(&self, key: KeyboardKey) -> bool {
+        unsafe { ffi::is_key_down(key) }
+    }
+
     pub fn get_mouse_pos(&self) -> Vector2 {
         unsafe { ffi::get_mouse_position() }
-    }
-
-    pub fn get_screen_size(&self) -> Vector2i {
-        Vector2i {
-            x: self.get_screen_width(),
-            y: self.get_screen_height(),
-        }
-    }
-
-    pub fn get_screen_width(&self) -> i32 {
-        unsafe { ffi::get_screen_width() }
-    }
-
-    pub fn get_screen_height(&self) -> i32 {
-        unsafe { ffi::get_screen_height() }
-    }
-
-    pub fn dt(&self) -> f32 {
-        unsafe { ffi::get_frame_time() }
     }
 }
 
@@ -142,6 +162,11 @@ impl Drop for Window {
     fn drop(&mut self) {
         unsafe {
             ffi::close_window();
+        }
+        if self.is_audio_device_ready() {
+            unsafe {
+                ffi::close_audio_device();
+            }
         }
     }
 }
