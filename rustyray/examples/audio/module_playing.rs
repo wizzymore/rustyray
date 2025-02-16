@@ -13,7 +13,7 @@ const SCREEN_HEIGHT: i32 = 450;
 const SCREEN_WIDTH: i32 = 800;
 
 const MAX_CIRCLES: usize = 64;
-const COLORS: &'static [Color] = &[
+const COLORS: &[Color] = &[
     Color::ORANGE,
     Color::RED,
     Color::GOLD,
