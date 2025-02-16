@@ -1,9 +1,9 @@
 use std::fmt::Display;
 
-use crate::vector::*;
+use super::Vector2;
 
 #[repr(C)]
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Rectangle {
     pub x: f32,
     pub y: f32,
@@ -35,6 +35,24 @@ impl Rectangle {
             x: self.width,
             y: self.height,
         }
+    }
+}
+
+impl From<rustyray_sys::math::Rectangle> for Rectangle {
+    fn from(value: rustyray_sys::math::Rectangle) -> Self {
+        unsafe { std::mem::transmute(value) }
+    }
+}
+
+impl From<Rectangle> for rustyray_sys::math::Rectangle {
+    fn from(value: Rectangle) -> Self {
+        unsafe { std::mem::transmute(value) }
+    }
+}
+
+impl From<&Rectangle> for rustyray_sys::math::Rectangle {
+    fn from(value: &Rectangle) -> Self {
+        unsafe { std::mem::transmute_copy(value) }
     }
 }
 

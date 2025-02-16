@@ -2,7 +2,7 @@ use rustyray::prelude::*;
 
 fn main() {
     let window = Window::new(1280, 720, String::from("Hello from Rust")).vsync(true);
-    let rt = OwnedRenderTexture::new(640, 360);
+    let rt = OwnedRenderTexture::new(640, 360).unwrap();
 
     while !window.should_close() {
         window.draw_render_texture(&rt, |d| {

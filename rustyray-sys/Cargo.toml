@@ -16,7 +16,6 @@ license.workspace = true
 rust-version.workspace = true
 
 [dependencies]
-bitmask-enum = "2.2.5"
 libc = "0.2"
 thiserror = "2.0.11"
 

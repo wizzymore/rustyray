@@ -1,58 +1,15 @@
 use std::ffi::CString;
 
-use rustyray_sys::{
-    color::Color,
-    ffi,
-    rectangle::Rectangle,
-    texture::{RenderTexture, Texture, TextureLoadError},
-    vector::Vector2,
-};
-
-use super::window::Window;
-
-/// This is a [`rustyray_ffi::texture::Texture`] that uses the concept of RAII.
-///
-/// It implements the Drop trait so when it goes out of scope the texture will automatically unload.
-///
-/// # Examples
-/// ```no_run
-/// use rustyray::prelude::OwnedTexture;
-///
-/// let texture = OwnedTexture::new(String::from("assets/character.png"));
-/// ```
-#[repr(C)]
-#[derive(Debug)]
-pub struct OwnedTexture(pub Texture);
-
-/// This is a `raylib` [`rustyray_ffi::texture::RenderTexture`] that uses the concept of RAII.
-///
-/// It implements the Drop trait so when it goes out of scope the texture will automatically unload.
-///
-/// # Examples
-/// ```no_run
-/// use rustyray::prelude::OwnedTexture;
-///
-/// let texture = OwnedTexture::new(String::from("assets/character.png"));
-/// ```
-#[repr(C)]
-#[derive(Debug)]
-pub struct OwnedRenderTexture(pub RenderTexture);
+use rustyray_sys::ffi;
 
 pub struct DrawHandler;
 
-impl OwnedTexture {
-    #[inline]
-    pub fn new(path: String) -> Result<Self, TextureLoadError> {
-        Ok(Self(Texture::new(path)?))
-    }
-}
-
-impl OwnedRenderTexture {
-    #[inline]
-    pub fn new(width: i32, height: i32) -> Self {
-        Self(RenderTexture::new(width, height))
-    }
-}
+use super::{
+    color::Color,
+    image::{OwnedRenderTexture, OwnedTexture},
+    math::{Rectangle, Vector2},
+    window::Window,
+};
 
 impl Window {
     pub fn draw(&self, callback: impl Fn(DrawHandler)) {
@@ -67,13 +24,13 @@ impl Window {
         }
     }
 
-    pub fn draw_render_texture<T: AsRef<RenderTexture>>(
+    pub fn draw_render_texture(
         &self,
-        render_texture: T,
+        render_texture: &OwnedRenderTexture,
         callback: impl Fn(DrawHandler),
     ) {
         unsafe {
-            ffi::begin_texture_mode(render_texture.as_ref().clone());
+            ffi::begin_texture_mode(render_texture.into());
         }
 
         callback(DrawHandler {});
@@ -99,17 +56,16 @@ impl DrawHandler {
         }
     }
 
-    pub fn draw_render_texture<T: AsRef<RenderTexture>>(&self, render_texture_ref: T) {
-        let render_texture = render_texture_ref.as_ref();
-        let size = render_texture.texture.size();
+    pub fn draw_render_texture(&self, render_texture: &OwnedRenderTexture) {
+        let size = render_texture.size();
         unsafe {
             let screen_height = ffi::get_screen_height() as f32;
             let screen_width = ffi::get_screen_width() as f32;
             ffi::draw_texture_pro(
-                render_texture.texture.clone(),
-                Rectangle::new(0.0, 0.0, size.x as f32, -size.y as f32),
-                Rectangle::new(0.0, 0.0, screen_width, screen_height),
-                Vector2::zero(),
+                render_texture.into(),
+                Rectangle::new(0.0, 0.0, size.x as f32, -size.y as f32).into(),
+                Rectangle::new(0.0, 0.0, screen_width, screen_height).into(),
+                Vector2::zero().into(),
                 0.0,
                 Color::WHITE,
             );
@@ -117,9 +73,9 @@ impl DrawHandler {
     }
 
     #[inline]
-    pub fn draw_texture<T: AsRef<Texture>>(&self, texture: T, x: i32, y: i32, tint: Color) {
+    pub fn draw_texture(&self, texture: &OwnedTexture, x: i32, y: i32, tint: Color) {
         unsafe {
-            ffi::draw_texture(texture.as_ref().clone(), x, y, tint);
+            ffi::draw_texture(texture.into(), x, y, tint);
         }
     }
 
@@ -127,7 +83,7 @@ impl DrawHandler {
     #[inline]
     pub fn draw_rect(&self, rect: Rectangle, tint: Color) {
         unsafe {
-            ffi::draw_rectangle_rec(rect, tint);
+            ffi::draw_rectangle_rec(rect.into(), tint);
         }
     }
 
@@ -147,7 +103,7 @@ impl DrawHandler {
 
     #[inline]
     pub fn draw_circle(&self, center: Vector2, radius: f32, color: Color) {
-        unsafe { ffi::draw_circle_v(center, radius, color) }
+        unsafe { ffi::draw_circle_v(center.into(), radius, color) }
     }
 
     /// Draw text (using default font)
@@ -162,33 +118,5 @@ impl DrawHandler {
                 tint,
             );
         }
-    }
-}
-
-impl Drop for OwnedTexture {
-    fn drop(&mut self) {
-        unsafe {
-            ffi::unload_texture(self.0.clone());
-        }
-    }
-}
-
-impl Drop for OwnedRenderTexture {
-    fn drop(&mut self) {
-        unsafe {
-            ffi::unload_render_texture(self.0.clone());
-        }
-    }
-}
-
-impl AsRef<Texture> for OwnedTexture {
-    fn as_ref(&self) -> &Texture {
-        &self.0
-    }
-}
-
-impl AsRef<RenderTexture> for OwnedRenderTexture {
-    fn as_ref(&self) -> &RenderTexture {
-        &self.0
     }
 }

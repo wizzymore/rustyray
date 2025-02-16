@@ -91,9 +91,9 @@ use crate::{
         ConfigFlag, GamepadAxis, GamepadButton, Gesture, KeyboardKey, MouseButton, MouseCursor,
         TextureFilter, TextureWrap,
     },
-    rectangle::Rectangle,
+    math::Rectangle,
+    math::Vector2,
     texture::{Image, RenderTexture, RenderTexture2D, Texture},
-    vector::Vector2,
 };
 
 // Window-related functions

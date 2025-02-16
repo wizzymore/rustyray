@@ -1,5 +1,7 @@
 use std::{fmt::Display, ops};
 
+use rustyray_sys::math::Vector2 as SysVector2;
+
 #[repr(C)]
 #[derive(Debug, Clone, Copy)]
 pub struct Vector2 {
@@ -12,6 +14,24 @@ pub struct Vector2 {
 pub struct Vector2i {
     pub x: i32,
     pub y: i32,
+}
+
+impl From<SysVector2> for Vector2 {
+    fn from(value: SysVector2) -> Self {
+        unsafe { std::mem::transmute(value) }
+    }
+}
+
+impl From<Vector2> for SysVector2 {
+    fn from(value: Vector2) -> Self {
+        unsafe { std::mem::transmute(value) }
+    }
+}
+
+impl From<&Vector2> for SysVector2 {
+    fn from(value: &Vector2) -> Self {
+        unsafe { std::mem::transmute_copy(value) }
+    }
 }
 
 impl Vector2 {
@@ -863,7 +883,7 @@ impl ops::DivAssign<i32> for Vector2i {
 
 #[cfg(test)]
 mod tests {
-    use crate::vector::{Vector2, Vector2i};
+    use crate::core::math::vector::{Vector2, Vector2i};
 
     #[test]
     fn vector2_add_vector2() {

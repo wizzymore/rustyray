@@ -1,11 +1,12 @@
 use std::{ffi::CString, fmt::Debug};
 
-use rustyray_sys::{
-    consts::{ConfigFlag, KeyboardKey, MouseButton},
-    ffi,
-    vector::{Vector2, Vector2i},
-};
+use rustyray_sys::ffi;
 use thiserror::Error;
+
+use super::{
+    consts::{ConfigFlag, KeyboardKey, MouseButton},
+    math::{Vector2, Vector2i},
+};
 
 #[derive(Debug)]
 pub struct Window {
@@ -115,9 +116,9 @@ impl Window {
     pub fn set_vsync(&self, v: bool) {
         unsafe {
             if v {
-                ffi::set_window_state(ConfigFlag::VsyncHint);
+                ffi::set_window_state(ConfigFlag::VsyncHint.into());
             } else {
-                ffi::clear_window_state(ConfigFlag::VsyncHint);
+                ffi::clear_window_state(ConfigFlag::VsyncHint.into());
             }
         }
     }
@@ -155,7 +156,7 @@ impl Window {
     }
 
     pub fn get_mouse_pos(&self) -> Vector2 {
-        unsafe { ffi::get_mouse_position() }
+        unsafe { ffi::get_mouse_position().into() }
     }
 }
 
