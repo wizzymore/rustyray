@@ -123,6 +123,7 @@ impl DrawHandler {
         }
     }
 
+    /// Draw a color-filled rectangle
     #[inline]
     pub fn draw_rect(&self, rect: Rectangle, tint: Color) {
         unsafe {
@@ -130,6 +131,26 @@ impl DrawHandler {
         }
     }
 
+    /// Draw rectangle outline
+    #[inline]
+    pub fn draw_rect_lines(&self, rect: Rectangle, tint: Color) {
+        unsafe {
+            ffi::draw_rectangle_lines(
+                rect.x as i32,
+                rect.y as i32,
+                rect.width as i32,
+                rect.height as i32,
+                tint,
+            );
+        }
+    }
+
+    #[inline]
+    pub fn draw_circle(&self, center: Vector2, radius: f32, color: Color) {
+        unsafe { ffi::draw_circle_v(center, radius, color) }
+    }
+
+    /// Draw text (using default font)
     #[inline]
     pub fn draw_text(&self, text: String, pos_x: i32, pos_y: i32, size: i32, tint: Color) {
         unsafe {

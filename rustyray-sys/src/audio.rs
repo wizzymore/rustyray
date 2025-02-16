@@ -1,18 +1,19 @@
+use std::{ffi::CString, fmt::Debug};
+
 use libc::{c_int, c_uint, c_void};
+
+use crate::ffi;
 
 /// Wave, audio wave data
 #[repr(C)]
 #[derive(Debug, Clone)]
 pub struct Wave {
-    frame_count: c_uint,
-    sample_rate: c_uint,
-    sample_size: c_uint,
-    channels: c_uint,
-    data: *const c_void,
+    pub frame_count: c_uint,
+    pub sample_rate: c_uint,
+    pub sample_size: c_uint,
+    pub channels: c_uint,
+    pub data: *const c_void,
 }
-
-enum RAudioBuffer {}
-enum RAudioProcessor {}
 
 pub type AudioCallback = extern "C" fn(buffer_data: *const c_void, frames: c_uint);
 
@@ -21,16 +22,16 @@ pub type AudioCallback = extern "C" fn(buffer_data: *const c_void, frames: c_uin
 #[derive(Debug, Clone)]
 pub struct AudioStream {
     /// Pointer to internal data used by the audio system
-    buffer: *const RAudioBuffer,
+    pub buffer: *const c_void,
     /// Pointer to internal data processor, useful for audio effects
-    processor: *const RAudioProcessor,
+    pub processor: *const c_void,
 
     /// Frequency (samples per second)
-    sample_rate: c_uint,
+    pub sample_rate: c_uint,
     /// Bit detph (bits per sample): 8, 16, 32 (24 not supported)
-    sample_size: c_uint,
+    pub sample_size: c_uint,
     /// Number of channels (1-mono, 2-stereo, ...)
-    channels: c_uint,
+    pub channels: c_uint,
 }
 
 /// Sound
@@ -38,18 +39,48 @@ pub struct AudioStream {
 #[derive(Debug, Clone)]
 pub struct Sound {
     /// Audio Stream
-    stream: AudioStream,
+    pub stream: AudioStream,
     /// Total number of frames (considering channels)
-    frame_count: c_uint,
+    pub frame_count: c_uint,
+}
+
+impl Sound {
+    pub fn new(path: String) -> Self {
+        unsafe { ffi::load_sound(CString::new(path).unwrap().as_ptr()) }
+    }
+
+    pub fn unload(self) {
+        unsafe {
+            ffi::unload_sound(self);
+        }
+    }
+
+    pub fn unload_alias(self) {
+        unsafe {
+            ffi::unload_sound_alias(self);
+        }
+    }
 }
 
 #[repr(C)]
 #[derive(Debug, Clone)]
 pub struct Music {
-    stream: AudioStream,
-    frame_count: c_uint,
-    looping: bool,
+    pub stream: AudioStream,
+    pub frame_count: c_uint,
+    pub looping: bool,
 
-    ctx_type: c_int,
-    ctx_data: *const c_void,
+    pub ctx_type: c_int,
+    pub ctx_data: *const c_void,
+}
+
+impl Music {
+    pub fn new(path: String) -> Self {
+        unsafe { ffi::load_music_stream(CString::new(path).unwrap().as_ptr()) }
+    }
+
+    pub fn unload(self) {
+        unsafe {
+            ffi::unload_music_stream(self);
+        }
+    }
 }
