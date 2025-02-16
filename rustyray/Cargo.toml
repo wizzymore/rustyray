@@ -6,6 +6,7 @@ edition = "2021"
 repository = "https://github.com/wizzymore/rustyray"
 readme.workspace = true
 license.workspace = true
+rust-version.workspace = true
 
 [dependencies]
 rustyray-sys = { version = "0", path = "../rustyray-sys" }

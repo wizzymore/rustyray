@@ -13,6 +13,7 @@ exclude = [
 ]
 readme = "README.md"
 license.workspace = true
+rust-version.workspace = true
 
 [dependencies]
 bitmask-enum = "2.2.5"
