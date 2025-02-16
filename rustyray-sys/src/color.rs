@@ -12,18 +12,14 @@ impl Color {
         Self { r, g, b, a }
     }
 
-    pub fn fade(color: Color, alpha: f32) -> Self {
-        *(color.clone().fade_mut(alpha))
+    /// Get color with alpha applied, alpha goes from 0.0 to 1.0
+    pub fn fade(&mut self, alpha: f32) -> &mut Self {
+        self.a = (255.0 * alpha.clamp(0., 1.)) as u8;
+        self
     }
 }
 
 impl Color {
-    /// Get color with alpha applied, alpha goes from 0.0 to 1.0
-    pub fn fade_mut(&mut self, alpha: f32) -> &mut Self {
-        self.a = (255.0 * alpha.clamp(0., 1.)) as u8;
-        self
-    }
-
     /// Get hexadecimal value for a [Color] (0xRRGGBBAA)
     pub fn to_int(&self) -> i32 {
         ((self.r as i32) << 24) | ((self.g as i32) << 16) | ((self.b as i32) << 8) | self.a as i32

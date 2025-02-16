@@ -6,22 +6,21 @@ use libc::{c_int, c_uint, c_void};
 use thiserror::Error;
 
 use crate::ffi::{is_window_ready, load_render_texture, load_texture};
-use crate::vector::Vector2i;
 
 /// Texture, tex data stored in GPU memory (VRAM)
 #[repr(C)]
 #[derive(Debug, Clone)]
 pub struct Texture {
     /// OpenGL texture id
-    id: c_uint,
+    pub id: c_uint,
     /// Texture base width
-    width: c_int,
+    pub width: c_int,
     /// Texture base height
-    height: c_int,
+    pub height: c_int,
     /// Mipmap levels, 1 by default
-    mipmaps: c_int,
+    pub mipmaps: c_int,
     /// Data format (PixelFormat type)
-    format: c_int,
+    pub format: c_int,
 }
 
 /// Image, pixel data stored in CPU memory (RAM)
@@ -29,15 +28,15 @@ pub struct Texture {
 #[derive(Debug, Clone)]
 pub struct Image {
     /// Image raw data
-    data: *mut c_void,
+    pub data: *mut c_void,
     /// Image base width
-    width: c_int,
+    pub width: c_int,
     /// Image base height
-    height: c_int,
+    pub height: c_int,
     /// Mipmap levels, 1 by default
-    mipmaps: c_int,
+    pub mipmaps: c_int,
     /// Data format (PixelFormat type)
-    format: c_int,
+    pub format: c_int,
 }
 
 /// RenderTexture, fbo for texture rendering
@@ -45,7 +44,7 @@ pub struct Image {
 #[derive(Debug, Clone)]
 pub struct RenderTexture {
     /// OpenGL framebuffer object id
-    id: c_uint,
+    pub id: c_uint,
     /// Color buffer attachment texture
     pub texture: Texture,
     /// Depth buffer attachment texture
@@ -83,25 +82,26 @@ impl Texture {
 
         unsafe { Ok(load_texture(CString::new(path).unwrap().as_ptr())) }
     }
+}
 
-    pub fn width(&self) -> i32 {
-        self.width
-    }
+#[derive(Error)]
+pub enum RenderTextureLoadError {
+    #[error("you must first create a Window before loading textures")]
+    WindowNotReady(),
+}
 
-    pub fn height(&self) -> i32 {
-        self.height
-    }
-
-    pub fn size(&self) -> Vector2i {
-        Vector2i {
-            x: self.width,
-            y: self.height,
-        }
+impl Debug for RenderTextureLoadError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self)
     }
 }
 
 impl RenderTexture {
-    pub fn new(width: i32, height: i32) -> Self {
-        unsafe { load_render_texture(width, height) }
+    pub fn new(width: i32, height: i32) -> Result<RenderTexture, RenderTextureLoadError> {
+        if unsafe { !is_window_ready() } {
+            return Err(RenderTextureLoadError::WindowNotReady());
+        }
+
+        unsafe { Ok(load_render_texture(width, height)) }
     }
 }

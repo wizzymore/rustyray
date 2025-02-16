@@ -2,6 +2,5 @@ pub mod audio;
 pub mod color;
 pub mod consts;
 pub mod ffi;
-pub mod rectangle;
+pub mod math;
 pub mod texture;
-pub mod vector;

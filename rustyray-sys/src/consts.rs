@@ -1,5 +1,3 @@
-use bitmask_enum::bitmask;
-
 /// Mouse buttons
 #[repr(i32)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
@@ -208,7 +206,8 @@ pub enum BlendMode {
 }
 
 /// Gesture
-#[bitmask(u32)]
+#[repr(u32)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum Gesture {
     /// No gesture
     None,
@@ -534,7 +533,8 @@ pub enum KeyboardKey {
 /// **NOTE**: Every bit registers one state (use it with bit masks)
 ///
 /// By default all flags are set to `0`
-#[bitmask(u32)]
+#[repr(i32)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum ConfigFlag {
     /// Set to try enabling V-Sync on GPU
     VsyncHint = 0x00000040,

@@ -102,6 +102,8 @@ fn main() {
                 if circle.alpha <= 0. {
                     *circle = create_circle(&mut rng);
                 }
+
+                circle.color.fade(circle.alpha);
             });
         }
 
@@ -109,11 +111,7 @@ fn main() {
             d.clear(Color::RAYWHITE);
 
             circles.iter().for_each(|circle| {
-                d.draw_circle(
-                    circle.pos,
-                    circle.radius,
-                    Color::fade(circle.color, circle.alpha),
-                );
+                d.draw_circle(circle.pos, circle.radius, circle.color);
             });
 
             // Draw time bar

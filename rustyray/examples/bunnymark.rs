@@ -47,11 +47,11 @@ fn main() {
             bunny.dir.normalize();
             bunny.pos += bunny.speed * bunny.dir * dt;
 
-            let pos = bunny.pos.to_vector2i() + tex.0.size() / 2;
+            let pos = bunny.pos.to_vector2i() + tex.size() / 2;
             if pos.x > screen_size.x || pos.x < 0 {
                 bunny.dir.x *= -1.;
             }
-            if pos.y > screen_size.y || pos.y - tex.0.height() < 0 {
+            if pos.y > screen_size.y || pos.y - tex.height() < 0 {
                 bunny.dir.y *= -1.;
             }
         });
