@@ -27,16 +27,18 @@ fn main() {
             }
         }
 
-        window.draw(|d| {
-            d.clear(Color::RAYWHITE);
+        window
+            .draw(|d| {
+                d.clear(Color::RAYWHITE);
 
-            d.draw_text(
-                "Press SPACE to PLAY the WAV sound!".into(),
-                200,
-                180,
-                20,
-                Color::DARKGRAY,
-            );
-        });
+                d.draw_text(
+                    "Press SPACE to PLAY the WAV sound!".into(),
+                    200,
+                    180,
+                    20,
+                    Color::DARKGRAY,
+                );
+            })
+            .unwrap();
     }
 }

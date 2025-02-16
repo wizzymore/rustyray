@@ -1,8 +1,24 @@
-use std::ffi::CString;
+use std::{ffi::CString, fmt::Debug};
 
 use rustyray_sys::ffi;
+use thiserror::Error;
 
-pub struct DrawHandler;
+#[derive(Error)]
+pub enum DrawError {
+    #[error("You must clear the screen everytime when you call draw, otherwise you will have a memory leak.")]
+    DidNotClear,
+}
+
+impl Debug for DrawError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self)
+    }
+}
+
+#[derive(Default)]
+pub struct DrawHandler {
+    pub(crate) did_clear: bool,
+}
 
 use super::{
     color::Color,
@@ -12,28 +28,40 @@ use super::{
 };
 
 impl Window {
-    pub fn draw(&self, callback: impl Fn(DrawHandler)) {
+    pub fn draw(&self, callback: impl Fn(&mut DrawHandler)) -> Result<(), DrawError> {
         unsafe {
             ffi::begin_drawing();
         }
 
-        callback(DrawHandler {});
+        let mut draw_handler = DrawHandler {
+            ..Default::default()
+        };
+
+        callback(&mut draw_handler);
+
+        if !draw_handler.did_clear {
+            return Err(DrawError::DidNotClear);
+        }
 
         unsafe {
             ffi::end_drawing();
         }
+
+        Ok(())
     }
 
     pub fn draw_render_texture(
         &self,
         render_texture: &OwnedRenderTexture,
-        callback: impl Fn(DrawHandler),
+        callback: impl Fn(&mut DrawHandler),
     ) {
         unsafe {
             ffi::begin_texture_mode(render_texture.into());
         }
 
-        callback(DrawHandler {});
+        callback(&mut DrawHandler {
+            ..Default::default()
+        });
 
         unsafe {
             ffi::end_texture_mode();
@@ -50,7 +78,8 @@ impl DrawHandler {
     }
 
     #[inline]
-    pub fn clear(&self, color: Color) {
+    pub fn clear(&mut self, color: Color) {
+        self.did_clear = true;
         unsafe {
             ffi::clear_background(color);
         }
