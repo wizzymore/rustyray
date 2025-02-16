@@ -8,6 +8,8 @@ use rustyray_sys::{
     vector::Vector2,
 };
 
+use super::window::Window;
+
 /// This is a [`rustyray_ffi::texture::Texture`] that uses the concept of RAII.
 ///
 /// It implements the Drop trait so when it goes out of scope the texture will automatically unload.
@@ -49,6 +51,36 @@ impl OwnedRenderTexture {
     #[inline]
     pub fn new(width: i32, height: i32) -> Self {
         Self(RenderTexture::new(width, height))
+    }
+}
+
+impl Window {
+    pub fn draw(&self, callback: impl Fn(DrawHandler)) {
+        unsafe {
+            ffi::begin_drawing();
+        }
+
+        callback(DrawHandler {});
+
+        unsafe {
+            ffi::end_drawing();
+        }
+    }
+
+    pub fn draw_render_texture<T: AsRef<RenderTexture>>(
+        &self,
+        render_texture: T,
+        callback: impl Fn(DrawHandler),
+    ) {
+        unsafe {
+            ffi::begin_texture_mode(render_texture.as_ref().clone());
+        }
+
+        callback(DrawHandler {});
+
+        unsafe {
+            ffi::end_texture_mode();
+        }
     }
 }
 

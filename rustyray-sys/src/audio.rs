@@ -2,7 +2,7 @@ use libc::{c_int, c_uint, c_void};
 
 /// Wave, audio wave data
 #[repr(C)]
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Wave {
     frame_count: c_uint,
     sample_rate: c_uint,
@@ -18,7 +18,7 @@ pub type AudioCallback = extern "C" fn(buffer_data: *const c_void, frames: c_uin
 
 /// AudioStream, custom audio stream
 #[repr(C)]
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct AudioStream {
     /// Pointer to internal data used by the audio system
     buffer: *const RAudioBuffer,
@@ -35,7 +35,7 @@ pub struct AudioStream {
 
 /// Sound
 #[repr(C)]
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Sound {
     /// Audio Stream
     stream: AudioStream,
@@ -44,7 +44,7 @@ pub struct Sound {
 }
 
 #[repr(C)]
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Music {
     stream: AudioStream,
     frame_count: c_uint,

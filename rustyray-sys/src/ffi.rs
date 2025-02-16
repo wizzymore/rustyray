@@ -87,7 +87,10 @@ use libc::{c_char, c_double, c_float, c_int, c_uchar, c_uint, c_void};
 use crate::{
     audio::{AudioCallback, AudioStream, Music, Sound, Wave},
     color::Color,
-    consts::{ConfigFlag, MouseButton},
+    consts::{
+        ConfigFlag, GamepadAxis, GamepadButton, Gesture, KeyboardKey, MouseButton, MouseCursor,
+        TextureFilter, TextureWrap,
+    },
     rectangle::Rectangle,
     texture::{Image, RenderTexture, RenderTexture2D, Texture},
     vector::Vector2,
@@ -354,10 +357,10 @@ unsafe extern "C" {
     pub fn gen_texture_mipmaps(texture: *mut Texture);
     /// Set texture scaling filter mode
     #[link_name = "SetTextureFilter"]
-    pub fn set_texture_filter(texture: Texture, filter: c_int);
+    pub fn set_texture_filter(texture: Texture, filter: TextureFilter);
     /// Set texture wrapping mode
     #[link_name = "SetTextureWrap"]
-    pub fn set_texture_wrap(texture: Texture, wrap: c_int);
+    pub fn set_texture_wrap(texture: Texture, wrap: TextureWrap);
 }
 
 // Texture drawing functions
@@ -423,11 +426,87 @@ unsafe extern "C" {
     pub fn draw_rectangle_rec(rec: Rectangle, color: Color);
 }
 
+// Input-related functions: keyboard
+unsafe extern "C" {
+    /// Check if a key has been pressed once
+    #[link_name = "IsKeyPressed"]
+    pub fn is_key_pressed(key: KeyboardKey) -> bool;
+    /// Check if a key has been pressed again
+    #[link_name = "IsKeyPressedRepeat"]
+    pub fn is_key_pressed_repeat(key: KeyboardKey) -> bool;
+    /// Check if a key is being pressed
+    #[link_name = "IsKeyDown"]
+    pub fn is_key_down(key: KeyboardKey) -> bool;
+    /// Check if a key has been released once
+    #[link_name = "IsKeyReleased"]
+    pub fn is_key_released(key: KeyboardKey) -> bool;
+    /// Check if a key is **NOT** being pressed
+    #[link_name = "IsKeyUp"]
+    pub fn is_key_up(key: KeyboardKey) -> bool;
+    /// Get key pressed (keycode), call it multiple times for keys queued, returns 0 when the queue is empty
+    #[link_name = "GetKeyPressed"]
+    pub fn get_key_pressed() -> c_int;
+    /// Get char pressed (unicode), call it multiple times for chars queued, return s0 when the queue is empty
+    #[link_name = "GetCharPressed"]
+    pub fn get_char_pressed() -> c_int;
+    /// Set a custom key to exit program (default is [KeyboardKey::Escape])
+    #[link_name = "SetExitKey"]
+    pub fn set_exit_key(key: c_int);
+}
+
+// Input-related functions: gamepads
+unsafe extern "C" {
+    /// Check if a gamepad is available
+    #[link_name = "IsGamepadAvailable"]
+    pub fn is_gamepad_available(gamepad: c_int) -> bool;
+    /// Get gamepad internal name id
+    #[link_name = "GetGamepadName"]
+    pub fn get_gamepad_name(gamepad: c_int) -> *const c_char;
+    /// Check if a gamepad button has been pressed once
+    #[link_name = "IsGamepadButtonPressed"]
+    pub fn is_gamepad_button_pressed(gamepad: c_int, button: GamepadButton) -> bool;
+    /// Check if a gamepad button is being pressed
+    #[link_name = "IsGamepadButtonDown"]
+    pub fn is_gamepad_button_down(gamepad: c_int, button: GamepadButton) -> bool;
+    /// Check if a gamepad button has been released once
+    #[link_name = "IsGamepadButtonReleased"]
+    pub fn is_gamepad_button_released(gamepad: c_int, button: GamepadButton) -> bool;
+    /// Check if a gamepad button is **NOT** being pressed
+    #[link_name = "IsGamepadButtonUp"]
+    pub fn is_gamepad_button_up(gamepad: c_int, button: GamepadButton) -> bool;
+    /// Get the last gamepad button pressed
+    #[link_name = "GetGamepadButtonPressed"]
+    pub fn get_gamepad_button_pressed(gamepad: c_int) -> GamepadButton;
+    /// Get gamepad axis count for a gamepad
+    #[link_name = "GetGamepadAxisCount"]
+    pub fn get_gamepad_axis_count(gamepad: c_int) -> c_int;
+    /// Get axis movement value for a gamepad axis
+    #[link_name = "GetGamepadAxisMovement"]
+    pub fn get_gamepad_axis_movement(gamepad: c_int, axis: GamepadAxis) -> c_float;
+    /// Set gamepad vibration for both motors (duration in seconds)
+    #[link_name = "SetGamepadVibration"]
+    pub fn set_gamepad_vibration(
+        gamepad: c_int,
+        left_motor: c_float,
+        right_motor: c_float,
+        duration: c_float,
+    );
+}
+
 // Input-related functions: mouse
 unsafe extern "C" {
-    /// Check if a mouse button is beening pressed
+    /// Check if a [MouseButton] has been pressed once
+    #[link_name = "IsMouseButtonPressed"]
+    pub fn is_mouse_button_pressed(button: MouseButton) -> bool;
+    /// Check if a [MouseButton] is beening pressed
     #[link_name = "IsMouseButtonDown"]
     pub fn is_mouse_button_down(button: MouseButton) -> bool;
+    /// Check if a [MouseButton] has been released once
+    #[link_name = "IsMouseButtonReleased"]
+    pub fn is_mouse_button_released(button: MouseButton) -> bool;
+    /// Check if a [MouseButton] is **NOT** being pressed
+    #[link_name = "IsMouseButtonUp"]
+    pub fn is_mouse_button_up(button: MouseButton) -> bool;
     /// Get mouse position X
     #[link_name = "GetMouseX"]
     pub fn get_mouse_x() -> c_int;
@@ -437,6 +516,73 @@ unsafe extern "C" {
     /// Get mouse position XY
     #[link_name = "GetMousePosition"]
     pub fn get_mouse_position() -> Vector2;
+    /// Get mouse delta between frames
+    #[link_name = "GetMouseDelta"]
+    pub fn get_mouse_delta() -> Vector2;
+    /// Set mouse position XY
+    #[link_name = "SetMousePosition"]
+    pub fn set_mouse_position(x: c_int, y: c_int);
+    /// Set mouse offset
+    #[link_name = "SetMouseOffset"]
+    pub fn set_mouse_offset(offset_x: c_int, offset_y: c_int);
+    /// Set mouse scaling
+    #[link_name = "SetMouseScale"]
+    pub fn set_mouse_scale(scale_x: c_int, scale_y: c_int);
+    /// Get mouse wheel movement for X or Y, whichever is larger
+    #[link_name = "GetMouseWheelMove"]
+    pub fn get_mouse_wheel_move() -> c_float;
+    /// Get mouse wheel movement for both X or Y
+    #[link_name = "GetMouseWheelMoveV"]
+    pub fn get_mouse_wheel_move_v() -> Vector2;
+    /// Set mouse cursor
+    #[link_name = "SetMouseCursor"]
+    pub fn set_mouse_cursor(cursor: MouseCursor);
+}
+
+// Input-related functions: touch
+unsafe extern "C" {
+    /// Get touch position X for touch point 0 (relative to screen size)
+    #[link_name = "GetTouchX"]
+    pub fn get_touch_x() -> c_int;
+    /// Get touch position Y for touch point 0 (relative to screen size)
+    #[link_name = "GetTouchY"]
+    pub fn get_touch_y() -> c_int;
+    /// Get touch position XY for a touch point index (relative to screen size)
+    #[link_name = "GetTouchPosition"]
+    pub fn get_touch_position(index: c_int) -> Vector2;
+    /// Get touch point identifier for given index
+    #[link_name = "GetTouchPointId"]
+    pub fn get_touch_point_id(index: c_int) -> c_int;
+    /// Get number of touch points
+    #[link_name = "GetTouchPointCount"]
+    pub fn get_touch_point_count() -> c_int;
+}
+// Gestures and Touch handling functions
+unsafe extern "C" {
+    /// Enable a set of [Gesture] using flags
+    #[link_name = "SetGesturesEnabled"]
+    pub fn set_gestures_enabled(flags: Gesture);
+    /// Check if a [Gesture] have been detected
+    #[link_name = "IsGestureDetected"]
+    pub fn is_gesture_detected(gesture: Gesture);
+    /// Get latest detected [Gesture]
+    #[link_name = "GetGestureDetected"]
+    pub fn get_gesture_detected() -> Gesture;
+    /// Get [Gesture] hold time in seconds
+    #[link_name = "GetGestureHoldDuration"]
+    pub fn get_gesture_hold_duration() -> c_int;
+    /// Get [Gesture] drag [Vector2]
+    #[link_name = "GetGestureDragVector"]
+    pub fn get_gesture_drag_vector() -> Vector2;
+    /// Get [Gesture] drag angle
+    #[link_name = "GetGestureDragAngle"]
+    pub fn get_gesture_drag_angle() -> c_float;
+    /// Get [Gesture] pinch delta
+    #[link_name = "GetGesturePinchVector"]
+    pub fn get_gesture_pinch_vector() -> Vector2;
+    /// Get [Gesture] pinch angle
+    #[link_name = "GetGesturePinchAngle"]
+    pub fn get_gesture_pinch_angle() -> c_float;
 }
 
 // Timing-related functions

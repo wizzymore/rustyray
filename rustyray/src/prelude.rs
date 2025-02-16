@@ -1,3 +1,4 @@
+pub use crate::audio::*;
 pub use crate::color::*;
 pub use crate::consts::*;
 pub use crate::core::draw::*;
