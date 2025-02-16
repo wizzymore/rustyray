@@ -1,11 +1,8 @@
 use std::{ffi::CString, fmt::Debug};
 
-use super::draw::DrawHandler;
-
 use rustyray_sys::{
     consts::{ConfigFlag, KeyboardKey, MouseButton},
     ffi,
-    texture::RenderTexture,
     vector::{Vector2, Vector2i},
 };
 use thiserror::Error;
@@ -153,6 +150,10 @@ impl Window {
         unsafe { ffi::is_key_down(key) }
     }
 
+    pub fn is_key_pressed(&self, key: KeyboardKey) -> bool {
+        unsafe { ffi::is_key_pressed(key) }
+    }
+
     pub fn get_mouse_pos(&self) -> Vector2 {
         unsafe { ffi::get_mouse_position() }
     }
@@ -160,13 +161,13 @@ impl Window {
 
 impl Drop for Window {
     fn drop(&mut self) {
-        unsafe {
-            ffi::close_window();
-        }
         if self.is_audio_device_ready() {
             unsafe {
                 ffi::close_audio_device();
             }
+        }
+        unsafe {
+            ffi::close_window();
         }
     }
 }

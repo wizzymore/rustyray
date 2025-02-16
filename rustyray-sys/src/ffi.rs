@@ -421,9 +421,21 @@ unsafe extern "C" {
 
 // Basic shapes drawing functions
 unsafe extern "C" {
+    /// Draw a color-filled circle (Vector version)
+    #[link_name = "DrawCircleV"]
+    pub fn draw_circle_v(center: Vector2, radius: c_float, color: Color);
     /// Draw a color-filled rectangle
     #[link_name = "DrawRectangleRec"]
     pub fn draw_rectangle_rec(rec: Rectangle, color: Color);
+    /// Draw rectangle outline
+    #[link_name = "DrawRectangleLines"]
+    pub fn draw_rectangle_lines(
+        pos_x: c_int,
+        pos_y: c_int,
+        width: c_int,
+        height: c_int,
+        color: Color,
+    );
 }
 
 // Input-related functions: keyboard

@@ -20,6 +20,22 @@ name = "window"
 [[example]]
 name = "bunnymark"
 
+[[example]]
+name = "audio-sound-loading"
+path = "examples/audio/sound_loading.rs"
+
+[[example]]
+name = "audio-sound-multi"
+path = "examples/audio/sound_multi.rs"
+
+[[example]]
+name = "audio-music-stream"
+path = "examples/audio/music_stream.rs"
+
+[[example]]
+name = "audio-module-playing"
+path = "examples/audio/module_playing.rs"
+
 [features]
 default = []
 
