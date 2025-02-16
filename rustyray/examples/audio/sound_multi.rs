@@ -13,7 +13,7 @@ fn main() {
     let mut sounds = vec![OwnedSound::new("assets/audio/sound.wav".into())];
     sounds.reserve_exact(10);
     for _ in 1..10 {
-        sounds.push(sounds.get(0).unwrap().alias())
+        sounds.push(sounds[0].alias())
     }
 
     let mut current_sound = 0;
