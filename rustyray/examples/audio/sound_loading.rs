@@ -21,24 +21,26 @@ fn main() {
             fx_ogg.play();
         }
 
-        window.draw(|d| {
-            d.clear(Color::RAYWHITE);
+        window
+            .draw(|d| {
+                d.clear(Color::RAYWHITE);
 
-            d.draw_text(
-                "Press SPACE to PLAY the WAV sound!".into(),
-                200,
-                180,
-                20,
-                Color::DARKGRAY,
-            );
+                d.draw_text(
+                    "Press SPACE to PLAY the WAV sound!".into(),
+                    200,
+                    180,
+                    20,
+                    Color::DARKGRAY,
+                );
 
-            d.draw_text(
-                "Press ENTER to PLAY the OGG sound!".into(),
-                200,
-                220,
-                20,
-                Color::DARKGRAY,
-            );
-        });
+                d.draw_text(
+                    "Press ENTER to PLAY the OGG sound!".into(),
+                    200,
+                    220,
+                    20,
+                    Color::DARKGRAY,
+                );
+            })
+            .unwrap();
     }
 }

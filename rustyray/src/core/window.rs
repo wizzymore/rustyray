@@ -9,11 +9,7 @@ use super::{
 };
 
 #[derive(Debug)]
-pub struct Window {
-    width: i32,
-    height: i32,
-    title: String,
-}
+pub struct Window {}
 
 #[derive(Error)]
 pub enum WindowError {
@@ -34,25 +30,16 @@ impl Debug for WindowError {
 // Window-related functions
 impl Window {
     pub fn new(width: i32, height: i32, title: String) -> Window {
-        Window {
-            width,
-            height,
-            title,
-        }
-        .init_window()
+        Window {}.init_window(width, height, title)
     }
 
-    fn init_window(self) -> Self {
+    fn init_window(self, width: i32, height: i32, title: String) -> Self {
         unsafe {
             if self.is_window_ready() {
                 panic!("You can't create two windows at the same time.");
             }
 
-            ffi::init_window(
-                self.width,
-                self.height,
-                CString::new(self.title.clone()).unwrap().as_ptr(),
-            );
+            ffi::init_window(width, height, CString::new(title).unwrap().as_ptr());
         }
 
         self

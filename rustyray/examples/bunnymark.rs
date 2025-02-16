@@ -56,29 +56,31 @@ fn main() {
             }
         });
 
-        window.draw(|d| {
-            d.clear(Color::WHITE);
+        window
+            .draw(|d| {
+                d.clear(Color::WHITE);
 
-            bunnies.iter().for_each(|bunny| {
-                d.draw_texture(&tex, bunny.pos.x as i32, bunny.pos.y as i32, bunny.color);
-            });
+                bunnies.iter().for_each(|bunny| {
+                    d.draw_texture(&tex, bunny.pos.x as i32, bunny.pos.y as i32, bunny.color);
+                });
 
-            d.draw_rect(bar_rect, Color::BLACK);
-            d.draw_text(
-                format!("bunnies: {}", bunnies.len()),
-                120,
-                10,
-                20,
-                Color::GREEN,
-            );
-            d.draw_text(
-                format!("batched draw calls: {}", 1 + bunnies.len() / MAX_BUNNIES),
-                320,
-                10,
-                20,
-                Color::MAROON,
-            );
-            d.draw_fps(10, 10);
-        });
+                d.draw_rect(bar_rect, Color::BLACK);
+                d.draw_text(
+                    format!("bunnies: {}", bunnies.len()),
+                    120,
+                    10,
+                    20,
+                    Color::GREEN,
+                );
+                d.draw_text(
+                    format!("batched draw calls: {}", 1 + bunnies.len() / MAX_BUNNIES),
+                    320,
+                    10,
+                    20,
+                    Color::MAROON,
+                );
+                d.draw_fps(10, 10);
+            })
+            .unwrap();
     }
 }

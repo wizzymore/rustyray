@@ -9,9 +9,11 @@ fn main() {
             d.clear(Color::BLACK);
             d.draw_fps(10, 10);
         });
-        window.draw(|d| {
-            d.clear(Color::BLANK);
-            d.draw_render_texture(&rt);
-        });
+        window
+            .draw(|d| {
+                d.clear(Color::BLANK);
+                d.draw_render_texture(&rt);
+            })
+            .unwrap();
     }
 }
