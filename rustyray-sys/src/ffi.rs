@@ -138,7 +138,7 @@ extern "C" {
     /// ```no_run
     /// use rustyray_sys::{ffi::is_window_state, consts::ConfigFlag};
     ///
-    /// unsafe { is_window_state(ConfigFlag::VsyncHint | ConfigFlag::FullscreenMode) };
+    /// unsafe { is_window_state(ConfigFlag::VsyncHint) };
     /// ```
     #[link_name = "IsWindowState"]
     pub fn is_window_state(flags: ConfigFlag) -> bool;
@@ -152,7 +152,7 @@ extern "C" {
     /// ```no_run
     /// use rustyray_sys::{ffi::set_window_state, consts::ConfigFlag};
     ///
-    /// unsafe { set_window_state(ConfigFlag::VsyncHint | ConfigFlag::FullscreenMode); }
+    /// unsafe { set_window_state(ConfigFlag::VsyncHint); }
     /// ```
     #[link_name = "SetWindowState"]
     pub fn set_window_state(flags: ConfigFlag);
@@ -166,7 +166,7 @@ extern "C" {
     /// ```no_run
     /// use rustyray_sys::{ffi::clear_window_state, consts::ConfigFlag};
     ///
-    /// unsafe { clear_window_state(ConfigFlag::VsyncHint | ConfigFlag::FullscreenMode); }
+    /// unsafe { clear_window_state(ConfigFlag::VsyncHint); }
     /// ```
     #[link_name = "ClearWindowState"]
     pub fn clear_window_state(flags: ConfigFlag);
@@ -625,7 +625,7 @@ extern "C" {
     /// ```no_run
     /// use rustyray_sys::{ffi::set_config_flags, consts::ConfigFlag};
     ///
-    /// unsafe { set_config_flags(ConfigFlag::VsyncHint | ConfigFlag::FullscreenMode) }
+    /// unsafe { set_config_flags(ConfigFlag::VsyncHint) }
     /// ```
     #[link_name = "SetConfigFlags"]
     pub fn set_config_flags(flags: ConfigFlag);
