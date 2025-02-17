@@ -52,3 +52,6 @@ opengl_es_20 = ["rustyray-sys/opengl_es_20"]
 
 # config.h's SUPPORT_CUSTOM_FRAME_CONTROL
 custom_frame_control = ["rustyray-sys/custom_frame_control"]
+
+# build raylib as a shared library
+raylib_shared = ["rustyray-sys/raylib_shared"]

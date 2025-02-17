@@ -39,3 +39,6 @@ opengl_es_20 = []
 
 # config.h's SUPPORT_CUSTOM_FRAME_CONTROL
 custom_frame_control = []
+
+# build raylib as a shared library
+raylib_shared = []
