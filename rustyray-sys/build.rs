@@ -108,6 +108,9 @@ fn build_with_cmake(src_path: &str) {
         builder.define("USE_EXTERNAL_GLFW", "ON"); // Necessary for wayland support in my testing
     }
 
+    #[cfg(feature = "raylib_shared")]
+    builder.define("BUILD_SHARED_LIBS", "ON");
+
     // This seems redundant, but I felt it was needed incase raylib changes it's default
     #[cfg(not(feature = "wayland"))]
     builder.define("USE_WAYLAND", "OFF");
@@ -216,7 +219,10 @@ fn link(platform: Platform, platform_os: PlatformOS) {
         println!("cargo:rustc-link-lib=glfw");
     }
 
+    #[cfg(not(feature = "raylib_shared"))]
     println!("cargo:rustc-link-lib=static=raylib");
+    #[cfg(feature = "raylib_shared")]
+    println!("cargo:rustc-link-lib=dylib=raylib");
 }
 
 // cp_raylib copy raylib to an out dir
