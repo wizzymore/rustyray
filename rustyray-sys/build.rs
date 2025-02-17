@@ -3,7 +3,7 @@ use std::path::{Path, PathBuf};
 use std::process::exit;
 
 fn main() {
-    println!("cargo:rerun-if-changed=build.rs");
+    println!("cargo::rerun-if-changed=build.rs");
     let target = env::var("TARGET").expect("Cargo build scripts always have TARGET");
     let _ = env::current_dir()
         .unwrap()
@@ -44,8 +44,6 @@ fn main() {
     build_with_cmake(&src);
 
     link(platform, platform_os);
-
-    // gen_rgui();
 }
 
 #[cfg(feature = "nobuild")]
@@ -176,7 +174,7 @@ fn build_with_cmake(src_path: &str) {
             .expect("failed to create wasm library");
     }
     // println!("cmake build {}", c.display());
-    println!("cargo:rustc-link-search=native={}", dst_lib.display());
+    println!("cargo::rustc-link-search=native={}", dst_lib.display());
 }
 
 #[cfg(feature = "nobuild")]
@@ -186,43 +184,43 @@ fn link(_platform: Platform, _platform_os: PlatformOS) {}
 fn link(platform: Platform, platform_os: PlatformOS) {
     match platform_os {
         PlatformOS::Windows => {
-            println!("cargo:rustc-link-lib=dylib=winmm");
-            println!("cargo:rustc-link-lib=dylib=gdi32");
-            println!("cargo:rustc-link-lib=dylib=user32");
-            println!("cargo:rustc-link-lib=dylib=shell32");
+            println!("cargo::rustc-link-lib=dylib=winmm");
+            println!("cargo::rustc-link-lib=dylib=gdi32");
+            println!("cargo::rustc-link-lib=dylib=user32");
+            println!("cargo::rustc-link-lib=dylib=shell32");
         }
         PlatformOS::Linux => {
             // X11 linking
             #[cfg(not(feature = "wayland"))]
             {
-                println!("cargo:rustc-link-search=/usr/local/lib");
-                println!("cargo:rustc-link-lib=X11");
+                println!("cargo::rustc-link-search=/usr/local/lib");
+                println!("cargo::rustc-link-lib=X11");
             }
 
             // Wayland linking
             #[cfg(feature = "wayland")]
             {
-                println!("cargo:rustc-link-search=/usr/local/lib");
-                println!("cargo:rustc-link-lib=wayland-client");
-                println!("cargo:rustc-link-lib=glfw"); // Link against locally installed glfw
+                println!("cargo::rustc-link-search=/usr/local/lib");
+                println!("cargo::rustc-link-lib=wayland-client");
+                println!("cargo::rustc-link-lib=glfw"); // Link against locally installed glfw
             }
         }
         PlatformOS::Osx => {
-            println!("cargo:rustc-link-search=native=/usr/local/lib");
-            println!("cargo:rustc-link-lib=framework=OpenGL");
-            println!("cargo:rustc-link-lib=framework=Cocoa");
-            println!("cargo:rustc-link-lib=framework=IOKit");
+            println!("cargo::rustc-link-search=native=/usr/local/lib");
+            println!("cargo::rustc-link-lib=framework=OpenGL");
+            println!("cargo::rustc-link-lib=framework=Cocoa");
+            println!("cargo::rustc-link-lib=framework=IOKit");
         }
         _ => (),
     }
     if platform == Platform::Web {
-        println!("cargo:rustc-link-lib=glfw");
+        println!("cargo::rustc-link-lib=glfw");
     }
 
     #[cfg(not(feature = "raylib_shared"))]
-    println!("cargo:rustc-link-lib=static=raylib");
+    println!("cargo::rustc-link-lib=static=raylib");
     #[cfg(feature = "raylib_shared")]
-    println!("cargo:rustc-link-lib=dylib=raylib");
+    println!("cargo::rustc-link-lib=dylib=raylib");
 }
 
 // cp_raylib copy raylib to an out dir
