@@ -259,12 +259,13 @@ fn build_with_cmake(src_path: &str) {
                 .as_str(),
             );
         } else if platform_os == PlatformOS::Windows {
+            let lib = "raylib.lib";
             std::fs::copy(
-                dst_lib.join("raylib.lib"),
+                dst_lib.join(&lib),
                 target_dst
                     .clone()
                     .expect("could not find target directory")
-                    .join(lib),
+                    .join(&lib),
             )
             .expect(
                 format!(
