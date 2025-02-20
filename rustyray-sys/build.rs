@@ -70,10 +70,7 @@ fn build_with_cmake(src_path: &str) {
 
     let target = env::var("TARGET").expect("Cargo build scripts always have TARGET");
 
-    #[cfg(not(feature = "raylib_shared"))]
     let (platform, platform_os) = platform_from_target(&target);
-    #[cfg(feature = "raylib_shared")]
-    let (platform, _) = platform_from_target(&target);
 
     let mut conf = cmake::Config::new(src_path);
     let mut builder;
@@ -169,21 +166,119 @@ fn build_with_cmake(src_path: &str) {
             out_path = parent.to_path_buf();
         }
 
-        let lib = format!("{}raylib{}", DLL_PREFIX, DLL_SUFFIX);
-        std::fs::copy(
-            dst_lib.join(&lib),
-            target_dst
-                .clone()
-                .expect("could not find target directory")
-                .join(lib),
-        )
-        .expect(
-            format!(
-                "failed to copy shared library to {}",
-                target_dst.clone().unwrap().display()
+        if platform_os == PlatformOS::Osx {
+            let lib = format!("{}raylib.550{}", DLL_PREFIX, DLL_SUFFIX);
+            std::fs::copy(
+                dst_lib.join(&lib),
+                target_dst
+                    .clone()
+                    .expect("could not find target directory")
+                    .join(lib),
             )
-            .as_str(),
-        );
+            .expect(
+                format!(
+                    "failed to copy shared library to {}",
+                    target_dst.clone().unwrap().display()
+                )
+                .as_str(),
+            );
+            let lib = format!("{}raylib.5.5.0{}", DLL_PREFIX, DLL_SUFFIX);
+            std::fs::copy(
+                dst_lib.join(&lib),
+                target_dst
+                    .clone()
+                    .expect("could not find target directory")
+                    .join(lib),
+            )
+            .expect(
+                format!(
+                    "failed to copy shared library to {}",
+                    target_dst.clone().unwrap().display()
+                )
+                .as_str(),
+            );
+        } else if platform_os == PlatformOS::Linux {
+            let lib = format!("{}raylib{}.550", DLL_PREFIX, DLL_SUFFIX);
+            std::fs::copy(
+                dst_lib.join(&lib),
+                target_dst
+                    .clone()
+                    .expect("could not find target directory")
+                    .join(lib),
+            )
+            .expect(
+                format!(
+                    "failed to copy shared library to {}",
+                    target_dst.clone().unwrap().display()
+                )
+                .as_str(),
+            );
+            let lib = format!("{}raylib{}.5.5.0", DLL_PREFIX, DLL_SUFFIX);
+            std::fs::copy(
+                dst_lib.join(&lib),
+                target_dst
+                    .clone()
+                    .expect("could not find target directory")
+                    .join(lib),
+            )
+            .expect(
+                format!(
+                    "failed to copy shared library to {}",
+                    target_dst.clone().unwrap().display()
+                )
+                .as_str(),
+            );
+        } else if platform_os == PlatformOS::Windows {
+            let lib = format!("{}raylib.lib", DLL_PREFIX);
+            std::fs::copy(
+                dst_lib.join(&lib),
+                target_dst
+                    .clone()
+                    .expect("could not find target directory")
+                    .join(lib),
+            )
+            .expect(
+                format!(
+                    "failed to copy shared library to {}",
+                    target_dst.clone().unwrap().display()
+                )
+                .as_str(),
+            );
+            let lib = format!("{}raylib{}.lib", DLL_PREFIX, DLL_SUFFIX);
+            std::fs::copy(
+                dst_lib.join(&lib),
+                target_dst
+                    .clone()
+                    .expect("could not find target directory")
+                    .join(lib),
+            )
+            .expect(
+                format!(
+                    "failed to copy shared library to {}",
+                    target_dst.clone().unwrap().display()
+                )
+                .as_str(),
+            );
+        }
+
+        {
+            let lib = format!("{}raylib{}", DLL_PREFIX, DLL_SUFFIX);
+            std::fs::copy(
+                dst_lib.join(&lib),
+                target_dst
+                    .clone()
+                    .expect("could not find target directory")
+                    .join(lib),
+            )
+            .expect(
+                format!(
+                    "failed to copy shared library to {}",
+                    target_dst.clone().unwrap().display()
+                )
+                .as_str(),
+            );
+        }
+
         println!(
             "cargo::rustc-link-search=native={}",
             target_dst.unwrap().display()
