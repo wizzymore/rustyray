@@ -36,7 +36,7 @@ jobs:
         if: ${{ matrix.type == 'shared' }}
         run: cargo test --verbose -F "raylib_shared"
       - name: Run tests static
-        if: ${{ matrix.type == 'shared' }}
+        if: ${{ matrix.type == 'static' }}
         run: cargo test --verbose
   lint:
     runs-on: ubuntu-latest
