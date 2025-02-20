@@ -169,7 +169,7 @@ fn build_with_cmake(src_path: &str) {
             out_path = parent.to_path_buf();
         }
 
-        let lib = format!("{}raylib.550{}", DLL_PREFIX, DLL_SUFFIX);
+        let lib = format!("{}raylib{}", DLL_PREFIX, DLL_SUFFIX);
         std::fs::copy(
             dst_lib.join(&lib),
             target_dst
