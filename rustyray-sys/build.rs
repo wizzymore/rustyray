@@ -197,6 +197,21 @@ fn build_with_cmake(src_path: &str) {
                 )
                 .as_str(),
             );
+            let lib = format!("{}raylib{}", DLL_PREFIX, DLL_SUFFIX);
+            std::fs::copy(
+                dst_lib.join(&lib),
+                target_dst
+                    .clone()
+                    .expect("could not find target directory")
+                    .join(lib),
+            )
+            .expect(
+                format!(
+                    "failed to copy shared library to {}",
+                    target_dst.clone().unwrap().display()
+                )
+                .as_str(),
+            );
         } else if platform_os == PlatformOS::Linux {
             let lib = format!("{}raylib{}.550", DLL_PREFIX, DLL_SUFFIX);
             std::fs::copy(
@@ -228,43 +243,39 @@ fn build_with_cmake(src_path: &str) {
                 )
                 .as_str(),
             );
-        } else if platform_os == PlatformOS::Windows {
-            let lib = format!("{}raylib.lib", DLL_PREFIX);
-            std::fs::copy(
-                dst_lib.join(&lib),
-                target_dst
-                    .clone()
-                    .expect("could not find target directory")
-                    .join(lib),
-            )
-            .expect(
-                format!(
-                    "failed to copy shared library to {}",
-                    target_dst.clone().unwrap().display()
-                )
-                .as_str(),
-            );
-            let lib = format!("{}raylib{}.lib", DLL_PREFIX, DLL_SUFFIX);
-            std::fs::copy(
-                dst_lib.join(&lib),
-                target_dst
-                    .clone()
-                    .expect("could not find target directory")
-                    .join(lib),
-            )
-            .expect(
-                format!(
-                    "failed to copy shared library to {}",
-                    target_dst.clone().unwrap().display()
-                )
-                .as_str(),
-            );
-        }
-
-        {
             let lib = format!("{}raylib{}", DLL_PREFIX, DLL_SUFFIX);
             std::fs::copy(
                 dst_lib.join(&lib),
+                target_dst
+                    .clone()
+                    .expect("could not find target directory")
+                    .join(lib),
+            )
+            .expect(
+                format!(
+                    "failed to copy shared library to {}",
+                    target_dst.clone().unwrap().display()
+                )
+                .as_str(),
+            );
+        } else if platform_os == PlatformOS::Windows {
+            std::fs::copy(
+                dst_lib.join("raylib.lib"),
+                target_dst
+                    .clone()
+                    .expect("could not find target directory")
+                    .join(lib),
+            )
+            .expect(
+                format!(
+                    "failed to copy shared library to {}",
+                    target_dst.clone().unwrap().display()
+                )
+                .as_str(),
+            );
+            let lib = format!("raylib{}", DLL_SUFFIX);
+            std::fs::copy(
+                dst.join("bin").join(&lib),
                 target_dst
                     .clone()
                     .expect("could not find target directory")
