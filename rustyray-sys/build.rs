@@ -149,7 +149,7 @@ fn build_with_cmake(src_path: &str) {
     };
 
     let dst = conf.build();
-    let dst_lib = join_cmake_lib_directory(dst);
+    let dst_lib = join_cmake_lib_directory(dst.to_path_buf());
 
     #[cfg(feature = "raylib_shared")]
     {
