@@ -2,6 +2,9 @@ use std::env;
 use std::path::{Path, PathBuf};
 use std::process::exit;
 
+#[cfg(feature = "raylib_shared")]
+use std::env::consts::{DLL_PREFIX, DLL_SUFFIX};
+
 fn main() {
     println!("cargo::rerun-if-changed=build.rs");
     let target = env::var("TARGET").expect("Cargo build scripts always have TARGET");
@@ -67,7 +70,10 @@ fn build_with_cmake(src_path: &str) {
 
     let target = env::var("TARGET").expect("Cargo build scripts always have TARGET");
 
+    #[cfg(not(feature = "raylib_shared"))]
     let (platform, platform_os) = platform_from_target(&target);
+    #[cfg(feature = "raylib_shared")]
+    let (platform, _) = platform_from_target(&target);
 
     let mut conf = cmake::Config::new(src_path);
     let mut builder;
@@ -147,34 +153,74 @@ fn build_with_cmake(src_path: &str) {
 
     let dst = conf.build();
     let dst_lib = join_cmake_lib_directory(dst);
-    // on windows copy the static library to the proper file name
-    if platform_os == PlatformOS::Windows {
-        if Path::new(&dst_lib.join("raylib.lib")).exists() {
-            // DO NOTHING
-        } else if Path::new(&dst_lib.join("raylib_static.lib")).exists() {
-            std::fs::copy(
-                dst_lib.join("raylib_static.lib"),
-                dst_lib.join("raylib.lib"),
-            )
-            .expect("failed to create windows library");
-        } else if Path::new(&dst_lib.join("libraylib_static.a")).exists() {
-            std::fs::copy(
-                dst_lib.join("libraylib_static.a"),
-                dst_lib.join("libraylib.a"),
-            )
-            .expect("failed to create windows library");
-        } else if Path::new(&dst_lib.join("libraylib.a")).exists() {
-            // DO NOTHING
-        } else {
-            panic!("failed to create windows library");
+
+    #[cfg(feature = "raylib_shared")]
+    {
+        let mut target_dst = None;
+
+        let mut out_path = PathBuf::from(env::var("OUT_DIR").unwrap());
+        let profile = env::var("PROFILE").unwrap_or_else(|_| "debug".to_string());
+
+        while let Some(parent) = out_path.parent() {
+            if parent.ends_with(&profile) {
+                target_dst = Some(parent.to_path_buf());
+                break;
+            }
+            out_path = parent.to_path_buf();
         }
-    } // on web copy libraylib.bc to libraylib.a
-    if platform == Platform::Web && !Path::new(&dst_lib.join("libraylib.a")).exists() {
-        std::fs::copy(dst_lib.join("libraylib.bc"), dst_lib.join("libraylib.a"))
-            .expect("failed to create wasm library");
+
+        let lib = format!("{}raylib.550{}", DLL_PREFIX, DLL_SUFFIX);
+        std::fs::copy(
+            dst_lib.join(&lib),
+            target_dst
+                .clone()
+                .expect("could not find target directory")
+                .join(lib),
+        )
+        .expect(
+            format!(
+                "failed to copy shared library to {}",
+                target_dst.clone().unwrap().display()
+            )
+            .as_str(),
+        );
+        println!(
+            "cargo::rustc-link-search=native={}",
+            target_dst.unwrap().display()
+        );
+    }
+
+    #[cfg(not(feature = "raylib_shared"))]
+    {
+        // on windows copy the static library to the proper file name
+        if platform_os == PlatformOS::Windows {
+            if Path::new(&dst_lib.join("raylib.lib")).exists() {
+                // DO NOTHING
+            } else if Path::new(&dst_lib.join("raylib_static.lib")).exists() {
+                std::fs::copy(
+                    dst_lib.join("raylib_static.lib"),
+                    dst_lib.join("raylib.lib"),
+                )
+                .expect("failed to create windows library");
+            } else if Path::new(&dst_lib.join("libraylib_static.a")).exists() {
+                std::fs::copy(
+                    dst_lib.join("libraylib_static.a"),
+                    dst_lib.join("libraylib.a"),
+                )
+                .expect("failed to create windows library");
+            } else if Path::new(&dst_lib.join("libraylib.a")).exists() {
+                // DO NOTHING
+            } else {
+                panic!("failed to create windows library");
+            }
+        } // on web copy libraylib.bc to libraylib.a
+        if platform == Platform::Web && !Path::new(&dst_lib.join("libraylib.a")).exists() {
+            std::fs::copy(dst_lib.join("libraylib.bc"), dst_lib.join("libraylib.a"))
+                .expect("failed to create wasm library");
+        }
+        println!("cargo::rustc-link-search=native={}", dst_lib.display());
     }
     // println!("cmake build {}", c.display());
-    println!("cargo::rustc-link-search=native={}", dst_lib.display());
 }
 
 #[cfg(feature = "nobuild")]
