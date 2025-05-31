@@ -2,7 +2,7 @@ use rustyray::prelude::*;
 
 fn main() {
     let window = WindowBuilder::new(1280, 720, "Hello from Rust")
-        .set_config_flags(ConfigFlag::VsyncHint)
+        .set_config_flags(ConfigFlag::VsyncHint | ConfigFlag::WindowHighdpi)
         .build()
         .unwrap();
     let rt = OwnedRenderTexture::new(640, 360).unwrap();

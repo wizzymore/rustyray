@@ -6,6 +6,7 @@ fn main() {
         450,
         String::from("rustyray [audio] example - sound loading and playing"),
     )
+    .set_config_flags(ConfigFlag::WindowHighdpi)
     .set_fps(60)
     .init_audio()
     .build()

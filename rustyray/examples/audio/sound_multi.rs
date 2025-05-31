@@ -6,6 +6,7 @@ fn main() {
         450,
         "rustyray [audio] example - play sound multiple times",
     )
+    .set_config_flags(ConfigFlag::WindowHighdpi)
     .set_fps(60)
     .init_audio()
     .build()
