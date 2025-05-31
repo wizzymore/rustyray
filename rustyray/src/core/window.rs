@@ -9,43 +9,97 @@ use super::{
 };
 
 #[derive(Debug)]
-pub struct Window {}
+pub struct Window;
 
-#[derive(Error)]
+#[derive(Debug, Error)]
 pub enum WindowError {
     #[error("failed to initialize window")]
     WindowNotReady,
+    #[error("you can't initialize two windows at the same time")]
+    DoubleWindowInit,
     #[error("audio device is already initialized")]
     AudioDeviceAlreadyInitialized,
     #[error("failed to initialize audio device")]
     AudioDeviceFailedInitialize,
 }
 
-impl Debug for WindowError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self)
+#[derive(Debug)]
+pub struct WindowBuilder {
+    width: i32,
+    height: i32,
+    title: String,
+    flags: ConfigFlag,
+    fps: Option<i32>,
+    audio: bool,
+}
+
+impl WindowBuilder {
+    fn new(width: i32, height: i32, title: String) -> Self {
+        WindowBuilder {
+            width,
+            height,
+            title,
+            flags: ConfigFlag::none(),
+            fps: None,
+            audio: false,
+        }
+    }
+
+    pub fn set_fps(mut self, fps: i32) -> Self {
+        self.fps = Some(fps);
+        self
+    }
+
+    pub fn set_config_flags(mut self, flags: ConfigFlag) -> Self {
+        self.flags = flags;
+        unsafe {
+            ffi::set_config_flags(flags.into());
+        }
+        self
+    }
+
+    pub fn init_audio(mut self) -> Self {
+        self.audio = true;
+        self
+    }
+
+    pub fn build(&self) -> Result<Window, WindowError> {
+        unsafe {
+            if ffi::is_window_ready() {
+                return Err(WindowError::DoubleWindowInit);
+            }
+
+            ffi::init_window(
+                self.width,
+                self.height,
+                CString::new(self.title.as_str()).unwrap().as_ptr(),
+            );
+
+            if !ffi::is_window_ready() {
+                return Err(WindowError::WindowNotReady);
+            }
+        }
+
+        let window = Window {};
+
+        if let Some(fps) = self.fps {
+            window.set_fps(fps);
+        }
+        if self.audio {
+            window.init_audio()?;
+        }
+
+        Ok(window)
     }
 }
 
 // Window-related functions
 impl Window {
-    pub fn new(width: i32, height: i32, title: String) -> Window {
-        Window {}.init_window(width, height, title)
+    pub fn new(width: i32, height: i32, title: String) -> WindowBuilder {
+        WindowBuilder::new(width, height, title)
     }
 
-    fn init_window(self, width: i32, height: i32, title: String) -> Self {
-        unsafe {
-            if self.is_window_ready() {
-                panic!("You can't create two windows at the same time.");
-            }
-
-            ffi::init_window(width, height, CString::new(title).unwrap().as_ptr());
-        }
-
-        self
-    }
-
-    pub fn init_audio(self) -> Result<Self, WindowError> {
+    pub fn init_audio(&self) -> Result<(), WindowError> {
         if self.is_audio_device_ready() {
             return Err(WindowError::AudioDeviceAlreadyInitialized);
         }
@@ -58,11 +112,7 @@ impl Window {
             return Err(WindowError::AudioDeviceFailedInitialize);
         }
 
-        Ok(self)
-    }
-
-    pub fn is_window_ready(&self) -> bool {
-        unsafe { ffi::is_window_ready() }
+        Ok(())
     }
 
     pub fn is_audio_device_ready(&self) -> bool {
@@ -91,10 +141,8 @@ impl Window {
     pub fn dt(&self) -> f32 {
         unsafe { ffi::get_frame_time() }
     }
-}
 
-// Configuration-related functions
-impl Window {
+    // Configuration-related functions
     pub fn vsync(self, v: bool) -> Self {
         self.set_vsync(v);
         self
@@ -110,14 +158,14 @@ impl Window {
         }
     }
 
-    pub fn fps(self, v: i32) -> Self {
-        self.set_fps(v);
+    pub fn fps(self, fps: i32) -> Self {
+        self.set_fps(fps);
         self
     }
 
-    pub fn set_fps(&self, v: i32) {
+    pub fn set_fps(&self, fps: i32) {
         unsafe {
-            ffi::set_target_fps(v);
+            ffi::set_target_fps(fps);
         }
     }
 
@@ -126,10 +174,8 @@ impl Window {
             ffi::set_window_size(width, height);
         }
     }
-}
 
-// Input-related functions
-impl Window {
+    // Input-related functions
     pub fn is_mouse_down(&self, button: MouseButton) -> bool {
         unsafe { ffi::is_mouse_button_down(button) }
     }
@@ -149,12 +195,10 @@ impl Window {
 
 impl Drop for Window {
     fn drop(&mut self) {
-        if self.is_audio_device_ready() {
-            unsafe {
+        unsafe {
+            if self.is_audio_device_ready() {
                 ffi::close_audio_device();
             }
-        }
-        unsafe {
             ffi::close_window();
         }
     }

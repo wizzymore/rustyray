@@ -3,16 +3,10 @@ use std::{ffi::CString, fmt::Debug};
 use rustyray_sys::ffi;
 use thiserror::Error;
 
-#[derive(Error)]
+#[derive(Error, Debug)]
 pub enum DrawError {
     #[error("You must clear the screen everytime when you call draw, otherwise you will have a memory leak.")]
     DidNotClear,
-}
-
-impl Debug for DrawError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self)
-    }
 }
 
 #[derive(Default)]
@@ -28,7 +22,7 @@ use super::{
 };
 
 impl Window {
-    pub fn draw(&self, callback: impl Fn(&mut DrawHandler)) -> Result<(), DrawError> {
+    pub fn draw(&self, callback: impl FnOnce(&mut DrawHandler)) -> Result<(), DrawError> {
         unsafe {
             ffi::begin_drawing();
         }

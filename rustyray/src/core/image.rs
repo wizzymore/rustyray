@@ -1,6 +1,11 @@
+use std::{
+    ffi::{CStr, CString},
+    str::FromStr,
+};
+
 use rustyray_sys::{
-    ffi,
-    texture::{self, RenderTexture, RenderTextureLoadError, Texture, TextureLoadError},
+    ffi::{self, load_image_from_memory, load_texture_from_image},
+    texture::{self, Image, RenderTexture, RenderTextureLoadError, Texture, TextureLoadError},
 };
 
 use super::math::Vector2i;
@@ -52,6 +57,13 @@ impl OwnedTexture {
     pub fn height(&self) -> i32 {
         self.0.height
     }
+
+    pub fn from_bytes(bytes: &[u8]) -> Self {
+        let image =
+            unsafe { load_image_from_memory(c".png".as_ptr(), bytes.as_ptr(), bytes.len() as i32) };
+
+        OwnedTexture::from(image)
+    }
 }
 
 impl OwnedRenderTexture {
@@ -77,6 +89,12 @@ impl OwnedRenderTexture {
 
     pub fn texture(&self) -> &Texture {
         &self.0.texture
+    }
+}
+
+impl From<Image> for OwnedTexture {
+    fn from(value: Image) -> Self {
+        Self(unsafe { load_texture_from_image(value) })
     }
 }
 
