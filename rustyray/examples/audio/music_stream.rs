@@ -9,6 +9,7 @@ fn main() {
         SCREEN_HEIGHT,
         "rustyray [audio] example - music playing (streaming)",
     )
+    .set_config_flags(ConfigFlag::WindowHighdpi)
     .set_fps(60)
     .init_audio()
     .build()
