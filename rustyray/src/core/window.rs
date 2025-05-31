@@ -34,11 +34,11 @@ pub struct WindowBuilder {
 }
 
 impl WindowBuilder {
-    fn new(width: i32, height: i32, title: String) -> Self {
+    pub fn new(width: i32, height: i32, title: impl Into<String>) -> Self {
         WindowBuilder {
             width,
             height,
-            title,
+            title: title.into(),
             flags: ConfigFlag::none(),
             fps: None,
             audio: false,
@@ -95,10 +95,6 @@ impl WindowBuilder {
 
 // Window-related functions
 impl Window {
-    pub fn new(width: i32, height: i32, title: String) -> WindowBuilder {
-        WindowBuilder::new(width, height, title)
-    }
-
     pub fn init_audio(&self) -> Result<(), WindowError> {
         if self.is_audio_device_ready() {
             return Err(WindowError::AudioDeviceAlreadyInitialized);
@@ -143,18 +139,28 @@ impl Window {
     }
 
     // Configuration-related functions
-    pub fn vsync(self, v: bool) -> Self {
-        self.set_vsync(v);
+    pub fn vsync(self) -> Self {
+        self.set_vsync(true);
         self
     }
 
     pub fn set_vsync(&self, v: bool) {
+        if v {
+            self.set_window_state(ConfigFlag::VsyncHint);
+        } else {
+            self.clear_window_state(ConfigFlag::VsyncHint);
+        }
+    }
+
+    pub fn set_window_state(&self, state: ConfigFlag) {
         unsafe {
-            if v {
-                ffi::set_window_state(ConfigFlag::VsyncHint.into());
-            } else {
-                ffi::clear_window_state(ConfigFlag::VsyncHint.into());
-            }
+            ffi::set_window_state(state.into());
+        }
+    }
+
+    pub fn clear_window_state(&self, state: ConfigFlag) {
+        unsafe {
+            ffi::clear_window_state(state.into());
         }
     }
 

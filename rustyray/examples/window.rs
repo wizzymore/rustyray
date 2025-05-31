@@ -1,7 +1,10 @@
 use rustyray::prelude::*;
 
 fn main() {
-    let window = Window::new(1280, 720, String::from("Hello from Rust")).vsync(true);
+    let window = WindowBuilder::new(1280, 720, "Hello from Rust")
+        .set_config_flags(ConfigFlag::VsyncHint)
+        .build()
+        .unwrap();
     let rt = OwnedRenderTexture::new(640, 360).unwrap();
 
     while !window.should_close() {

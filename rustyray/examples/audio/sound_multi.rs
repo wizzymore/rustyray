@@ -1,13 +1,14 @@
 use rustyray::prelude::*;
 
 fn main() {
-    let window = Window::new(
+    let window = WindowBuilder::new(
         800,
         450,
-        String::from("rustyray [audio] example - play sound multiple times"),
+        "rustyray [audio] example - play sound multiple times",
     )
-    .fps(60)
+    .set_fps(60)
     .init_audio()
+    .build()
     .unwrap();
 
     let mut sounds = vec![OwnedSound::new("assets/audio/sound.wav".into())];
