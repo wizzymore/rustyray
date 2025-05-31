@@ -35,7 +35,7 @@ impl From<&Vector2> for SysVector2 {
 }
 
 impl Vector2 {
-    pub fn new(x: f32, y: f32) -> Self {
+    pub const fn new(x: f32, y: f32) -> Self {
         Self { x, y }
     }
 
@@ -71,7 +71,7 @@ impl Vector2 {
 }
 
 impl Vector2i {
-    pub fn new(x: i32, y: i32) -> Self {
+    pub const fn new(x: i32, y: i32) -> Self {
         Self { x, y }
     }
 

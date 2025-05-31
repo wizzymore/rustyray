@@ -318,6 +318,17 @@ extern "C" {
     pub fn end_texture_mode();
 }
 
+// Image loading functions
+extern "C" {
+    /// Load image from memory buffer, fileType refers to extension: i.e. '.png'
+    #[link_name = "LoadImageFromMemory"]
+    pub fn load_image_from_memory(
+        file_type: *const c_char,
+        file_data: *const c_uchar,
+        data_size: c_int,
+    ) -> Image;
+}
+
 // Texture loading functions
 // Note: These function require GPU access
 extern "C" {

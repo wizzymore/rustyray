@@ -55,3 +55,6 @@ custom_frame_control = ["rustyray-sys/custom_frame_control"]
 
 # build raylib as a shared library
 raylib_shared = ["rustyray-sys/raylib_shared"]
+
+# custom build options
+screen_capture = ["rustyray-sys/screen_capture"]

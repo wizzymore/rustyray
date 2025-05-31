@@ -92,10 +92,14 @@ fn build_with_cmake(src_path: &str) {
     builder
         .define("BUILD_EXAMPLES", "OFF")
         .define("CMAKE_BUILD_TYPE", profile)
+        .define("CUSTOMIZE_BUILD", "ON")
         // turn off until this is fixed
         .define("SUPPORT_BUSY_WAIT_LOOP", "OFF")
         .define("SUPPORT_FILEFORMAT_JPG", "ON")
         .define("RAYMATH_STATIC_INLINE", "ON");
+
+    #[cfg(not(feature = "screen_capture"))]
+    builder.define("SUPPORT_SCREEN_CAPTURE", "OFF");
 
     #[cfg(feature = "custom_frame_control")]
     {

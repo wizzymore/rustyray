@@ -42,3 +42,6 @@ custom_frame_control = []
 
 # build raylib as a shared library
 raylib_shared = []
+
+# custom build options
+screen_capture = []
