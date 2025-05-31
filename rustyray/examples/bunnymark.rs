@@ -13,7 +13,7 @@ struct Bunny {
 const MAX_BUNNIES: usize = 50000;
 
 fn main() {
-    let window = Window::new(1280, 720, String::from("Bunnymark"));
+    let window = WindowBuilder::new(1280, 720, "Bunnymark").build().unwrap();
     let tex = OwnedTexture::new(String::from("assets/wabbit_alpha.png")).unwrap();
     let mut rng = rand::rng();
 

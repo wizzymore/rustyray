@@ -45,13 +45,14 @@ fn create_circle(rng: &mut ThreadRng) -> CircleWave {
 }
 
 fn main() {
-    let window = Window::new(
+    let window = WindowBuilder::new(
         SCREEN_WIDTH,
         SCREEN_HEIGHT,
-        String::from("rustyray [audio] example - module playing (streaming)"),
+        "rustyray [audio] example - module playing (streaming)",
     )
-    .fps(60)
+    .set_fps(60)
     .init_audio()
+    .build()
     .unwrap();
 
     let mut rng = rand::rng();

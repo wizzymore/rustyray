@@ -4,13 +4,14 @@ const SCREEN_WIDTH: i32 = 800;
 const SCREEN_HEIGHT: i32 = 450;
 
 fn main() {
-    let window = Window::new(
+    let window = WindowBuilder::new(
         SCREEN_WIDTH,
         SCREEN_HEIGHT,
-        String::from("rustyray [audio] example - music playing (streaming)"),
+        "rustyray [audio] example - music playing (streaming)",
     )
-    .fps(30)
+    .set_fps(60)
     .init_audio()
+    .build()
     .unwrap();
 
     let mut music = OwnedMusic::new("assets/audio/country.mp3".into());
