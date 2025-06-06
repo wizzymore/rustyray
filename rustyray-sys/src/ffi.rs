@@ -86,13 +86,13 @@ use libc::{c_char, c_double, c_float, c_int, c_uchar, c_uint, c_void};
 
 use crate::{
     audio::{AudioCallback, AudioStream, Music, Sound, Wave},
+    camera::Camera2D,
     color::Color,
     consts::{
         ConfigFlag, GamepadAxis, GamepadButton, Gesture, KeyboardKey, MouseButton, MouseCursor,
         TextureFilter, TextureWrap,
     },
-    math::Rectangle,
-    math::Vector2,
+    math::{Rectangle, Vector2},
     texture::{Image, RenderTexture, RenderTexture2D, Texture},
 };
 
@@ -310,6 +310,12 @@ extern "C" {
     /// End canvas drawing and swap buffers (double buffering)
     #[link_name = "EndDrawing"]
     pub fn end_drawing();
+    /// Begin 2D mode with custom camera (2D)
+    #[link_name = "BeginMode2D"]
+    pub fn begin_mode_2d(camera: Camera2D);
+    /// Ends 2D mode with custom camera
+    #[link_name = "EndMode2D"]
+    pub fn end_mode_2d();
     /// Begin drawing to render texture
     #[link_name = "BeginTextureMode"]
     pub fn begin_texture_mode(render_texture: RenderTexture2D);

@@ -3,6 +3,37 @@ use std::{ffi::CString, fmt::Debug};
 use rustyray_sys::ffi;
 use thiserror::Error;
 
+#[derive(Debug, Clone, Copy)]
+pub struct Camera2D {
+    pub offset: Vector2, // Camera offset (displacement from target)
+    pub target: Vector2, // Camera target (rotation and zoom origin)
+    pub rotation: f32,   // Camera rotation in degrees
+    pub zoom: f32,       // Camera zoom (scaling), should be 1.0f by default
+}
+
+impl Into<rustyray_sys::camera::Camera2D> for Camera2D {
+    fn into(self) -> rustyray_sys::camera::Camera2D {
+        unsafe { std::mem::transmute(self) }
+    }
+}
+
+impl Into<Camera2D> for rustyray_sys::camera::Camera2D {
+    fn into(self) -> Camera2D {
+        unsafe { std::mem::transmute(self) }
+    }
+}
+
+impl Default for Camera2D {
+    fn default() -> Self {
+        Self {
+            offset: Vector2 { x: 0.0, y: 0.0 },
+            target: Vector2 { x: 0.0, y: 0.0 },
+            rotation: 0.0,
+            zoom: 1.0,
+        }
+    }
+}
+
 #[derive(Error, Debug)]
 pub enum DrawError {
     #[error("You must clear the screen everytime when you call draw, otherwise you will have a memory leak.")]
@@ -12,6 +43,34 @@ pub enum DrawError {
 #[derive(Default)]
 pub struct DrawHandler {
     pub(crate) did_clear: bool,
+}
+
+pub struct Camera2DDrawHandler {
+    pub did_end: bool,
+}
+
+impl Camera2DDrawHandler {
+    pub fn new(camera: Camera2D) -> Self {
+        unsafe {
+            ffi::begin_mode_2d(camera.into());
+        }
+        Camera2DDrawHandler { did_end: false }
+    }
+
+    pub fn end(&mut self) {
+        if !self.did_end {
+            self.did_end = true;
+            unsafe {
+                ffi::end_mode_2d();
+            }
+        }
+    }
+}
+
+impl Drop for Camera2DDrawHandler {
+    fn drop(&mut self) {
+        self.end();
+    }
 }
 
 use super::{
@@ -141,5 +200,11 @@ impl DrawHandler {
                 tint,
             );
         }
+    }
+
+    #[inline]
+    #[must_use]
+    pub fn begin_mode_2d(&self, camera: Camera2D) -> Camera2DDrawHandler {
+        Camera2DDrawHandler::new(camera)
     }
 }
