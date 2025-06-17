@@ -115,6 +115,7 @@ impl Window {
         unsafe { ffi::is_audio_device_ready() }
     }
 
+    #[inline]
     pub fn should_close(&self) -> bool {
         unsafe { ffi::window_should_close() }
     }
@@ -126,16 +127,24 @@ impl Window {
         }
     }
 
+    #[inline]
     pub fn get_screen_width(&self) -> i32 {
         unsafe { ffi::get_screen_width() }
     }
 
+    #[inline]
     pub fn get_screen_height(&self) -> i32 {
         unsafe { ffi::get_screen_height() }
     }
 
+    #[inline]
     pub fn dt(&self) -> f32 {
         unsafe { ffi::get_frame_time() }
+    }
+
+    #[inline]
+    pub fn frame_time(&self) -> f32 {
+        self.dt()
     }
 
     // Configuration-related functions
@@ -152,12 +161,14 @@ impl Window {
         }
     }
 
+    #[inline]
     pub fn set_window_state(&self, state: ConfigFlag) {
         unsafe {
             ffi::set_window_state(state.into());
         }
     }
 
+    #[inline]
     pub fn clear_window_state(&self, state: ConfigFlag) {
         unsafe {
             ffi::clear_window_state(state.into());
@@ -169,12 +180,14 @@ impl Window {
         self
     }
 
+    #[inline]
     pub fn set_fps(&self, fps: i32) {
         unsafe {
             ffi::set_target_fps(fps);
         }
     }
 
+    #[inline]
     pub fn change_size(width: i32, height: i32) {
         unsafe {
             ffi::set_window_size(width, height);
@@ -182,18 +195,22 @@ impl Window {
     }
 
     // Input-related functions
+    #[inline]
     pub fn is_mouse_down(&self, button: MouseButton) -> bool {
         unsafe { ffi::is_mouse_button_down(button) }
     }
 
+    #[inline]
     pub fn is_key_down(&self, key: KeyboardKey) -> bool {
         unsafe { ffi::is_key_down(key) }
     }
 
+    #[inline]
     pub fn is_key_pressed(&self, key: KeyboardKey) -> bool {
         unsafe { ffi::is_key_pressed(key) }
     }
 
+    #[inline]
     pub fn get_mouse_pos(&self) -> Vector2 {
         unsafe { ffi::get_mouse_position().into() }
     }
