@@ -65,8 +65,9 @@ impl Drop for OwnedSound {
 }
 
 /// RAII Implementation of [Music]
+#[derive(Debug)]
 pub struct OwnedMusic {
-    music: Music,
+    pub music: Music,
     paused: bool,
 }
 
