@@ -1,7 +1,7 @@
 [package]
 name = "rustyray"
 description = "High-level wrapper on top of the low-level rustyray-sys bindings"
-version = "0.1.3"
+version = "0.1.4"
 edition = "2021"
 repository = "https://github.com/wizzymore/rustyray"
 readme.workspace = true
