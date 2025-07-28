@@ -877,3 +877,11 @@ extern "C" {
     #[link_name = "DetachAudioMixedProcessor"]
     pub fn detach_audio_mixed_processor(processor: AudioCallback);
 }
+
+// Logging
+pub type TraceLogCallback = extern "C" fn(log_level: i32, text: *const c_char, args: *mut c_void);
+
+extern "C" {
+    #[link_name = "SetTraceLogCallback"]
+    pub fn set_trace_log_callback(callback: TraceLogCallback);
+}
