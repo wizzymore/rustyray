@@ -453,6 +453,8 @@ extern "C" {
         height: c_int,
         color: Color,
     );
+    #[link_name = "DrawRectangleLinesEx"]
+    pub fn draw_rectangle_lines_ex(react: Rectangle, line_thickness: c_float, color: Color);
 }
 
 // Input-related functions: keyboard
