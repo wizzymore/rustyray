@@ -161,6 +161,28 @@ impl DrawHandler {
         }
     }
 
+    #[inline]
+    pub fn draw_texture_pro(
+        &self,
+        texture: &OwnedTexture,
+        source: Rectangle,
+        dest: Rectangle,
+        origin: Vector2,
+        rotation: f32,
+        tint: Color,
+    ) {
+        unsafe {
+            ffi::draw_texture_pro(
+                texture.into(),
+                source.into(),
+                dest.into(),
+                origin.into(),
+                rotation,
+                tint,
+            );
+        }
+    }
+
     /// Draw a color-filled rectangle
     #[inline]
     pub fn draw_rect(&self, rect: Rectangle, tint: Color) {
@@ -180,6 +202,13 @@ impl DrawHandler {
                 rect.height as i32,
                 tint,
             );
+        }
+    }
+
+    #[inline]
+    pub fn draw_rect_lines_ex(&self, rect: Rectangle, line_thickness: f32, tint: Color) {
+        unsafe {
+            ffi::draw_rectangle_lines_ex(rect.into(), line_thickness, tint);
         }
     }
 
