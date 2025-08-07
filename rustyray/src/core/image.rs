@@ -15,7 +15,7 @@ use super::math::Vector2i;
 /// let texture = OwnedTexture::new(String::from("assets/character.png"));
 /// ```
 #[repr(C)]
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct OwnedTexture(Texture);
 
 /// This is a `raylib` [`rustyray_ffi::texture::RenderTexture`] that uses the concept of RAII.
