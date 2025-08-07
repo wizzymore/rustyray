@@ -201,11 +201,13 @@ impl Window {
     }
 
     #[inline]
+    /// Check if a key is being pressed
     pub fn is_key_down(&self, key: KeyboardKey) -> bool {
         unsafe { ffi::is_key_down(key) }
     }
 
     #[inline]
+    /// Check if a key has been pressed once
     pub fn is_key_pressed(&self, key: KeyboardKey) -> bool {
         unsafe { ffi::is_key_pressed(key) }
     }

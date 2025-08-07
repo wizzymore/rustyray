@@ -9,7 +9,7 @@ use crate::ffi::{is_window_ready, load_render_texture, load_texture};
 
 /// Texture, tex data stored in GPU memory (VRAM)
 #[repr(C)]
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Texture {
     /// OpenGL texture id
     pub id: c_uint,
