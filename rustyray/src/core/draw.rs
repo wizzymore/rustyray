@@ -1,6 +1,6 @@
 use std::{ffi::CString, fmt::Debug};
 
-use rustyray_sys::ffi;
+use rustyray_sys::{ffi, texture::Texture};
 use thiserror::Error;
 
 #[derive(Debug, Clone, Copy)]
@@ -141,13 +141,11 @@ impl DrawHandler {
     pub fn draw_render_texture(&self, render_texture: &OwnedRenderTexture) {
         let size = render_texture.size();
         unsafe {
-            let screen_height = ffi::get_screen_height() as f32;
-            let screen_width = ffi::get_screen_width() as f32;
             ffi::draw_texture_pro(
                 render_texture.into(),
                 Rectangle::new(0.0, 0.0, size.x as f32, -size.y as f32).into(),
-                Rectangle::new(0.0, 0.0, screen_width, screen_height).into(),
-                Vector2::zero().into(),
+                Rectangle::new(0.0, 0.0, size.x as f32, size.y as f32).into(),
+                Vector2::ZERO.into(),
                 0.0,
                 Color::WHITE,
             );
@@ -155,22 +153,27 @@ impl DrawHandler {
     }
 
     #[inline]
-    pub fn draw_texture(&self, texture: &OwnedTexture, x: i32, y: i32, tint: Color) {
+    pub fn draw_texture<T>(&self, texture: T, x: i32, y: i32, tint: Color)
+    where
+        T: Into<Texture>,
+    {
         unsafe {
             ffi::draw_texture(texture.into(), x, y, tint);
         }
     }
 
     #[inline]
-    pub fn draw_texture_pro(
+    pub fn draw_texture_pro<T>(
         &self,
-        texture: &OwnedTexture,
+        texture: T,
         source: Rectangle,
         dest: Rectangle,
         origin: Vector2,
         rotation: f32,
         tint: Color,
-    ) {
+    ) where
+        T: Into<Texture>,
+    {
         unsafe {
             ffi::draw_texture_pro(
                 texture.into(),
@@ -188,6 +191,13 @@ impl DrawHandler {
     pub fn draw_rect(&self, rect: Rectangle, tint: Color) {
         unsafe {
             ffi::draw_rectangle_rec(rect.into(), tint);
+        }
+    }
+
+    #[inline]
+    pub fn draw_rect_pro(&self, rect: Rectangle, origin: Vector2, rotation: f32, tint: Color) {
+        unsafe {
+            ffi::draw_rectangle_pro(rect.into(), origin.into(), rotation, tint);
         }
     }
 
@@ -219,7 +229,7 @@ impl DrawHandler {
 
     /// Draw text (using default font)
     #[inline]
-    pub fn draw_text(&self, text: String, pos_x: i32, pos_y: i32, size: i32, tint: Color) {
+    pub fn draw_text(&self, text: &str, pos_x: i32, pos_y: i32, size: i32, tint: Color) {
         unsafe {
             ffi::draw_text(
                 CString::new(text).unwrap().as_ptr(),
