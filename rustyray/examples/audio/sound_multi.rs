@@ -34,7 +34,7 @@ fn main() {
                 d.clear(Color::RAYWHITE);
 
                 d.draw_text(
-                    "Press SPACE to PLAY the WAV sound!".into(),
+                    "Press SPACE to PLAY the WAV sound!",
                     200,
                     180,
                     20,

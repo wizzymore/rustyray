@@ -28,7 +28,7 @@ fn main() {
                 d.clear(Color::RAYWHITE);
 
                 d.draw_text(
-                    "Press SPACE to PLAY the WAV sound!".into(),
+                    "Press SPACE to PLAY the WAV sound!",
                     200,
                     180,
                     20,
@@ -36,7 +36,7 @@ fn main() {
                 );
 
                 d.draw_text(
-                    "Press ENTER to PLAY the OGG sound!".into(),
+                    "Press ENTER to PLAY the OGG sound!",
                     200,
                     220,
                     20,
