@@ -13,7 +13,7 @@ impl Color {
     }
 
     /// Get color with alpha applied, alpha goes from 0.0 to 1.0
-    pub fn fade(&mut self, alpha: f32) -> &mut Self {
+    pub fn fade(mut self, alpha: f32) -> Self {
         self.a = (255.0 * alpha.clamp(0., 1.)) as u8;
         self
     }
