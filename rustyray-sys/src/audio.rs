@@ -1,6 +1,6 @@
 use std::{ffi::CString, fmt::Debug};
 
-use libc::{c_int, c_uint, c_void};
+use libc::{c_int, c_uint, c_void, uintptr_t};
 
 use crate::ffi;
 
@@ -22,9 +22,9 @@ pub type AudioCallback = extern "C" fn(buffer_data: *const c_void, frames: c_uin
 #[derive(Debug, Clone)]
 pub struct AudioStream {
     /// Pointer to internal data used by the audio system
-    pub buffer: *const c_void,
+    pub buffer: uintptr_t,
     /// Pointer to internal data processor, useful for audio effects
-    pub processor: *const c_void,
+    pub processor: uintptr_t,
 
     /// Frequency (samples per second)
     pub sample_rate: c_uint,
@@ -70,7 +70,7 @@ pub struct Music {
     pub looping: bool,
 
     pub ctx_type: c_int,
-    pub ctx_data: *const c_void,
+    pub ctx_data: uintptr_t,
 }
 
 impl Music {
