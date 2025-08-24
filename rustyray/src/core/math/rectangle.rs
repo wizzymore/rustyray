@@ -80,3 +80,16 @@ impl Display for Rectangle {
         )
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_intersects() {
+        let rect_a = Rectangle::new(0.0, 0.0, 10.0, 10.0);
+        let rect_b = Rectangle::new(5.0, 5.0, 6.0, 6.0);
+        assert!(rect_a.collides_rect(&rect_b));
+        assert!(rect_b.collides_rect(&rect_a));
+    }
+}
