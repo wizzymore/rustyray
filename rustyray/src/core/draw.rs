@@ -11,15 +11,15 @@ pub struct Camera2D {
     pub zoom: f32,       // Camera zoom (scaling), should be 1.0f by default
 }
 
-impl Into<rustyray_sys::camera::Camera2D> for Camera2D {
-    fn into(self) -> rustyray_sys::camera::Camera2D {
-        unsafe { std::mem::transmute(self) }
+impl From<Camera2D> for rustyray_sys::camera::Camera2D {
+    fn from(val: Camera2D) -> Self {
+        unsafe { std::mem::transmute(val) }
     }
 }
 
-impl Into<Camera2D> for rustyray_sys::camera::Camera2D {
-    fn into(self) -> Camera2D {
-        unsafe { std::mem::transmute(self) }
+impl From<rustyray_sys::camera::Camera2D> for Camera2D {
+    fn from(val: rustyray_sys::camera::Camera2D) -> Self {
+        unsafe { std::mem::transmute(val) }
     }
 }
 
@@ -75,7 +75,7 @@ impl Drop for Camera2DDrawHandler {
 
 use super::{
     color::Color,
-    image::{OwnedRenderTexture, OwnedTexture},
+    image::OwnedRenderTexture,
     math::{Rectangle, Vector2},
     window::Window,
 };
@@ -229,10 +229,13 @@ impl DrawHandler {
 
     /// Draw text (using default font)
     #[inline]
-    pub fn draw_text(&self, text: &str, pos_x: i32, pos_y: i32, size: i32, tint: Color) {
+    pub fn draw_text<T>(&self, text: T, pos_x: i32, pos_y: i32, size: i32, tint: Color)
+    where
+        T: AsRef<str>,
+    {
         unsafe {
             ffi::draw_text(
-                CString::new(text).unwrap().as_ptr(),
+                CString::new(text.as_ref()).unwrap().as_ptr(),
                 pos_x,
                 pos_y,
                 size,

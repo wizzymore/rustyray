@@ -144,21 +144,9 @@ fn main() {
                 // Draw help instructions
                 d.draw_rect(Rectangle::new(20., 20., 425., 145.), Color::WHITE);
                 d.draw_rect_lines(Rectangle::new(20., 20., 425., 145.), Color::GRAY);
-                d.draw_text(
-                    "PRESS SPACE TO RESTART MUSIC".into(),
-                    40,
-                    40,
-                    20,
-                    Color::BLACK,
-                );
-                d.draw_text("PRESS P TO PAUSE/RESUME".into(), 40, 70, 20, Color::BLACK);
-                d.draw_text(
-                    "PRESS UP/DOWN TO CHANGE SPEED".into(),
-                    40,
-                    100,
-                    20,
-                    Color::BLACK,
-                );
+                d.draw_text("PRESS SPACE TO RESTART MUSIC", 40, 40, 20, Color::BLACK);
+                d.draw_text("PRESS P TO PAUSE/RESUME", 40, 70, 20, Color::BLACK);
+                d.draw_text("PRESS UP/DOWN TO CHANGE SPEED", 40, 100, 20, Color::BLACK);
                 d.draw_text(format!("SPEED: {}", pitch), 40, 130, 20, Color::MAROON);
             })
             .unwrap();

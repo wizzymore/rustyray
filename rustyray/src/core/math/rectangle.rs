@@ -38,16 +38,14 @@ impl Rectangle {
     }
 
     pub fn collides_rect(&self, other: &Rectangle) -> bool {
-        unsafe {
-            rustyray_sys::ffi::check_collision_recs(self.clone().into(), other.clone().into())
-        }
+        unsafe { rustyray_sys::ffi::check_collision_recs((*self).into(), (*other).into()) }
     }
 
     pub fn get_collision_rect(&self, other: &Rectangle) -> Rectangle {
         unsafe {
             Rectangle::from(rustyray_sys::ffi::get_collision_rec(
-                self.clone().into(),
-                other.clone().into(),
+                (*self).into(),
+                (*other).into(),
             ))
         }
     }
