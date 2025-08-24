@@ -3,14 +3,14 @@ use std::{fmt::Display, ops};
 use rustyray_sys::math::Vector2 as SysVector2;
 
 #[repr(C)]
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Default, PartialEq, PartialOrd)]
 pub struct Vector2 {
     pub x: f32,
     pub y: f32,
 }
 
 #[repr(C)]
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Default, PartialEq, PartialOrd)]
 pub struct Vector2i {
     pub x: i32,
     pub y: i32,
@@ -35,6 +35,8 @@ impl From<&Vector2> for SysVector2 {
 }
 
 impl Vector2 {
+    pub const ZERO: Self = Self { x: 0.0, y: 0.0 };
+
     pub const fn new(x: f32, y: f32) -> Self {
         Self { x, y }
     }
