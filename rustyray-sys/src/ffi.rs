@@ -444,6 +444,9 @@ extern "C" {
     /// Draw a color-filled rectangle
     #[link_name = "DrawRectangleRec"]
     pub fn draw_rectangle_rec(rec: Rectangle, color: Color);
+    /// Draw a color-filled rectangle with pro parameters
+    #[link_name = "DrawRectanglePro"]
+    pub fn draw_rectangle_pro(rec: Rectangle, origin: Vector2, rotation: f32, color: Color);
     /// Draw rectangle outline
     #[link_name = "DrawRectangleLines"]
     pub fn draw_rectangle_lines(
@@ -878,6 +881,16 @@ extern "C" {
     /// Detach audio stream processor from the entire audio pipeline
     #[link_name = "DetachAudioMixedProcessor"]
     pub fn detach_audio_mixed_processor(processor: AudioCallback);
+}
+
+// Basic shapes collision detection functions
+extern "C" {
+    /// Check collision between two rectangles
+    #[link_name = "CheckCollisionRecs"]
+    pub fn check_collision_recs(rec1: Rectangle, rec2: Rectangle) -> bool;
+    /// Load audio stream (to stream raw audio pcm data)
+    #[link_name = "GetCollisionRec"]
+    pub fn get_collision_rec(rec1: Rectangle, rec2: Rectangle) -> Rectangle;
 }
 
 // Logging
