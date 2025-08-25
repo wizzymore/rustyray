@@ -16,6 +16,24 @@ pub struct Vector2i {
     pub y: i32,
 }
 
+impl From<(f32, f32)> for Vector2 {
+    fn from(value: (f32, f32)) -> Self {
+        Self {
+            x: value.0,
+            y: value.1,
+        }
+    }
+}
+
+impl From<(i32, i32)> for Vector2 {
+    fn from(value: (i32, i32)) -> Self {
+        Self {
+            x: value.0 as f32,
+            y: value.1 as f32,
+        }
+    }
+}
+
 impl From<SysVector2> for Vector2 {
     fn from(value: SysVector2) -> Self {
         unsafe { std::mem::transmute(value) }
@@ -98,6 +116,24 @@ impl Display for Vector2 {
 impl Display for Vector2i {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         f.write_str(format!("Vector2i{{x: {}, y: {}}}", self.x, self.y).as_str())
+    }
+}
+
+impl From<(f32, f32)> for Vector2i {
+    fn from(value: (f32, f32)) -> Self {
+        Self {
+            x: value.0 as i32,
+            y: value.1 as i32,
+        }
+    }
+}
+
+impl From<(i32, i32)> for Vector2i {
+    fn from(value: (i32, i32)) -> Self {
+        Self {
+            x: value.0,
+            y: value.1,
+        }
     }
 }
 
