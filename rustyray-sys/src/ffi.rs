@@ -888,7 +888,55 @@ extern "C" {
     /// Check collision between two rectangles
     #[link_name = "CheckCollisionRecs"]
     pub fn check_collision_recs(rec1: Rectangle, rec2: Rectangle) -> bool;
-    /// Load audio stream (to stream raw audio pcm data)
+    /// Check collision between two circles
+    #[link_name = "CheckCollisionCircles"]
+    pub fn check_collision_circles(
+        center1: Vector2,
+        radius1: f32,
+        center2: Vector2,
+        radius2: f32,
+    ) -> bool;
+    /// Check collision between circle and rectangle
+    #[link_name = "CheckCollisionCircleRec"]
+    pub fn check_collision_circle_rec(center1: Vector2, radius1: c_float, rec: Rectangle) -> bool;
+    /// Check if circle collides with a line created betweeen two points [p1] and [p2]
+    #[link_name = "CheckCollisionCircleLine"]
+    pub fn check_collision_circle_line(
+        center: Vector2,
+        radius: f32,
+        p1: Vector2,
+        p2: Vector2,
+    ) -> bool;
+    /// Check if point is inside rectangle
+    #[link_name = "CheckCollisionPointRec"]
+    pub fn check_collision_point_rec(point: Vector2, rec: Rectangle) -> bool;
+    /// Check if point is inside circle
+    #[link_name = "CheckCollisionPointCircle"]
+    pub fn check_collision_point_circle(point: Vector2, center: Vector2, radius: c_float) -> bool;
+    /// Check if point is inside triangle
+    #[link_name = "CheckCollisionPointTriangle"]
+    pub fn check_collision_point_triangle(
+        point: Vector2,
+        p1: Vector2,
+        p2: Vector2,
+        p3: Vector2,
+    ) -> bool;
+    /// Check if point belongs to line created between two points [p1] and [p2] with defined margin in pixels [threshold]
+    #[link_name = "CheckCollisionPointLine"]
+    pub fn check_collision_point_line(
+        point: Vector2,
+        p1: Vector2,
+        p2: Vector2,
+        treshold: c_float,
+    ) -> bool;
+    /// Check if point is within a polygon described by array of vertices
+    #[link_name = "CheckCollisionPointPoly"]
+    pub fn check_collision_point_poly(
+        point: Vector2,
+        p1: *const Vector2,
+        point_count: c_int,
+    ) -> bool;
+    /// Get collision rectangle for two rectangles collision
     #[link_name = "GetCollisionRec"]
     pub fn get_collision_rec(rec1: Rectangle, rec2: Rectangle) -> Rectangle;
 }
