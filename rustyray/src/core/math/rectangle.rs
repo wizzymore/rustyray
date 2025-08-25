@@ -30,6 +30,7 @@ impl Rectangle {
     }
 
     /// Get the width and height of the rectangle as a [Vector2]
+    #[inline]
     pub fn size(&self) -> Vector2 {
         Vector2 {
             x: self.width,
@@ -37,17 +38,49 @@ impl Rectangle {
         }
     }
 
+    #[inline]
     pub fn collides_rect(&self, other: &Rectangle) -> bool {
-        unsafe { rustyray_sys::ffi::check_collision_recs((*self).into(), (*other).into()) }
+        if (self.x < (other.x + other.width) && (self.x + self.width) > other.x)
+            && (self.y < (other.y + other.height) && (self.y + self.height) > other.y)
+        {
+            return true;
+        }
+
+        false
+    }
+
+    #[inline]
+    pub fn collides_point(&self, point: &Vector2) -> bool {
+        if (point.x >= self.x)
+            && (point.x < (self.x + self.width))
+            && (point.y >= self.y)
+            && (point.y < (self.y + self.height))
+        {
+            return true;
+        }
+        false
     }
 
     pub fn get_collision_rect(&self, other: &Rectangle) -> Rectangle {
-        unsafe {
-            Rectangle::from(rustyray_sys::ffi::get_collision_rec(
-                (*self).into(),
-                (*other).into(),
-            ))
+        let mut overlap = Rectangle::new(0.0, 0.0, 0.0, 0.0);
+
+        let left = if self.x > other.x { self.x } else { other.x };
+        let right1 = self.x + self.width;
+        let right2 = other.x + other.width;
+        let right = if right1 < right2 { right1 } else { right2 };
+        let top = if self.y > other.y { self.y } else { other.y };
+        let bottom1 = self.y + self.height;
+        let bottom2 = other.y + other.height;
+        let bottom = if bottom1 < bottom2 { bottom1 } else { bottom2 };
+
+        if (left < right) && (top < bottom) {
+            overlap.x = left;
+            overlap.y = top;
+            overlap.width = right - left;
+            overlap.height = bottom - top;
         }
+
+        return overlap;
     }
 }
 
