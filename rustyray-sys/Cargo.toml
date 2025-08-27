@@ -1,15 +1,15 @@
 [package]
 name = "rustyray-sys"
 description = "Low level bindings for raylib"
-version = "0.1.12"
-edition = "2021"
+version = "0.1.13"
+edition = "2024"
 repository = "https://github.com/wizzymore/rustyray"
 exclude = [
+    "raylib/.github",
     "raylib/examples",
     "raylib/logo",
-    "raylib/parser",
     "raylib/projects",
-    "raylib/.github",
+    "raylib/tools",
 ]
 readme = "README.md"
 license.workspace = true
