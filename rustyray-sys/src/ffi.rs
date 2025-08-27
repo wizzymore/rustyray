@@ -97,7 +97,7 @@ use crate::{
 };
 
 // Window-related functions
-extern "C" {
+unsafe extern "C" {
     /// Initialize window and OpenGL context
     #[link_name = "InitWindow"]
     pub fn init_window(width: c_int, height: c_int, title: *const c_char);
@@ -278,7 +278,7 @@ extern "C" {
 }
 
 // Cursor-related functions
-extern "C" {
+unsafe extern "C" {
     /// Shows cursor
     #[link_name = "ShowCursor"]
     pub fn show_cursor();
@@ -300,7 +300,7 @@ extern "C" {
 }
 
 // Drawing related functions
-extern "C" {
+unsafe extern "C" {
     /// Set background color (framebuffer clear color)
     #[link_name = "ClearBackground"]
     pub fn clear_background(color: Color);
@@ -325,7 +325,7 @@ extern "C" {
 }
 
 // Image loading functions
-extern "C" {
+unsafe extern "C" {
     /// Load image from memory buffer, fileType refers to extension: i.e. '.png'
     #[link_name = "LoadImageFromMemory"]
     pub fn load_image_from_memory(
@@ -337,7 +337,7 @@ extern "C" {
 
 // Texture loading functions
 // Note: These function require GPU access
-extern "C" {
+unsafe extern "C" {
     /// Load texture from file into GPU memory (VRAM)
     #[link_name = "LoadTexture"]
     pub fn load_texture(path: *const c_char) -> Texture;
@@ -368,7 +368,7 @@ extern "C" {
 }
 
 // Texture configuration function
-extern "C" {
+unsafe extern "C" {
     /// Generate GPU mipmaps for a texture
     #[link_name = "GenTextureMipmaps"]
     pub fn gen_texture_mipmaps(texture: *mut Texture);
@@ -381,7 +381,7 @@ extern "C" {
 }
 
 // Texture drawing functions
-extern "C" {
+unsafe extern "C" {
     /// Draw a [Texture]
     #[link_name = "DrawTexture"]
     pub fn draw_texture(texture: Texture, pos_x: c_int, pos_y: c_int, tint: Color);
@@ -414,7 +414,7 @@ extern "C" {
 }
 
 // Text drawing functions
-extern "C" {
+unsafe extern "C" {
     /// Draw current FPS
     #[link_name = "DrawFPS"]
     pub fn draw_fps(pos_x: c_int, pos_y: c_int);
@@ -430,14 +430,14 @@ extern "C" {
 }
 
 // Text font info functions
-extern "C" {
+unsafe extern "C" {
     /// Measure string width for default font
     #[link_name = "MeasureText"]
     pub fn measure_text(text: *const c_char, font_size: c_int);
 }
 
 // Basic shapes drawing functions
-extern "C" {
+unsafe extern "C" {
     /// Draw a color-filled circle (Vector version)
     #[link_name = "DrawCircleV"]
     pub fn draw_circle_v(center: Vector2, radius: c_float, color: Color);
@@ -461,7 +461,7 @@ extern "C" {
 }
 
 // Input-related functions: keyboard
-extern "C" {
+unsafe extern "C" {
     /// Check if a key has been pressed once
     #[link_name = "IsKeyPressed"]
     pub fn is_key_pressed(key: KeyboardKey) -> bool;
@@ -489,7 +489,7 @@ extern "C" {
 }
 
 // Input-related functions: gamepads
-extern "C" {
+unsafe extern "C" {
     /// Check if a gamepad is available
     #[link_name = "IsGamepadAvailable"]
     pub fn is_gamepad_available(gamepad: c_int) -> bool;
@@ -528,7 +528,7 @@ extern "C" {
 }
 
 // Input-related functions: mouse
-extern "C" {
+unsafe extern "C" {
     /// Check if a [MouseButton] has been pressed once
     #[link_name = "IsMouseButtonPressed"]
     pub fn is_mouse_button_pressed(button: MouseButton) -> bool;
@@ -574,7 +574,7 @@ extern "C" {
 }
 
 // Input-related functions: touch
-extern "C" {
+unsafe extern "C" {
     /// Get touch position X for touch point 0 (relative to screen size)
     #[link_name = "GetTouchX"]
     pub fn get_touch_x() -> c_int;
@@ -592,7 +592,7 @@ extern "C" {
     pub fn get_touch_point_count() -> c_int;
 }
 // Gestures and Touch handling functions
-extern "C" {
+unsafe extern "C" {
     /// Enable a set of [Gesture] using flags
     #[link_name = "SetGesturesEnabled"]
     pub fn set_gestures_enabled(flags: Gesture);
@@ -620,7 +620,7 @@ extern "C" {
 }
 
 // Timing-related functions
-extern "C" {
+unsafe extern "C" {
     /// Set target FPS (maximum)
     #[link_name = "SetTargetFPS"]
     pub fn set_target_fps(fps: c_int);
@@ -636,7 +636,7 @@ extern "C" {
 }
 
 // Misc functions
-extern "C" {
+unsafe extern "C" {
     /// Setup init configuration flags
     ///
     /// Flags should be of values defined in [ConfigFlag].
@@ -654,7 +654,7 @@ extern "C" {
 }
 
 // Audio device management functions
-extern "C" {
+unsafe extern "C" {
     /// Initialize audio device and context
     #[link_name = "InitAudioDevice"]
     pub fn init_audio_device();
@@ -673,7 +673,7 @@ extern "C" {
 }
 
 // Wave/Sound loading/unloading functions
-extern "C" {
+unsafe extern "C" {
     /// Load wave data from file
     #[link_name = "LoadWave"]
     pub fn load_wave(file_name: *const c_char) -> Wave;
@@ -720,7 +720,7 @@ extern "C" {
 }
 
 // Wave/Sound management functions
-extern "C" {
+unsafe extern "C" {
     /// Play a sound
     #[link_name = "PlaySound"]
     pub fn play_sound(sound: Sound);
@@ -762,7 +762,7 @@ extern "C" {
     pub fn unload_wave_samples(samples: *const c_float);
 }
 
-extern "C" {
+unsafe extern "C" {
     /// Load music stream from file
     #[link_name = "LoadMusicStream"]
     pub fn load_music_stream(file_name: *const c_char) -> Music;
@@ -818,7 +818,7 @@ extern "C" {
 }
 
 // AudioStream management functions
-extern "C" {
+unsafe extern "C" {
     /// Load audio stream (to stream raw audio pcm data)
     #[link_name = "LoadAudioStream"]
     pub fn load_audio_stream(
@@ -884,7 +884,7 @@ extern "C" {
 }
 
 // Basic shapes collision detection functions
-extern "C" {
+unsafe extern "C" {
     /// Check collision between two rectangles
     #[link_name = "CheckCollisionRecs"]
     pub fn check_collision_recs(rec1: Rectangle, rec2: Rectangle) -> bool;
@@ -944,7 +944,7 @@ extern "C" {
 // Logging
 pub type TraceLogCallback = extern "C" fn(log_level: i32, text: *const c_char, args: *mut c_void);
 
-extern "C" {
+unsafe extern "C" {
     #[link_name = "SetTraceLogCallback"]
     pub fn set_trace_log_callback(callback: TraceLogCallback);
 }
