@@ -45,7 +45,7 @@ fn create_circle(rng: &mut ThreadRng) -> CircleWave {
 }
 
 fn main() {
-    let window = WindowBuilder::new(
+    let mut window = WindowBuilder::new(
         SCREEN_WIDTH,
         SCREEN_HEIGHT,
         "rustyray [audio] example - module playing (streaming)",
@@ -109,46 +109,44 @@ fn main() {
             });
         }
 
-        window
-            .draw(|d| {
-                d.clear(Color::RAYWHITE);
+        window.draw(|d| {
+            d.clear(Color::RAYWHITE);
 
-                circles.iter().for_each(|circle| {
-                    d.draw_circle(circle.pos, circle.radius, circle.color);
-                });
+            circles.iter().for_each(|circle| {
+                d.draw_circle(circle.pos, circle.radius, circle.color);
+            });
 
-                // Draw time bar
-                d.draw_rect(
-                    Rectangle::new(
-                        20.,
-                        SCREEN_HEIGHT as f32 - 20. - 12.,
-                        SCREEN_WIDTH as f32 - 40.,
-                        12.,
-                    ),
-                    Color::LIGHTGRAY,
-                );
-                d.draw_rect(
-                    Rectangle::new(20., SCREEN_HEIGHT as f32 - 20. - 12., time_played, 12.),
-                    Color::MAROON,
-                );
-                d.draw_rect_lines(
-                    Rectangle::new(
-                        20.,
-                        SCREEN_HEIGHT as f32 - 20. - 12.,
-                        SCREEN_WIDTH as f32 - 40.,
-                        12.,
-                    ),
-                    Color::GRAY,
-                );
+            // Draw time bar
+            d.draw_rect(
+                Rectangle::new(
+                    20.,
+                    SCREEN_HEIGHT as f32 - 20. - 12.,
+                    SCREEN_WIDTH as f32 - 40.,
+                    12.,
+                ),
+                Color::LIGHTGRAY,
+            );
+            d.draw_rect(
+                Rectangle::new(20., SCREEN_HEIGHT as f32 - 20. - 12., time_played, 12.),
+                Color::MAROON,
+            );
+            d.draw_rect_lines(
+                Rectangle::new(
+                    20.,
+                    SCREEN_HEIGHT as f32 - 20. - 12.,
+                    SCREEN_WIDTH as f32 - 40.,
+                    12.,
+                ),
+                Color::GRAY,
+            );
 
-                // Draw help instructions
-                d.draw_rect(Rectangle::new(20., 20., 425., 145.), Color::WHITE);
-                d.draw_rect_lines(Rectangle::new(20., 20., 425., 145.), Color::GRAY);
-                d.draw_text("PRESS SPACE TO RESTART MUSIC", 40, 40, 20, Color::BLACK);
-                d.draw_text("PRESS P TO PAUSE/RESUME", 40, 70, 20, Color::BLACK);
-                d.draw_text("PRESS UP/DOWN TO CHANGE SPEED", 40, 100, 20, Color::BLACK);
-                d.draw_text(format!("SPEED: {}", pitch), 40, 130, 20, Color::MAROON);
-            })
-            .unwrap();
+            // Draw help instructions
+            d.draw_rect(Rectangle::new(20., 20., 425., 145.), Color::WHITE);
+            d.draw_rect_lines(Rectangle::new(20., 20., 425., 145.), Color::GRAY);
+            d.draw_text("PRESS SPACE TO RESTART MUSIC", 40, 40, 20, Color::BLACK);
+            d.draw_text("PRESS P TO PAUSE/RESUME", 40, 70, 20, Color::BLACK);
+            d.draw_text("PRESS UP/DOWN TO CHANGE SPEED", 40, 100, 20, Color::BLACK);
+            d.draw_text(format!("SPEED: {}", pitch), 40, 130, 20, Color::MAROON);
+        });
     }
 }

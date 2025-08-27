@@ -141,6 +141,24 @@ impl From<&OwnedRenderTexture> for texture::Texture {
     }
 }
 
+impl AsRef<RenderTexture> for OwnedRenderTexture {
+    fn as_ref(&self) -> &RenderTexture {
+        &self.0
+    }
+}
+
+impl AsRef<Texture> for OwnedRenderTexture {
+    fn as_ref(&self) -> &Texture {
+        &self.0.texture
+    }
+}
+
+impl AsRef<Texture> for OwnedTexture {
+    fn as_ref(&self) -> &Texture {
+        &self.0
+    }
+}
+
 impl Drop for OwnedTexture {
     fn drop(&mut self) {
         unsafe {

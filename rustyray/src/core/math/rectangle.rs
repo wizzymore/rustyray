@@ -80,7 +80,7 @@ impl Rectangle {
             overlap.height = bottom - top;
         }
 
-        return overlap;
+        overlap
     }
 }
 
