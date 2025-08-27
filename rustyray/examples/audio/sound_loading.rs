@@ -1,7 +1,7 @@
 use rustyray::prelude::*;
 
 fn main() {
-    let window = WindowBuilder::new(
+    let mut window = WindowBuilder::new(
         800,
         450,
         String::from("rustyray [audio] example - sound loading and playing"),
@@ -23,26 +23,24 @@ fn main() {
             fx_ogg.play();
         }
 
-        window
-            .draw(|d| {
-                d.clear(Color::RAYWHITE);
+        window.draw(|d| {
+            d.clear(Color::RAYWHITE);
 
-                d.draw_text(
-                    "Press SPACE to PLAY the WAV sound!",
-                    200,
-                    180,
-                    20,
-                    Color::DARKGRAY,
-                );
+            d.draw_text(
+                "Press SPACE to PLAY the WAV sound!",
+                200,
+                180,
+                20,
+                Color::DARKGRAY,
+            );
 
-                d.draw_text(
-                    "Press ENTER to PLAY the OGG sound!",
-                    200,
-                    220,
-                    20,
-                    Color::DARKGRAY,
-                );
-            })
-            .unwrap();
+            d.draw_text(
+                "Press ENTER to PLAY the OGG sound!",
+                200,
+                220,
+                20,
+                Color::DARKGRAY,
+            );
+        });
     }
 }

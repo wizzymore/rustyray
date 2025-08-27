@@ -3,6 +3,8 @@ use std::{ffi::CString, fmt::Debug};
 use rustyray_sys::ffi;
 use thiserror::Error;
 
+use crate::prelude::{DrawingExt, TextureModeExt};
+
 use super::{
     consts::{ConfigFlag, KeyboardKey, MouseButton},
     math::{Vector2, Vector2i},
@@ -228,3 +230,6 @@ impl Drop for Window {
         }
     }
 }
+
+impl DrawingExt for Window {}
+impl TextureModeExt for Window {}

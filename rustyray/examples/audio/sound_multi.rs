@@ -1,7 +1,7 @@
 use rustyray::prelude::*;
 
 fn main() {
-    let window = WindowBuilder::new(
+    let mut window = WindowBuilder::new(
         800,
         450,
         "rustyray [audio] example - play sound multiple times",
@@ -29,18 +29,16 @@ fn main() {
             }
         }
 
-        window
-            .draw(|d| {
-                d.clear(Color::RAYWHITE);
+        window.draw(|d| {
+            d.clear(Color::RAYWHITE);
 
-                d.draw_text(
-                    "Press SPACE to PLAY the WAV sound!",
-                    200,
-                    180,
-                    20,
-                    Color::DARKGRAY,
-                );
-            })
-            .unwrap();
+            d.draw_text(
+                "Press SPACE to PLAY the WAV sound!",
+                200,
+                180,
+                20,
+                Color::DARKGRAY,
+            );
+        });
     }
 }
