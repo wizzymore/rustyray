@@ -171,7 +171,7 @@ where
 
     #[inline]
     #[must_use]
-    fn begin_drawing(&mut self) -> DrawHandler<Self> {
+    fn begin_drawing<'a>(&'a mut self) -> DrawHandler<'a, Self> {
         unsafe {
             ffi::begin_drawing();
         }
