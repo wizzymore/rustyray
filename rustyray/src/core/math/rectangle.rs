@@ -139,8 +139,6 @@ impl Display for Rectangle {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use test::Bencher;
-    extern crate test;
 
     #[test]
     fn test_collides_rect() {
@@ -174,13 +172,16 @@ mod tests {
         assert!(rect_a.collides_circle(center, radius) == false);
     }
 
-    #[bench]
-    fn bench_rect_circle_collision(b: &mut Bencher) {
-        let rect_a = Rectangle::new(0.0, 0.0, 10.0, 10.0);
-        let center = Vector2::new(12.0, 12.0);
-        let radius = 3.0;
-        b.iter(|| {
-            rect_a.collides_circle(center, radius);
-        });
-    }
+    // For when benches become stable
+    // use test::Bencher;
+    // extern crate test;
+    // #[bench]
+    // fn bench_rect_circle_collision(b: &mut Bencher) {
+    //     let rect_a = Rectangle::new(0.0, 0.0, 10.0, 10.0);
+    //     let center = Vector2::new(12.0, 12.0);
+    //     let radius = 3.0;
+    //     b.iter(|| {
+    //         rect_a.collides_circle(center, radius);
+    //     });
+    // }
 }
