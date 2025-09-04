@@ -218,6 +218,11 @@ impl Window {
     pub fn get_mouse_pos(&self) -> Vector2 {
         unsafe { ffi::get_mouse_position().into() }
     }
+
+    #[inline]
+    pub fn get_mouse_wheel_move(&self) -> f32 {
+        unsafe { ffi::get_mouse_wheel_move() }
+    }
 }
 
 impl Drop for Window {
