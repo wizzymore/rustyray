@@ -1,7 +1,7 @@
 use super::{
     color::Color,
     image::OwnedRenderTexture,
-    math::{Rectangle, Vector2},
+    math::{Rectangle, Vector2, Vector2i},
 };
 use rustyray_sys::{ffi, texture::Texture};
 use std::{ffi::CString, fmt::Debug, marker::PhantomData};
@@ -134,6 +134,11 @@ pub trait Draw {
     #[inline]
     fn draw_circle(&self, center: Vector2, radius: f32, color: Color) {
         unsafe { ffi::draw_circle_v(center.into(), radius, color) }
+    }
+
+    #[inline]
+    fn draw_ellipse(&self, center: Vector2i, radius: Vector2, color: Color) {
+        unsafe { ffi::draw_ellipse(center.x, center.y, radius.x, radius.y, color) }
     }
 
     /// Draw text (using default font)
