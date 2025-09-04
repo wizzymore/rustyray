@@ -438,9 +438,21 @@ unsafe extern "C" {
 
 // Basic shapes drawing functions
 unsafe extern "C" {
+    /// Draw a color-filled circle
+    #[link_name = "DrawCircle"]
+    pub fn draw_circle(center_x: c_int, center_y: c_int, radius: c_float, color: Color);
     /// Draw a color-filled circle (Vector version)
     #[link_name = "DrawCircleV"]
     pub fn draw_circle_v(center: Vector2, radius: c_float, color: Color);
+    /// Draw a color-filled circle (Vector version)
+    #[link_name = "DrawEllipse"]
+    pub fn draw_ellipse(
+        center_x: c_int,
+        center_y: c_int,
+        radius_x: c_float,
+        radius_y: c_float,
+        color: Color,
+    );
     /// Draw a color-filled rectangle
     #[link_name = "DrawRectangleRec"]
     pub fn draw_rectangle_rec(rec: Rectangle, color: Color);

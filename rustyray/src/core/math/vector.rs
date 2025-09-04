@@ -63,6 +63,15 @@ impl Vector2 {
         Self { x: 0., y: 0. }
     }
 
+    #[inline]
+    pub fn magnitude(&self) -> f32 {
+        self.length()
+    }
+
+    pub fn length(&self) -> f32 {
+        ((self.x * self.x) + (self.y * self.y)).sqrt()
+    }
+
     pub fn normalized(&self) -> Self {
         let mut result = *self;
         result.normalize();
@@ -70,7 +79,7 @@ impl Vector2 {
     }
 
     pub fn normalize(&mut self) {
-        let length = ((self.x * self.x) + (self.y * self.y)).sqrt();
+        let length = self.length();
 
         if length > 0. {
             let ilength = 1. / length;

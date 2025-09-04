@@ -38,7 +38,6 @@ impl Rectangle {
         }
     }
 
-    #[inline]
     pub fn collides_rect(&self, other: &Rectangle) -> bool {
         if (self.x < (other.x + other.width) && (self.x + self.width) > other.x)
             && (self.y < (other.y + other.height) && (self.y + self.height) > other.y)
@@ -49,7 +48,6 @@ impl Rectangle {
         false
     }
 
-    #[inline]
     pub fn collides_point(&self, point: &Vector2) -> bool {
         if (point.x >= self.x)
             && (point.x < (self.x + self.width))
@@ -59,6 +57,30 @@ impl Rectangle {
             return true;
         }
         false
+    }
+
+    pub fn collides_circle(&self, center: Vector2, radius: f32) -> bool {
+        let nearest_x;
+        if center.x < self.x {
+            nearest_x = self.x;
+        } else if center.x > self.x + self.width {
+            nearest_x = self.x + self.width;
+        } else {
+            nearest_x = center.x;
+        }
+
+        let nearest_y;
+        if center.y < self.y {
+            nearest_y = self.y;
+        } else if center.y > self.y + self.height {
+            nearest_y = self.y + self.height;
+        } else {
+            nearest_y = center.y;
+        }
+
+        let delta = Vector2::new(center.x - nearest_x, center.y - nearest_y);
+
+        delta.length() < radius
     }
 
     pub fn get_collision_rect(&self, other: &Rectangle) -> Rectangle {
@@ -117,12 +139,48 @@ impl Display for Rectangle {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use test::Bencher;
+    extern crate test;
 
     #[test]
-    fn test_intersects() {
+    fn test_collides_rect() {
         let rect_a = Rectangle::new(0.0, 0.0, 10.0, 10.0);
         let rect_b = Rectangle::new(5.0, 5.0, 6.0, 6.0);
         assert!(rect_a.collides_rect(&rect_b));
         assert!(rect_b.collides_rect(&rect_a));
+    }
+
+    #[test]
+    fn test_does_not_collides_rect() {
+        let rect_a = Rectangle::new(0.0, 0.0, 10.0, 10.0);
+        let rect_b = Rectangle::new(10.0, 10.0, 10.0, 10.0);
+        assert!(rect_a.collides_rect(&rect_b) == false);
+        assert!(rect_b.collides_rect(&rect_a) == false);
+    }
+
+    #[test]
+    fn test_collides_circle() {
+        let rect_a = Rectangle::new(0.0, 0.0, 10.0, 10.0);
+        let center = Vector2::new(12.0, 12.0);
+        let radius = 3.0;
+        assert!(rect_a.collides_circle(center, radius));
+    }
+
+    #[test]
+    fn test_does_not_collides_circle() {
+        let rect_a = Rectangle::new(0.0, 0.0, 10.0, 10.0);
+        let center = Vector2::new(12.0, 12.0);
+        let radius = 2.0;
+        assert!(rect_a.collides_circle(center, radius) == false);
+    }
+
+    #[bench]
+    fn bench_rect_circle_collision(b: &mut Bencher) {
+        let rect_a = Rectangle::new(0.0, 0.0, 10.0, 10.0);
+        let center = Vector2::new(12.0, 12.0);
+        let radius = 3.0;
+        b.iter(|| {
+            rect_a.collides_circle(center, radius);
+        });
     }
 }
