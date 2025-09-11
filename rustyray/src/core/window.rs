@@ -1,9 +1,12 @@
-use std::{ffi::CString, fmt::Debug};
+use std::{
+    ffi::{CStr, CString},
+    fmt::Debug,
+};
 
 use rustyray_sys::ffi;
 use thiserror::Error;
 
-use crate::prelude::{DrawingExt, TextureModeExt};
+use crate::prelude::{DrawingExt, GamepadAxis, GamepadButton, TextureModeExt};
 
 use super::{
     consts::{ConfigFlag, KeyboardKey, MouseButton},
@@ -66,26 +69,26 @@ impl WindowBuilder {
     }
 
     pub fn build(&self) -> Result<Window, WindowError> {
-        unsafe {
-            if ffi::is_window_ready() {
-                return Err(WindowError::DoubleWindowInit);
-            }
+        let mut window = Window {};
 
+        if window.is_ready() {
+            return Err(WindowError::DoubleWindowInit);
+        }
+
+        unsafe {
             ffi::init_window(
                 self.width,
                 self.height,
                 CString::new(self.title.as_str()).unwrap().as_ptr(),
             );
-
-            if !ffi::is_window_ready() {
-                return Err(WindowError::WindowNotReady);
-            }
         }
 
-        let window = Window {};
+        if !window.is_ready() {
+            return Err(WindowError::WindowNotReady);
+        }
 
         if let Some(fps) = self.fps {
-            window.set_fps(fps);
+            window.set_target_fps(fps);
         }
         if self.audio {
             window.init_audio()?;
@@ -113,8 +116,44 @@ impl Window {
         Ok(())
     }
 
+    #[inline]
     pub fn is_audio_device_ready(&self) -> bool {
         unsafe { ffi::is_audio_device_ready() }
+    }
+
+    #[inline]
+    pub fn is_ready(&self) -> bool {
+        unsafe { ffi::is_window_ready() }
+    }
+
+    #[inline]
+    pub fn is_fullscreen(&self) -> bool {
+        unsafe { ffi::is_window_fullscreen() }
+    }
+
+    #[inline]
+    pub fn is_hidden(&self) -> bool {
+        unsafe { ffi::is_window_hidden() }
+    }
+
+    #[inline]
+    pub fn is_minimized(&self) -> bool {
+        unsafe { ffi::is_window_minimized() }
+    }
+
+    #[inline]
+    pub fn is_maximized(&self) -> bool {
+        unsafe { ffi::is_window_maximized() }
+    }
+
+    #[inline]
+    pub fn is_focused(&self) -> bool {
+        unsafe { ffi::is_window_focused() }
+    }
+
+    #[inline]
+    pub fn is_resized(&self) -> bool {
+        unsafe { ffi::is_window_resized() }
     }
 
     #[inline]
@@ -122,31 +161,93 @@ impl Window {
         unsafe { ffi::window_should_close() }
     }
 
-    pub fn get_screen_size(&self) -> Vector2i {
+    pub fn screen_size(&self) -> Vector2i {
         Vector2i {
-            x: self.get_screen_width(),
-            y: self.get_screen_height(),
+            x: self.screen_width(),
+            y: self.screen_height(),
         }
     }
 
     #[inline]
-    pub fn get_screen_width(&self) -> i32 {
+    pub fn screen_width(&self) -> i32 {
         unsafe { ffi::get_screen_width() }
     }
 
     #[inline]
-    pub fn get_screen_height(&self) -> i32 {
+    pub fn screen_height(&self) -> i32 {
         unsafe { ffi::get_screen_height() }
     }
 
-    #[inline]
-    pub fn dt(&self) -> f32 {
-        unsafe { ffi::get_frame_time() }
+    pub fn render_size(&self) -> Vector2i {
+        Vector2i {
+            x: self.render_width(),
+            y: self.render_height(),
+        }
     }
 
     #[inline]
-    pub fn frame_time(&self) -> f32 {
-        self.dt()
+    pub fn render_width(&self) -> i32 {
+        unsafe { ffi::get_render_width() }
+    }
+
+    #[inline]
+    pub fn render_height(&self) -> i32 {
+        unsafe { ffi::get_render_height() }
+    }
+
+    #[inline]
+    pub fn monitor_count(&self) -> i32 {
+        unsafe { ffi::get_monitor_count() }
+    }
+
+    #[inline]
+    pub fn current_monitor(&self) -> i32 {
+        unsafe { ffi::get_current_monitor() }
+    }
+
+    #[inline]
+    pub fn monitor_position(&self, monitor: i32) -> Vector2 {
+        unsafe { ffi::get_monitor_position(monitor).into() }
+    }
+
+    #[inline]
+    pub fn monitor_width(&self, monitor: i32) -> i32 {
+        unsafe { ffi::get_monitor_width(monitor) }
+    }
+
+    #[inline]
+    pub fn monitor_height(&self, monitor: i32) -> i32 {
+        unsafe { ffi::get_monitor_height(monitor) }
+    }
+
+    #[inline]
+    pub fn monitor_physical_width(&self, monitor: i32) -> i32 {
+        unsafe { ffi::get_monitor_physical_width(monitor) }
+    }
+
+    #[inline]
+    pub fn monitor_physical_height(&self, monitor: i32) -> i32 {
+        unsafe { ffi::get_monitor_physical_height(monitor) }
+    }
+
+    #[inline]
+    pub fn monitor_refresh_rate(&self, monitor: i32) -> i32 {
+        unsafe { ffi::get_monitor_refresh_rate(monitor) }
+    }
+
+    #[inline]
+    pub fn position(&self) -> Vector2 {
+        unsafe { ffi::get_window_position().into() }
+    }
+
+    #[inline]
+    pub fn scale_dpi(&self) -> Vector2 {
+        unsafe { ffi::get_window_scale_dpi().into() }
+    }
+
+    #[inline]
+    pub fn monitor_name(&self, monitor: i32) -> CString {
+        unsafe { CString::from_raw(ffi::get_monitor_name(monitor).cast_mut()) }
     }
 
     // Configuration-related functions
@@ -157,40 +258,141 @@ impl Window {
 
     pub fn set_vsync(&self, v: bool) {
         if v {
-            self.set_window_state(ConfigFlag::VsyncHint);
+            self.set_state(ConfigFlag::VsyncHint);
         } else {
-            self.clear_window_state(ConfigFlag::VsyncHint);
+            self.clear_state(ConfigFlag::VsyncHint);
         }
     }
 
     #[inline]
-    pub fn set_window_state(&self, state: ConfigFlag) {
+    pub fn toggle_fullscreen(&self) {
+        unsafe {
+            ffi::toggle_fullscreen();
+        }
+    }
+
+    #[inline]
+    pub fn toggle_borderless_windowed(&self) {
+        unsafe {
+            ffi::toggle_borderless_windowed();
+        }
+    }
+
+    #[inline]
+    pub fn maximize_window(&self) {
+        unsafe {
+            ffi::maximize_window();
+        }
+    }
+
+    #[inline]
+    pub fn minimize_window(&self) {
+        unsafe {
+            ffi::minimize_window();
+        }
+    }
+
+    #[inline]
+    pub fn restore_window(&self) {
+        unsafe {
+            ffi::restore_window();
+        }
+    }
+
+    #[inline]
+    pub fn is_state(&self, state: ConfigFlag) -> bool {
+        unsafe { ffi::is_window_state(state.into()) }
+    }
+
+    #[inline]
+    pub fn set_state(&self, state: ConfigFlag) {
         unsafe {
             ffi::set_window_state(state.into());
         }
     }
 
     #[inline]
-    pub fn clear_window_state(&self, state: ConfigFlag) {
+    pub fn set_title(&self, title: CString) {
+        unsafe {
+            ffi::set_window_title(title.as_ptr());
+        }
+    }
+
+    #[inline]
+    pub fn set_position(&self, x: i32, y: i32) {
+        unsafe {
+            ffi::set_window_position(x, y);
+        }
+    }
+
+    #[inline]
+    pub fn set_monitor(&self, monitor: i32) {
+        unsafe {
+            ffi::set_window_monitor(monitor);
+        }
+    }
+
+    #[inline]
+    pub fn set_min_size(&self, width: i32, height: i32) {
+        unsafe {
+            ffi::set_window_min_size(width, height);
+        }
+    }
+
+    #[inline]
+    pub fn set_max_size(&self, width: i32, height: i32) {
+        unsafe {
+            ffi::set_window_max_size(width, height);
+        }
+    }
+
+    #[inline]
+    pub fn set_size(&self, width: i32, height: i32) {
+        unsafe {
+            ffi::set_window_size(width, height);
+        }
+    }
+
+    #[inline]
+    pub fn set_opacity(&self, opacity: f32) {
+        unsafe {
+            ffi::set_window_opacity(opacity);
+        }
+    }
+
+    #[inline]
+    pub fn set_focused(&self) {
+        unsafe {
+            ffi::set_window_focused();
+        }
+    }
+
+    #[inline]
+    pub fn clear_state(&self, state: ConfigFlag) {
         unsafe {
             ffi::clear_window_state(state.into());
         }
     }
 
-    pub fn fps(self, fps: i32) -> Self {
-        self.set_fps(fps);
-        self
-    }
-
     #[inline]
-    pub fn set_fps(&self, fps: i32) {
+    pub fn set_target_fps(&mut self, fps: i32) {
         unsafe {
             ffi::set_target_fps(fps);
         }
     }
 
     #[inline]
-    pub fn change_size(width: i32, height: i32) {
+    pub fn frame_time(&self) -> f32 {
+        unsafe { ffi::get_frame_time() }
+    }
+
+    #[inline]
+    pub fn time(&self) -> f64 {
+        unsafe { ffi::get_time() }
+    }
+
+    #[inline]
+    pub fn window_size(&mut self, width: i32, height: i32) {
         unsafe {
             ffi::set_window_size(width, height);
         }
@@ -215,13 +417,91 @@ impl Window {
     }
 
     #[inline]
-    pub fn get_mouse_pos(&self) -> Vector2 {
+    pub fn mouse_pos(&self) -> Vector2 {
         unsafe { ffi::get_mouse_position().into() }
     }
 
     #[inline]
     pub fn get_mouse_wheel_move(&self) -> f32 {
         unsafe { ffi::get_mouse_wheel_move() }
+    }
+
+    #[inline]
+    pub fn show_cursor(&self) {
+        unsafe {
+            ffi::show_cursor();
+        }
+    }
+
+    #[inline]
+    pub fn hide_cursor(&self) {
+        unsafe {
+            ffi::hide_cursor();
+        }
+    }
+
+    #[inline]
+    pub fn is_cursor_hidden(&self) -> bool {
+        unsafe { ffi::is_cursor_hidden() }
+    }
+
+    #[inline]
+    pub fn enable_cursor(&self) {
+        unsafe {
+            ffi::enable_cursor();
+        }
+    }
+
+    #[inline]
+    pub fn disable_cursor(&self) {
+        unsafe {
+            ffi::disable_cursor();
+        }
+    }
+
+    #[inline]
+    pub fn is_cursor_on_screen(&self) -> bool {
+        unsafe { ffi::is_cursor_on_screen() }
+    }
+
+    #[inline]
+    pub fn set_exit_key(&self, key: KeyboardKey) {
+        unsafe { ffi::set_exit_key(key) }
+    }
+
+    #[inline]
+    pub fn is_gamepad_button_pressed(&self, gamepad: i32, button: GamepadButton) -> bool {
+        unsafe { ffi::is_gamepad_button_pressed(gamepad, button) }
+    }
+
+    #[inline]
+    pub fn is_gamepad_button_down(&self, gamepad: i32, button: GamepadButton) -> bool {
+        unsafe { ffi::is_gamepad_button_down(gamepad, button) }
+    }
+
+    #[inline]
+    pub fn is_gamepad_button_released(&self, gamepad: i32, button: GamepadButton) -> bool {
+        unsafe { ffi::is_gamepad_button_released(gamepad, button) }
+    }
+
+    #[inline]
+    pub fn is_gamepad_button_up(&self, gamepad: i32, button: GamepadButton) -> bool {
+        unsafe { ffi::is_gamepad_button_up(gamepad, button) }
+    }
+
+    #[inline]
+    pub fn gamepad_button_pressed(&self, gamepad: i32) -> GamepadButton {
+        unsafe { ffi::get_gamepad_button_pressed(gamepad) }
+    }
+
+    #[inline]
+    pub fn gamepad_axis_count(&self, gamepad: i32) -> i32 {
+        unsafe { ffi::get_gamepad_axis_count(gamepad) }
+    }
+
+    #[inline]
+    pub fn gamepad_axis_movement(&self, gamepad: i32, axis: GamepadAxis) -> f32 {
+        unsafe { ffi::get_gamepad_axis_movement(gamepad, axis) }
     }
 }
 
