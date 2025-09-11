@@ -22,15 +22,15 @@ fn main() {
 
     let mut bunnies = Vec::<Bunny>::new();
     bunnies.reserve_exact(MAX_BUNNIES);
-    let screen_size = window.get_screen_size();
+    let screen_size = window.screen_size();
     let bar_rect = Rectangle::new(0., 0., screen_size.x as f32, 40.);
 
     while !window.should_close() {
-        let dt = window.dt();
+        let dt = window.frame_time();
         if window.is_mouse_down(MouseButton::Left) {
             for _ in 0..100 {
                 if bunnies.len() < bunnies.capacity() {
-                    let mouse_pos = window.get_mouse_pos();
+                    let mouse_pos = window.mouse_pos();
                     bunnies.push(Bunny {
                         pos: mouse_pos,
                         speed: rng.random_range(1.0..250.0),

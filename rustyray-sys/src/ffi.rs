@@ -193,7 +193,7 @@ unsafe extern "C" {
     pub fn set_window_icons(images: *const Image);
     /// Set title for window
     #[link_name = "SetWindowTitle"]
-    pub fn set_window_title(images: *const c_char);
+    pub fn set_window_title(title: *const c_char);
     /// Set window position on screen
     #[link_name = "SetWindowPosition"]
     pub fn set_window_position(x: c_int, y: c_int);
@@ -287,7 +287,7 @@ unsafe extern "C" {
     pub fn hide_cursor();
     /// Check if cursor is not visible
     #[link_name = "IsCursorHidden"]
-    pub fn is_cursor_hidden();
+    pub fn is_cursor_hidden() -> bool;
     /// Enables cursor (unlock cursor)
     #[link_name = "EnableCursor"]
     pub fn enable_cursor();
@@ -296,7 +296,7 @@ unsafe extern "C" {
     pub fn disable_cursor();
     /// Check if cursor is on the screen
     #[link_name = "IsCursorOnScreen"]
-    pub fn is_cursor_on_screen();
+    pub fn is_cursor_on_screen() -> bool;
 }
 
 // Drawing related functions
@@ -497,7 +497,7 @@ unsafe extern "C" {
     pub fn get_char_pressed() -> c_int;
     /// Set a custom key to exit program (default is [KeyboardKey::Escape])
     #[link_name = "SetExitKey"]
-    pub fn set_exit_key(key: c_int);
+    pub fn set_exit_key(key: KeyboardKey);
 }
 
 // Input-related functions: gamepads
@@ -649,7 +649,10 @@ unsafe extern "C" {
 
 // Misc functions
 unsafe extern "C" {
-    /// Setup init configuration flags
+    /// Takes a screenshot of current screen (filename extension defines format)
+    #[link_name = "TakeScreenshot"]
+    pub fn take_screenshot(file_name: *const c_char);
+    /// Setup init configuration flags (view FLAGS)
     ///
     /// Flags should be of values defined in [ConfigFlag].
     ///
@@ -663,6 +666,9 @@ unsafe extern "C" {
     /// ```
     #[link_name = "SetConfigFlags"]
     pub fn set_config_flags(flags: ConfigFlag);
+    /// Open URL with default system browser (if available)
+    #[link_name = "OpenURL"]
+    pub fn open_url(url: *const c_char);
 }
 
 // Audio device management functions
