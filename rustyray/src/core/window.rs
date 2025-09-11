@@ -1,7 +1,4 @@
-use std::{
-    ffi::{CStr, CString},
-    fmt::Debug,
-};
+use std::{ffi::CString, fmt::Debug};
 
 use rustyray_sys::ffi;
 use thiserror::Error;
