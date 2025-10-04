@@ -419,7 +419,7 @@ impl Window {
     }
 
     #[inline]
-    pub fn get_mouse_wheel_move(&self) -> f32 {
+    pub fn mouse_wheel_move(&self) -> f32 {
         unsafe { ffi::get_mouse_wheel_move() }
     }
 
