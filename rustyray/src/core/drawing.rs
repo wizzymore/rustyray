@@ -137,6 +137,11 @@ pub trait Draw {
     }
 
     #[inline]
+    fn draw_circle_lines(&self, center: Vector2, radius: f32, color: Color) {
+        unsafe { ffi::draw_circle_lines(center.x as i32, center.y as i32, radius, color) }
+    }
+
+    #[inline]
     fn draw_ellipse(&self, center: Vector2i, radius: Vector2, color: Color) {
         unsafe { ffi::draw_ellipse(center.x, center.y, radius.x, radius.y, color) }
     }

@@ -444,6 +444,9 @@ unsafe extern "C" {
     /// Draw a color-filled circle (Vector version)
     #[link_name = "DrawCircleV"]
     pub fn draw_circle_v(center: Vector2, radius: c_float, color: Color);
+    /// Draw circle outline
+    #[link_name = "DrawCircleLines"]
+    pub fn draw_circle_lines(center_x: c_int, center_y: c_int, radius: c_float, color: Color);
     /// Draw a color-filled circle (Vector version)
     #[link_name = "DrawEllipse"]
     pub fn draw_ellipse(
@@ -469,7 +472,7 @@ unsafe extern "C" {
         color: Color,
     );
     #[link_name = "DrawRectangleLinesEx"]
-    pub fn draw_rectangle_lines_ex(react: Rectangle, line_thickness: c_float, color: Color);
+    pub fn draw_rectangle_lines_ex(rect: Rectangle, line_thickness: c_float, color: Color);
 }
 
 // Input-related functions: keyboard
