@@ -242,6 +242,12 @@ impl ops::Add<Vector2> for i32 {
     }
 }
 
+impl std::iter::Sum<Vector2> for Vector2 {
+    fn sum<I: Iterator<Item = Vector2>>(iter: I) -> Self {
+        iter.fold(Vector2::zero(), |acc, v| acc + v)
+    }
+}
+
 impl ops::Sub<Vector2> for Vector2 {
     type Output = Vector2;
 

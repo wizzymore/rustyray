@@ -52,6 +52,7 @@ pub trait Draw {
         }
     }
 
+    #[inline]
     fn draw_render_texture(&self, render_texture: &OwnedRenderTexture) {
         let size = render_texture.size();
         unsafe {
@@ -92,6 +93,14 @@ pub trait Draw {
                 rotation,
                 tint,
             );
+        }
+    }
+
+    /// Draw a line
+    #[inline]
+    fn draw_line(&self, start: Vector2, end: Vector2, thickness: f32, color: Color) {
+        unsafe {
+            ffi::draw_line_ex(start.into(), end.into(), thickness, color);
         }
     }
 
@@ -144,6 +153,20 @@ pub trait Draw {
     #[inline]
     fn draw_ellipse(&self, center: Vector2i, radius: Vector2, color: Color) {
         unsafe { ffi::draw_ellipse(center.x, center.y, radius.x, radius.y, color) }
+    }
+
+    #[inline]
+    fn draw_triangle(&self, v1: Vector2, v2: Vector2, v3: Vector2, color: Color) {
+        unsafe {
+            ffi::draw_triangle(v1.into(), v2.into(), v3.into(), color);
+        }
+    }
+
+    #[inline]
+    fn draw_triangle_lines(&self, v1: Vector2, v2: Vector2, v3: Vector2, color: Color) {
+        unsafe {
+            ffi::draw_triangle_lines(v1.into(), v2.into(), v3.into(), color);
+        }
     }
 
     /// Draw text (using default font)
