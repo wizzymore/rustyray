@@ -438,6 +438,21 @@ unsafe extern "C" {
 
 // Basic shapes drawing functions
 unsafe extern "C" {
+    /// Draw a line
+    #[link_name = "DrawLine"]
+    pub fn draw_line(start_x: c_int, start_y: c_int, end_x: c_int, end_y: c_int, color: Color);
+    /// Draw a line (using gl lines)
+    #[link_name = "DrawLineV"]
+    pub fn draw_line_v(start: Vector2, end: Vector2, color: Color);
+    /// Draw a line (using triangles/quads)
+    #[link_name = "DrawLineEx"]
+    pub fn draw_line_ex(start: Vector2, end: Vector2, thick: c_float, color: Color);
+    /// Draw lines sequence (using gl lines)
+    #[link_name = "DrawLineStrip"]
+    pub fn draw_line_strip(points: *const Vector2, num_points: c_int, color: Color);
+    /// Draw line segment cubic-bezier in-out interpolation
+    #[link_name = "DrawLineBezier"]
+    pub fn draw_line_bezier(start: Vector2, end: Vector2, thick: c_float, color: Color);
     /// Draw a color-filled circle
     #[link_name = "DrawCircle"]
     pub fn draw_circle(center_x: c_int, center_y: c_int, radius: c_float, color: Color);
@@ -473,6 +488,10 @@ unsafe extern "C" {
     );
     #[link_name = "DrawRectangleLinesEx"]
     pub fn draw_rectangle_lines_ex(rect: Rectangle, line_thickness: c_float, color: Color);
+    #[link_name = "DrawTriangle"]
+    pub fn draw_triangle(v1: Vector2, v2: Vector2, v3: Vector2, color: Color);
+    #[link_name = "DrawTriangleLines"]
+    pub fn draw_triangle_lines(v1: Vector2, v2: Vector2, v3: Vector2, color: Color);
 }
 
 // Input-related functions: keyboard
