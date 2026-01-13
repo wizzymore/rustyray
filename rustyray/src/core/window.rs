@@ -55,7 +55,7 @@ impl WindowBuilder {
     pub fn set_config_flags(mut self, flags: ConfigFlag) -> Self {
         self.flags = flags;
         unsafe {
-            ffi::set_config_flags(flags.into());
+            ffi::set_config_flags(flags);
         }
         self
     }
@@ -298,13 +298,13 @@ impl Window {
 
     #[inline]
     pub fn is_state(&self, state: ConfigFlag) -> bool {
-        unsafe { ffi::is_window_state(state.into()) }
+        unsafe { ffi::is_window_state(state) }
     }
 
     #[inline]
     pub fn set_state(&self, state: ConfigFlag) {
         unsafe {
-            ffi::set_window_state(state.into());
+            ffi::set_window_state(state);
         }
     }
 

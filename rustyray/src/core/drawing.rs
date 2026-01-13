@@ -175,14 +175,11 @@ pub trait Draw {
     where
         T: AsRef<str>,
     {
+        let Ok(cstr) = CString::new(text.as_ref()) else {
+            return;
+        };
         unsafe {
-            ffi::draw_text(
-                CString::new(text.as_ref()).unwrap().as_ptr(),
-                pos_x,
-                pos_y,
-                size,
-                tint,
-            );
+            ffi::draw_text(cstr.as_ptr(), pos_x, pos_y, size, tint);
         }
     }
 }
