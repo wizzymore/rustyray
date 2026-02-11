@@ -3,4 +3,4 @@ members = ["rustyray", "rustyray-sys"]
 resolver = "2"
 package.readme = "README.md"
 package.license = "MIT"
-package.rust-version = "1.85"
+package.rust-version = "1.89"
