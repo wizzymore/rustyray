@@ -171,7 +171,7 @@ fn build_with_cmake(src_path: &str) {
         }
 
         if platform_os == PlatformOS::Osx {
-            let lib = format!("{}raylib.550{}", DLL_PREFIX, DLL_SUFFIX);
+            let lib = format!("{}raylib.600{}", DLL_PREFIX, DLL_SUFFIX);
             std::fs::copy(
                 dst_lib.join(&lib),
                 target_dst
@@ -186,7 +186,7 @@ fn build_with_cmake(src_path: &str) {
                 )
                 .as_str(),
             );
-            let lib = format!("{}raylib.5.5.0{}", DLL_PREFIX, DLL_SUFFIX);
+            let lib = format!("{}raylib.6.0.0{}", DLL_PREFIX, DLL_SUFFIX);
             std::fs::copy(
                 dst_lib.join(&lib),
                 target_dst
@@ -217,7 +217,7 @@ fn build_with_cmake(src_path: &str) {
                 .as_str(),
             );
         } else if platform_os == PlatformOS::Linux {
-            let lib = format!("{}raylib{}.550", DLL_PREFIX, DLL_SUFFIX);
+            let lib = format!("{}raylib{}.600", DLL_PREFIX, DLL_SUFFIX);
             std::fs::copy(
                 dst_lib.join(&lib),
                 target_dst
@@ -232,7 +232,7 @@ fn build_with_cmake(src_path: &str) {
                 )
                 .as_str(),
             );
-            let lib = format!("{}raylib{}.5.5.0", DLL_PREFIX, DLL_SUFFIX);
+            let lib = format!("{}raylib{}.6.0.0", DLL_PREFIX, DLL_SUFFIX);
             std::fs::copy(
                 dst_lib.join(&lib),
                 target_dst
