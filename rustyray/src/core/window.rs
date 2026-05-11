@@ -289,6 +289,7 @@ impl Window {
         }
     }
 
+    /// Set window state: not minimized/maximized
     #[inline]
     pub fn restore_window(&self) {
         unsafe {
@@ -296,11 +297,39 @@ impl Window {
         }
     }
 
+    /// Check if one specific window flag is enabled
+    ///
+    /// Flags should be of values defined in [ConfigFlag].
+    ///
+    /// Use this value as a bitmask.
+    ///
+    /// # Examples
+    /// ```no_run
+    /// use rustyray::prelude::*;
+    ///
+    /// let window: Window = WindowBuilder::new(800, 600, "Example").build().unwrap();
+    ///
+    /// window.is_state(ConfigFlag::VsyncHint);
+    /// ```
     #[inline]
     pub fn is_state(&self, state: ConfigFlag) -> bool {
         unsafe { ffi::is_window_state(state) }
     }
 
+    /// Clear window configuration state flags
+    ///
+    /// Flags should be of values defined in [ConfigFlag].
+    ///
+    /// Use this value as a bitmask.
+    ///
+    /// # Examples
+    /// ```no_run
+    /// use rustyray::prelude::*;
+    ///
+    /// let window: Window = WindowBuilder::new(800, 600, "Example").build().unwrap();
+    ///
+    /// window.set_state(ConfigFlag::VsyncHint);
+    /// ```
     #[inline]
     pub fn set_state(&self, state: ConfigFlag) {
         unsafe {
@@ -308,6 +337,7 @@ impl Window {
         }
     }
 
+    /// Set title for window
     #[inline]
     pub fn set_title(&self, title: CString) {
         unsafe {
@@ -315,6 +345,7 @@ impl Window {
         }
     }
 
+    /// Set window position on screen
     #[inline]
     pub fn set_position(&self, x: i32, y: i32) {
         unsafe {

@@ -93,7 +93,6 @@ fn build_with_cmake(src_path: &str) {
         .define("BUILD_EXAMPLES", "OFF")
         .define("CMAKE_BUILD_TYPE", profile)
         .define("CUSTOMIZE_BUILD", "ON")
-        // turn off until this is fixed
         .define("SUPPORT_BUSY_WAIT_LOOP", "OFF")
         .define("SUPPORT_FILEFORMAT_JPG", "ON")
         .define("RAYMATH_STATIC_INLINE", "ON");
@@ -101,24 +100,22 @@ fn build_with_cmake(src_path: &str) {
     #[cfg(not(feature = "screen_capture"))]
     builder.define("SUPPORT_SCREEN_CAPTURE", "OFF");
 
-    #[cfg(feature = "custom_frame_control")]
-    {
+    if cfg!(feature = "custom_frame_control") {
         builder.define("SUPPORT_CUSTOM_FRAME_CONTROL", "ON");
+    } else {
+        builder.define("SUPPORT_CUSTOM_FRAME_CONTROL", "OFF");
     }
 
     // Enable wayland cmake flag if feature is specified
-    #[cfg(feature = "wayland")]
-    {
+    if cfg!(feature = "wayland") {
         builder.define("USE_WAYLAND", "ON");
         builder.define("USE_EXTERNAL_GLFW", "ON"); // Necessary for wayland support in my testing
+    } else {
+        builder.define("USE_WAYLAND", "OFF");
     }
 
     #[cfg(feature = "raylib_shared")]
     builder.define("BUILD_SHARED_LIBS", "ON");
-
-    // This seems redundant, but I felt it was needed incase raylib changes it's default
-    #[cfg(not(feature = "wayland"))]
-    builder.define("USE_WAYLAND", "OFF");
 
     // Scope implementing flags for forcing OpenGL version
     // See all possible flags at https://github.com/raysan5/raylib/wiki/CMake-Build-Options
@@ -129,19 +126,11 @@ fn build_with_cmake(src_path: &str) {
         #[cfg(feature = "opengl_21")]
         builder.define("OPENGL_VERSION", "2.1");
 
-        // #[cfg(feature = "opengl_11")]
-        // builder.define("OPENGL_VERSION", "1.1");
-
         #[cfg(feature = "opengl_es_20")]
         builder.define("OPENGL_VERSION", "ES 2.0");
 
         // Once again felt this was necessary incase a default was changed :)
-        #[cfg(not(any(
-            feature = "opengl_33",
-            feature = "opengl_21",
-            // feature = "opengl_11",
-            feature = "opengl_es_20"
-        )))]
+        #[cfg(not(any(feature = "opengl_33", feature = "opengl_21", feature = "opengl_es_20")))]
         builder.define("OPENGL_VERSION", "OFF");
     }
 
@@ -331,7 +320,6 @@ fn build_with_cmake(src_path: &str) {
         }
         println!("cargo::rustc-link-search=native={}", dst_lib.display());
     }
-    // println!("cmake build {}", c.display());
 }
 
 #[cfg(feature = "nobuild")]
@@ -363,7 +351,7 @@ fn link(platform: Platform, platform_os: PlatformOS) {
             }
         }
         PlatformOS::Osx => {
-            println!("cargo::rustc-link-search=native=/usr/local/lib");
+            // println!("cargo::rustc-link-search=native=/usr/local/lib");
             println!("cargo::rustc-link-lib=framework=OpenGL");
             println!("cargo::rustc-link-lib=framework=Cocoa");
             println!("cargo::rustc-link-lib=framework=IOKit");
