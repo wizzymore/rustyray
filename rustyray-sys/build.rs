@@ -7,6 +7,7 @@ use std::env::consts::{DLL_PREFIX, DLL_SUFFIX};
 
 fn main() {
     println!("cargo::rerun-if-changed=build.rs");
+    println!("cargo::rerun-if-changed=raylib");
     let target = env::var("TARGET").expect("Cargo build scripts always have TARGET");
     let _ = env::current_dir()
         .unwrap()
