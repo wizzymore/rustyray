@@ -83,13 +83,7 @@
 **********************************************************************************************/
 
 use libc::{c_char, c_double, c_float, c_int, c_uchar, c_uint, c_void};
-
-#[cfg(unix)]
-use libc::va_list;
-/// Windows MSVC ABI: `va_list` is a `char*` pointer.
-#[cfg(windows)]
-#[allow(non_camel_case_types)]
-pub type va_list = *mut c_char;
+use va_list::VaList;
 
 use crate::{
     audio::{AudioCallback, AudioStream, Music, Sound, Wave},
@@ -989,7 +983,7 @@ unsafe extern "C" {
 }
 
 // Logging
-pub type TraceLogCallback = extern "C" fn(log_level: c_int, text: *const c_char, args: va_list);
+pub type TraceLogCallback = extern "C" fn(log_level: c_int, text: *const c_char, args: VaList);
 
 unsafe extern "C" {
     #[link_name = "SetTraceLogCallback"]
