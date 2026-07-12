@@ -377,7 +377,7 @@ fn cp_raylib() -> String {
     let mut options = fs_extra::dir::CopyOptions::new();
     options.skip_exist = true;
     fs_extra::dir::copy("raylib", out, &options)
-        .unwrap_or_else(|_| panic!("failed to copy raylib source to {}", &out.to_string_lossy()));
+        .unwrap_or_else(|_| panic!("failed to copy raylib source to {}", out.to_string_lossy()));
 
     out.join("raylib").to_string_lossy().to_string()
 }

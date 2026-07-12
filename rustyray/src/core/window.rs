@@ -403,7 +403,7 @@ impl Window {
     #[inline]
     pub fn clear_state(&self, state: ConfigFlag) {
         unsafe {
-            ffi::clear_window_state(state.into());
+            ffi::clear_window_state(state);
         }
     }
 

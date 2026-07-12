@@ -21,8 +21,7 @@ fn main() {
     while !window.should_close() {
         window.assets.process_assets();
 
-        let ready =
-            window.assets.is_ready(&fx_wav) && window.assets.is_ready(&fx_ogg);
+        let ready = window.assets.is_ready(&fx_wav) && window.assets.is_ready(&fx_ogg);
 
         if ready {
             if window.is_key_pressed(KeyboardKey::Space) {

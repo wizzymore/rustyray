@@ -92,8 +92,10 @@ enum Job {
     Release(TypeId, AssetId),
 }
 
+type LoadPollingFn = dyn FnMut(&mut AssetManager, &mut Context<'_>) -> Poll<()>;
+
 struct PendingLoad {
-    poll: Box<dyn FnMut(&mut AssetManager, &mut Context<'_>) -> Poll<()>>,
+    poll: Box<LoadPollingFn>,
 }
 
 pub struct AssetManager {
@@ -118,6 +120,12 @@ fn noop_waker() -> Waker {
         |_| {},
     );
     unsafe { Waker::from_raw(RawWaker::new(std::ptr::null(), &VTABLE)) }
+}
+
+impl Default for AssetManager {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl AssetManager {
