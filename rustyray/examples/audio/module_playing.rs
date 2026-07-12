@@ -65,88 +65,111 @@ fn main() {
         circles.push(create_circle(&mut rng));
     }
 
-    let mut music = OwnedMusic::new("assets/audio/mini1111.xm".into());
-    music.looping(false);
+    let music_handle: Handle<Music> = window.assets.load(String::from("assets/audio/mini1111.xm"));
+
     let mut pitch = 1.;
 
-    music.play();
-
     while !window.should_close() {
-        music.update();
+        window.assets.process_assets();
 
-        if window.is_key_pressed(KeyboardKey::Space) {
-            music.restart()
-        }
-
-        if window.is_key_pressed(KeyboardKey::P) {
-            music.toggle();
-        }
-
+        let restart = window.is_key_pressed(KeyboardKey::Space);
+        let toggle_pause = window.is_key_pressed(KeyboardKey::P);
         if window.is_key_down(KeyboardKey::Down) {
             pitch -= 0.01;
         } else if window.is_key_down(KeyboardKey::Up) {
-            pitch += 0.01
+            pitch += 0.01;
         }
 
-        music.pitch(pitch);
+        let frame = window.assets.get_mut(&music_handle).map(|music| {
+            if !music.is_playing() && !music.is_paused() {
+                music.looping(false);
+                music.play();
+            }
+            music.update();
+            if restart {
+                music.restart();
+            }
+            if toggle_pause {
+                music.toggle();
+            }
+            music.pitch(pitch);
+            let length = music.length();
+            let time_played = if length > 0.0 {
+                music.played() / length * (800. - 40.)
+            } else {
+                0.0
+            };
+            let playing = music.is_playing();
+            (time_played, playing)
+        });
 
-        let time_played = music.played() / music.length() * (800. - 40.);
+        if let Some((_, playing)) = frame {
+            if playing {
+                circles.iter_mut().for_each(|circle| {
+                    circle.alpha += circle.speed;
+                    circle.radius += circle.speed * 10.;
 
-        if music.is_playing() {
-            circles.iter_mut().for_each(|circle| {
-                circle.alpha += circle.speed;
-                circle.radius += circle.speed * 10.;
+                    if circle.alpha > 1. {
+                        circle.speed *= -1.;
+                    }
 
-                if circle.alpha > 1. {
-                    circle.speed *= -1.;
-                }
+                    if circle.alpha <= 0. {
+                        *circle = create_circle(&mut rng);
+                    }
 
-                if circle.alpha <= 0. {
-                    *circle = create_circle(&mut rng);
-                }
-
-                circle.color.fade(circle.alpha);
-            });
+                    circle.color.fade(circle.alpha);
+                });
+            }
         }
 
         window.draw(|d| {
             d.clear(Color::RAYWHITE);
 
-            circles.iter().for_each(|circle| {
-                d.draw_circle(circle.pos, circle.radius, circle.color);
-            });
+            if let Some((time_played, _)) = frame {
+                circles.iter().for_each(|circle| {
+                    d.draw_circle(circle.pos, circle.radius, circle.color);
+                });
 
-            // Draw time bar
-            d.draw_rect(
-                Rectangle::new(
-                    20.,
-                    SCREEN_HEIGHT as f32 - 20. - 12.,
-                    SCREEN_WIDTH as f32 - 40.,
-                    12.,
-                ),
-                Color::LIGHTGRAY,
-            );
-            d.draw_rect(
-                Rectangle::new(20., SCREEN_HEIGHT as f32 - 20. - 12., time_played, 12.),
-                Color::MAROON,
-            );
-            d.draw_rect_lines(
-                Rectangle::new(
-                    20.,
-                    SCREEN_HEIGHT as f32 - 20. - 12.,
-                    SCREEN_WIDTH as f32 - 40.,
-                    12.,
-                ),
-                Color::GRAY,
-            );
+                d.draw_rect(
+                    Rectangle::new(
+                        20.,
+                        SCREEN_HEIGHT as f32 - 20. - 12.,
+                        SCREEN_WIDTH as f32 - 40.,
+                        12.,
+                    ),
+                    Color::LIGHTGRAY,
+                );
+                d.draw_rect(
+                    Rectangle::new(20., SCREEN_HEIGHT as f32 - 20. - 12., time_played, 12.),
+                    Color::MAROON,
+                );
+                d.draw_rect_lines(
+                    Rectangle::new(
+                        20.,
+                        SCREEN_HEIGHT as f32 - 20. - 12.,
+                        SCREEN_WIDTH as f32 - 40.,
+                        12.,
+                    ),
+                    Color::GRAY,
+                );
 
-            // Draw help instructions
-            d.draw_rect(Rectangle::new(20., 20., 425., 145.), Color::WHITE);
-            d.draw_rect_lines(Rectangle::new(20., 20., 425., 145.), Color::GRAY);
-            d.draw_text("PRESS SPACE TO RESTART MUSIC", 40, 40, 20, Color::BLACK);
-            d.draw_text("PRESS P TO PAUSE/RESUME", 40, 70, 20, Color::BLACK);
-            d.draw_text("PRESS UP/DOWN TO CHANGE SPEED", 40, 100, 20, Color::BLACK);
-            d.draw_text(format!("SPEED: {}", pitch), 40, 130, 20, Color::MAROON);
+                d.draw_rect(Rectangle::new(20., 20., 425., 145.), Color::WHITE);
+                d.draw_rect_lines(Rectangle::new(20., 20., 425., 145.), Color::GRAY);
+                d.draw_text("PRESS SPACE TO RESTART MUSIC", 40, 40, 20, Color::BLACK);
+                d.draw_text("PRESS P TO PAUSE/RESUME", 40, 70, 20, Color::BLACK);
+                d.draw_text("PRESS UP/DOWN TO CHANGE SPEED", 40, 100, 20, Color::BLACK);
+                d.draw_text(format!("SPEED: {}", pitch), 40, 130, 20, Color::MAROON);
+            } else {
+                const LOADING: &str = "Loading...";
+                const SIZE: i32 = 20;
+                d.draw_text(
+                    LOADING,
+                    (SCREEN_WIDTH - d.measure_text(LOADING, SIZE)) / 2,
+                    (SCREEN_HEIGHT - SIZE) / 2,
+                    SIZE,
+                    Color::DARKGRAY,
+                );
+            }
         });
     }
 }

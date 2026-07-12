@@ -1,3 +1,4 @@
+pub mod assets;
 pub mod audio;
 pub mod color;
 pub mod consts;

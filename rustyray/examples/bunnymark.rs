@@ -17,7 +17,8 @@ fn main() {
         .set_config_flags(ConfigFlag::WindowHighdpi)
         .build()
         .unwrap();
-    let tex = OwnedTexture::new(String::from("assets/wabbit_alpha.png")).unwrap();
+    let tex_handle = window.assets.load(String::from("assets/wabbit_alpha.png"));
+    let tex_size = Vector2i { x: 26, y: 32 };
     let mut rng = rand::rng();
 
     let mut bunnies = Vec::<Bunny>::new();
@@ -50,11 +51,11 @@ fn main() {
             bunny.dir.normalize();
             bunny.pos += bunny.speed * bunny.dir * dt;
 
-            let pos = bunny.pos.to_vector2i() + tex.size() / 2;
+            let pos = bunny.pos.to_vector2i() + tex_size / 2;
             if pos.x > screen_size.x || pos.x < 0 {
                 bunny.dir.x *= -1.;
             }
-            if pos.y > screen_size.y || pos.y - tex.height() < 0 {
+            if pos.y > screen_size.y || pos.y - tex_size.y < 0 {
                 bunny.dir.y *= -1.;
             }
         });
@@ -63,7 +64,12 @@ fn main() {
             d.clear(Color::WHITE);
 
             bunnies.iter().for_each(|bunny| {
-                d.draw_texture(&tex, bunny.pos.x as i32, bunny.pos.y as i32, bunny.color);
+                d.draw_texture(
+                    &tex_handle,
+                    bunny.pos.x as i32,
+                    bunny.pos.y as i32,
+                    bunny.color,
+                );
             });
 
             d.draw_rect(bar_rect, Color::BLACK);

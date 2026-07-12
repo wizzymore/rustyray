@@ -1,10 +1,11 @@
 use super::{
+    assets::{AssetManager, Handle},
     color::Color,
-    image::OwnedRenderTexture,
+    image::{RenderTexture, Texture},
     math::{Rectangle, Vector2, Vector2i},
 };
-use rustyray_sys::{ffi, texture::Texture};
-use std::{ffi::CString, fmt::Debug, marker::PhantomData};
+use rustyray_sys::ffi;
+use std::{ffi::CString, fmt::Debug};
 
 #[derive(Debug, Clone, Copy)]
 pub struct Camera2D {
@@ -37,7 +38,15 @@ impl Default for Camera2D {
     }
 }
 
+pub trait HasAssetManager {
+    fn assets(&self) -> &AssetManager;
+
+    fn assets_mut(&mut self) -> &mut AssetManager;
+}
+
 pub trait Draw {
+    fn assets(&self) -> &AssetManager;
+
     #[inline]
     fn draw_fps(&self, x: i32, y: i32) {
         unsafe {
@@ -53,11 +62,14 @@ pub trait Draw {
     }
 
     #[inline]
-    fn draw_render_texture(&self, render_texture: &OwnedRenderTexture) {
-        let size = render_texture.size();
+    fn draw_render_texture(&self, render_texture: &Handle<RenderTexture>) {
+        let Some(rt) = self.assets().get(render_texture) else {
+            return;
+        };
+        let size = rt.size();
         unsafe {
             ffi::draw_texture_pro(
-                render_texture.into(),
+                rt.as_ray().texture,
                 Rectangle::new(0.0, 0.0, size.x as f32, -size.y as f32).into(),
                 Rectangle::new(0.0, 0.0, size.x as f32, size.y as f32).into(),
                 Vector2::ZERO.into(),
@@ -68,25 +80,31 @@ pub trait Draw {
     }
 
     #[inline]
-    fn draw_texture(&self, texture: impl Into<Texture>, x: i32, y: i32, tint: Color) {
+    fn draw_texture(&self, texture: &Handle<Texture>, x: i32, y: i32, tint: Color) {
+        let Some(tex) = self.assets().get(texture) else {
+            return;
+        };
         unsafe {
-            ffi::draw_texture(texture.into(), x, y, tint);
+            ffi::draw_texture(tex.as_ray(), x, y, tint);
         }
     }
 
     #[inline]
     fn draw_texture_pro(
         &self,
-        texture: impl Into<Texture>,
+        texture: &Handle<Texture>,
         source: Rectangle,
         dest: Rectangle,
         origin: Vector2,
         rotation: f32,
         tint: Color,
     ) {
+        let Some(tex) = self.assets().get(texture) else {
+            return;
+        };
         unsafe {
             ffi::draw_texture_pro(
-                texture.into(),
+                tex.as_ray(),
                 source.into(),
                 dest.into(),
                 origin.into(),
@@ -169,6 +187,17 @@ pub trait Draw {
         }
     }
 
+    #[inline]
+    fn measure_text<T>(&self, text: T, size: i32) -> i32
+    where
+        T: AsRef<str>,
+    {
+        let Ok(cstr) = CString::new(text.as_ref()) else {
+            return 0;
+        };
+        unsafe { ffi::measure_text(cstr.as_ptr(), size) }
+    }
+
     /// Draw text (using default font)
     #[inline]
     fn draw_text<T>(&self, text: T, pos_x: i32, pos_y: i32, size: i32, tint: Color)
@@ -184,32 +213,54 @@ pub trait Draw {
     }
 }
 
-pub struct DrawHandler<'a, T>(PhantomData<&'a mut T>);
+pub struct DrawHandler<'a> {
+    assets: &'a AssetManager,
+}
 
-impl<'a, T> Draw for DrawHandler<'a, T> {}
-impl<'a, T> TextureModeExt for DrawHandler<'a, T> {}
+impl<'a> DrawHandler<'a> {
+    pub(crate) fn new(assets: &'a AssetManager) -> Self {
+        Self { assets }
+    }
+}
 
-pub trait DrawingExt
+impl Draw for DrawHandler<'_> {
+    fn assets(&self) -> &AssetManager {
+        self.assets
+    }
+}
+
+impl HasAssetManager for DrawHandler<'_> {
+    fn assets(&self) -> &AssetManager {
+        self.assets
+    }
+
+    fn assets_mut(&mut self) -> &mut AssetManager {
+        panic!("DrawHandler does not support mutable asset access");
+    }
+}
+
+pub trait DrawingExt: HasAssetManager
 where
     Self: Sized,
 {
     #[inline]
-    fn draw(&mut self, callback: impl FnOnce(DrawHandler<Self>)) {
+    fn draw(&mut self, callback: impl FnOnce(DrawHandler<'_>)) {
         let d = self.begin_drawing();
         callback(d);
     }
 
     #[inline]
     #[must_use]
-    fn begin_drawing<'a>(&'a mut self) -> DrawHandler<'a, Self> {
+    fn begin_drawing(&mut self) -> DrawHandler<'_> {
+        self.assets_mut().process_assets();
         unsafe {
             ffi::begin_drawing();
         }
-        DrawHandler(PhantomData)
+        DrawHandler::new(self.assets())
     }
 }
 
-impl<'a, T> Drop for DrawHandler<'a, T> {
+impl<'a> Drop for DrawHandler<'a> {
     fn drop(&mut self) {
         unsafe {
             ffi::end_drawing();
@@ -217,11 +268,33 @@ impl<'a, T> Drop for DrawHandler<'a, T> {
     }
 }
 
-pub struct TextureModeHandler<'a, 'b, T>(&'a mut T, PhantomData<&'b OwnedRenderTexture>);
+pub struct TextureModeHandler<'a> {
+    assets: &'a AssetManager,
+}
 
-impl<'a, 'b, T> Draw for TextureModeHandler<'a, 'b, T> {}
+impl<'a> TextureModeHandler<'a> {
+    pub(crate) fn new(assets: &'a AssetManager) -> Self {
+        Self { assets }
+    }
+}
 
-impl<'a, 'b, T> Drop for TextureModeHandler<'a, 'b, T> {
+impl Draw for TextureModeHandler<'_> {
+    fn assets(&self) -> &AssetManager {
+        self.assets
+    }
+}
+
+impl HasAssetManager for TextureModeHandler<'_> {
+    fn assets(&self) -> &AssetManager {
+        self.assets
+    }
+
+    fn assets_mut(&mut self) -> &mut AssetManager {
+        panic!("TextureModeHandler does not support mutable asset access");
+    }
+}
+
+impl Drop for TextureModeHandler<'_> {
     fn drop(&mut self) {
         unsafe {
             ffi::end_texture_mode();
@@ -229,52 +302,67 @@ impl<'a, 'b, T> Drop for TextureModeHandler<'a, 'b, T> {
     }
 }
 
-impl<'a, 'b, T: 'a> std::ops::Deref for TextureModeHandler<'a, 'b, T> {
-    type Target = T;
-
-    fn deref(&self) -> &Self::Target {
-        self.0
-    }
-}
-
-impl<'a, 'b, T: 'a> std::ops::DerefMut for TextureModeHandler<'a, 'b, T> {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        self.0
-    }
-}
-
-pub trait TextureModeExt
+pub trait TextureModeExt: HasAssetManager
 where
     Self: Sized,
 {
     #[inline]
-    fn draw_texture_mode<'a, 'b>(
-        &'a mut self,
-        render_texture: &'b OwnedRenderTexture,
-        callback: impl FnOnce(TextureModeHandler<'a, 'b, Self>),
+    fn draw_texture_mode(
+        &mut self,
+        render_texture: &Handle<RenderTexture>,
+        callback: impl FnOnce(TextureModeHandler<'_>),
     ) {
-        let dt = self.begin_texture_mode(render_texture);
+        let Some(dt) = self.begin_texture_mode(render_texture) else {
+            return;
+        };
         callback(dt);
     }
 
     #[inline]
     #[must_use]
-    fn begin_texture_mode<'a, 'b>(
-        &'a mut self,
-        render_texture: &'b OwnedRenderTexture,
-    ) -> TextureModeHandler<'a, 'b, Self> {
+    fn begin_texture_mode(
+        &mut self,
+        render_texture: &Handle<RenderTexture>,
+    ) -> Option<TextureModeHandler<'_>> {
+        let assets = self.assets_mut();
+        assets.process_assets();
+        let rt = assets.get(render_texture)?;
         unsafe {
-            ffi::begin_texture_mode(render_texture.into());
+            ffi::begin_texture_mode(rt.as_ray());
         }
-        TextureModeHandler(self, PhantomData)
+        Some(TextureModeHandler::new(self.assets()))
     }
 }
 
-pub struct Mode2DHandler<'a, 'b, T>(&'a mut T, PhantomData<&'b Camera2D>);
+impl TextureModeExt for DrawHandler<'_> {}
 
-impl<'a, 'b, T> Draw for Mode2DHandler<'a, 'b, T> {}
+pub struct Mode2DHandler<'a> {
+    assets: &'a AssetManager,
+}
 
-impl<'a, 'b, T: 'a> Drop for Mode2DHandler<'a, 'b, T> {
+impl<'a> Mode2DHandler<'a> {
+    pub(crate) fn new(assets: &'a AssetManager) -> Self {
+        Self { assets }
+    }
+}
+
+impl Draw for Mode2DHandler<'_> {
+    fn assets(&self) -> &AssetManager {
+        self.assets
+    }
+}
+
+impl HasAssetManager for Mode2DHandler<'_> {
+    fn assets(&self) -> &AssetManager {
+        self.assets
+    }
+
+    fn assets_mut(&mut self) -> &mut AssetManager {
+        panic!("Mode2DHandler does not support mutable asset access");
+    }
+}
+
+impl Drop for Mode2DHandler<'_> {
     fn drop(&mut self) {
         unsafe {
             ffi::end_mode_2d();
@@ -282,43 +370,25 @@ impl<'a, 'b, T: 'a> Drop for Mode2DHandler<'a, 'b, T> {
     }
 }
 
-impl<'a, 'b, T: 'a> std::ops::Deref for Mode2DHandler<'a, 'b, T> {
-    type Target = T;
-
-    fn deref(&self) -> &Self::Target {
-        self.0
-    }
-}
-
-impl<'a, 'b, T: 'a> std::ops::DerefMut for Mode2DHandler<'a, 'b, T> {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        self.0
-    }
-}
-
-pub trait Mode2DExt
+pub trait Mode2DExt: HasAssetManager
 where
     Self: Sized,
 {
     #[inline]
-    fn draw_mode_2d<'a, 'b>(
-        &'a mut self,
-        camera: &'b Camera2D,
-        callback: impl FnOnce(Mode2DHandler<'a, 'b, Self>),
-    ) {
+    fn draw_mode_2d(&mut self, camera: &Camera2D, callback: impl FnOnce(Mode2DHandler<'_>)) {
         let dc = self.begin_mode_2d(camera);
         callback(dc);
     }
 
     #[inline]
     #[must_use]
-    fn begin_mode_2d<'a, 'b>(&'a mut self, camera: &'b Camera2D) -> Mode2DHandler<'a, 'b, Self> {
+    fn begin_mode_2d(&mut self, camera: &Camera2D) -> Mode2DHandler<'_> {
         unsafe {
             ffi::begin_mode_2d((*camera).into());
         }
-        Mode2DHandler(self, PhantomData)
+        Mode2DHandler::new(self.assets())
     }
 }
 
-impl<'a, T> Mode2DExt for DrawHandler<'a, T> {}
-impl<'a, 'b, T: 'a> Mode2DExt for TextureModeHandler<'a, 'b, T> {}
+impl Mode2DExt for DrawHandler<'_> {}
+impl Mode2DExt for TextureModeHandler<'_> {}

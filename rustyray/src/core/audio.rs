@@ -1,95 +1,107 @@
+use std::ffi::CString;
+use std::path::Path;
+use thiserror::Error;
+
 use rustyray_sys::{
-    audio::{Music, Sound},
-    ffi,
+    audio::Sound as RaySound,
+    ffi::{
+        self, is_audio_device_ready, is_music_valid, is_sound_valid, is_wave_valid,
+        load_music_stream_from_memory, load_sound_alias, load_sound_from_wave,
+        load_wave_from_memory, unload_wave,
+    },
 };
 
-/// RAII Implementation of [Sound]
-///
-/// Second parameter of the tuple represents if it is an alias or not.
-/// It will be set as true if you create a sound by calling [Self::alias], false otherwise
-///
-/// To create a sound alias you must first own an [OwnedSound]
+use super::assets::{Asset, AssetLoader, AssetManager, Handle};
+
+fn file_type_from_path(path: &str) -> Option<String> {
+    let ext = Path::new(path).extension()?.to_str()?;
+    let ext = ext.trim_start_matches('.').to_ascii_lowercase();
+    Some(format!(".{ext}"))
+}
+
+#[derive(Debug, Error)]
+pub enum SoundLoadError {
+    #[error("file not found: {0}")]
+    FileNotFound(String),
+    #[error("audio device is not ready")]
+    AudioDeviceNotReady,
+    #[error("failed to decode sound")]
+    DecodeFailed,
+}
+
+#[derive(Debug, Error)]
+pub enum MusicLoadError {
+    #[error("file not found: {0}")]
+    FileNotFound(String),
+    #[error("audio device is not ready")]
+    AudioDeviceNotReady,
+    #[error("failed to decode music")]
+    DecodeFailed,
+}
+
 #[derive(Debug)]
-pub struct OwnedSound(Sound, bool);
+pub struct Sound {
+    inner: RaySound,
+    is_alias: bool,
+}
 
-type OwnedSoundAlias = OwnedSound;
+#[derive(Debug)]
+pub struct Music {
+    inner: rustyray_sys::audio::Music,
+    paused: bool,
+    _buffer: Vec<u8>,
+}
 
-impl OwnedSound {
-    /// Load a RAII implementation sound from file
-    pub fn new(path: String) -> Self {
-        Self(Sound::new(path), false)
+impl Sound {
+    pub(crate) fn from_wave(wave: rustyray_sys::audio::Wave) -> Result<Self, SoundLoadError> {
+        let inner = unsafe { load_sound_from_wave(wave.clone()) };
+        unsafe { unload_wave(wave) };
+        if !unsafe { is_sound_valid(inner.clone()) } {
+            return Err(SoundLoadError::DecodeFailed);
+        }
+        Ok(Self {
+            inner,
+            is_alias: false,
+        })
     }
 
-    /// Play a sound
-    pub fn play(&self) {
-        unsafe {
-            ffi::play_sound(self.0.clone());
+    pub(crate) fn from_alias(source: &Sound) -> Self {
+        Self {
+            inner: unsafe { load_sound_alias(source.inner.clone()) },
+            is_alias: true,
         }
     }
 
     pub fn is_alias(&self) -> bool {
-        self.1
+        self.is_alias
     }
 
-    /// Create a new sound that shares the same sample data as the source sound, does not own the sound data
-    pub fn alias(&self) -> OwnedSoundAlias {
-        unsafe { OwnedSound(ffi::load_sound_alias(self.0.clone()), true) }
-    }
-}
-
-impl From<Sound> for OwnedSound {
-    fn from(value: Sound) -> Self {
-        OwnedSound(value, false)
-    }
-}
-
-impl From<OwnedSound> for Sound {
-    fn from(val: OwnedSound) -> Self {
-        val.0.clone()
-    }
-}
-
-impl AsRef<Sound> for OwnedSound {
-    fn as_ref(&self) -> &Sound {
-        &self.0
-    }
-}
-
-impl Drop for OwnedSound {
-    fn drop(&mut self) {
-        match self.1 {
-            true => self.0.to_owned().unload_alias(),
-            false => self.0.to_owned().unload(),
-        }
-    }
-}
-
-/// RAII Implementation of [Music]
-#[derive(Debug)]
-pub struct OwnedMusic {
-    pub music: Music,
-    paused: bool,
-}
-
-impl OwnedMusic {
-    pub fn new(path: String) -> Self {
-        Self {
-            music: Music::new(path),
-            paused: false,
+    pub fn play(&self) {
+        unsafe {
+            ffi::play_sound(self.inner.clone());
         }
     }
 
-    /// Start music playing
+    pub fn alias(manager: &mut AssetManager, source: &Handle<Sound>) -> Option<Handle<Sound>> {
+        let source = manager.get(source)?;
+        if source.is_alias() {
+            return None;
+        }
+        Some(manager.insert(Self::from_alias(source)))
+    }
+}
+
+impl Music {
     pub fn play(&mut self) {
         self.paused = false;
         unsafe {
-            ffi::play_music_stream(self.into());
+            ffi::play_music_stream(self.inner.clone());
         }
     }
 
     #[inline]
     pub fn is_playing(&self) -> bool {
-        unsafe { ffi::is_music_stream_playing(self.music.to_owned()) }
+        unsafe { ffi::is_music_stream_playing(self.inner.clone()) }
     }
 
     #[inline]
@@ -97,7 +109,6 @@ impl OwnedMusic {
         self.paused
     }
 
-    /// Toggle the pause state of the [Music]
     #[inline]
     pub fn toggle(&mut self) {
         if self.is_paused() {
@@ -107,27 +118,24 @@ impl OwnedMusic {
         }
     }
 
-    /// Pause music playing
     pub fn pause(&mut self) {
         self.paused = true;
         unsafe {
-            ffi::pause_music_stream(self.music.to_owned());
+            ffi::pause_music_stream(self.inner.clone());
         }
     }
 
-    /// Stop music playing
     pub fn stop(&mut self) {
         self.paused = false;
         unsafe {
-            ffi::stop_music_stream(self.music.to_owned());
+            ffi::stop_music_stream(self.inner.clone());
         }
     }
 
-    /// Resume playing paused music
     pub fn resume(&mut self) {
         self.paused = false;
         unsafe {
-            ffi::resume_music_stream(self.music.to_owned());
+            ffi::resume_music_stream(self.inner.clone());
         }
     }
 
@@ -137,80 +145,118 @@ impl OwnedMusic {
         self.play();
     }
 
-    /// Get current music time played (in seconds)
     #[inline]
     pub fn played(&self) -> f32 {
-        unsafe { ffi::get_music_time_played(self.music.to_owned()) }
+        unsafe { ffi::get_music_time_played(self.inner.clone()) }
     }
 
-    /// Get music time length (in seconds)
     #[inline]
     pub fn length(&self) -> f32 {
-        unsafe { ffi::get_music_time_length(self.music.to_owned()) }
+        unsafe { ffi::get_music_time_length(self.inner.clone()) }
     }
 
-    /// Updates buffers for music streaming
     #[inline]
     pub fn update(&self) {
         unsafe {
-            ffi::update_music_stream(self.music.to_owned());
+            ffi::update_music_stream(self.inner.clone());
         }
     }
 
-    /// Set pitch for music (1.0 is base level)
     #[inline]
     pub fn pitch(&self, pitch: f32) {
         unsafe {
-            ffi::set_music_pitch(self.music.to_owned(), pitch);
+            ffi::set_music_pitch(self.inner.clone(), pitch);
         }
     }
 
     #[inline]
     pub fn is_looping(&self) -> bool {
-        self.music.looping
+        self.inner.looping
     }
 
-    #[inline]
     pub fn looping(&mut self, looping: bool) {
-        self.music.looping = looping;
+        self.inner.looping = looping;
     }
 }
 
-impl From<Music> for OwnedMusic {
-    fn from(music: Music) -> Self {
-        OwnedMusic {
-            music,
-            paused: false,
+impl Drop for Sound {
+    fn drop(&mut self) {
+        if self.is_alias {
+            self.inner.clone().unload_alias();
+        } else {
+            self.inner.clone().unload();
         }
     }
 }
 
-impl From<OwnedMusic> for Music {
-    fn from(val: OwnedMusic) -> Self {
-        val.music.clone()
-    }
-}
-
-impl From<&OwnedMusic> for Music {
-    fn from(val: &OwnedMusic) -> Self {
-        val.music.clone()
-    }
-}
-
-impl From<&mut OwnedMusic> for Music {
-    fn from(val: &mut OwnedMusic) -> Self {
-        val.music.clone()
-    }
-}
-
-impl AsRef<Music> for OwnedMusic {
-    fn as_ref(&self) -> &Music {
-        &self.music
-    }
-}
-
-impl Drop for OwnedMusic {
+impl Drop for Music {
     fn drop(&mut self) {
-        self.music.to_owned().unload()
+        self.inner.clone().unload();
+    }
+}
+
+impl Asset for Sound {}
+
+impl AssetLoader for Sound {
+    type Key = String;
+    type Error = SoundLoadError;
+
+    async fn load(path: Self::Key) -> Result<Self, Self::Error> {
+        if !unsafe { is_audio_device_ready() } {
+            return Err(SoundLoadError::AudioDeviceNotReady);
+        }
+
+        let file_type =
+            file_type_from_path(&path).ok_or(SoundLoadError::FileNotFound(path.clone()))?;
+
+        let bytes = async_fs::read(&path)
+            .await
+            .map_err(|_| SoundLoadError::FileNotFound(path.clone()))?;
+
+        let file_type = CString::new(file_type).map_err(|_| SoundLoadError::DecodeFailed)?;
+        let wave = unsafe {
+            load_wave_from_memory(file_type.as_ptr(), bytes.as_ptr(), bytes.len() as i32)
+        };
+
+        if !unsafe { is_wave_valid(wave.clone()) } {
+            return Err(SoundLoadError::DecodeFailed);
+        }
+
+        Self::from_wave(wave)
+    }
+}
+
+impl Asset for Music {}
+
+impl AssetLoader for Music {
+    type Key = String;
+    type Error = MusicLoadError;
+
+    async fn load(path: Self::Key) -> Result<Self, Self::Error> {
+        if !unsafe { is_audio_device_ready() } {
+            return Err(MusicLoadError::AudioDeviceNotReady);
+        }
+
+        let file_type =
+            file_type_from_path(&path).ok_or(MusicLoadError::FileNotFound(path.clone()))?;
+
+        let bytes = async_fs::read(&path)
+            .await
+            .map_err(|_| MusicLoadError::FileNotFound(path.clone()))?;
+
+        let file_type = CString::new(file_type).map_err(|_| MusicLoadError::DecodeFailed)?;
+        let inner = unsafe {
+            load_music_stream_from_memory(file_type.as_ptr(), bytes.as_ptr(), bytes.len() as i32)
+        };
+
+        if !unsafe { is_music_valid(inner.clone()) } {
+            return Err(MusicLoadError::DecodeFailed);
+        }
+
+        Ok(Self {
+            inner,
+            paused: false,
+            _buffer: bytes,
+        })
     }
 }

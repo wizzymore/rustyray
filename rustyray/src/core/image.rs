@@ -1,176 +1,140 @@
+use std::ffi::CString;
+use std::path::Path;
+
 use rustyray_sys::{
-    ffi::{self, load_image_from_memory, load_texture_from_image},
-    texture::{self, Image, RenderTexture, RenderTextureLoadError, Texture, TextureLoadError},
+    ffi::{self, is_window_ready, load_image_from_memory, load_texture_from_image},
+    texture::{
+        Image as RayImage, RenderTexture as RayRenderTexture, RenderTextureLoadError,
+        Texture as RayTexture, TextureLoadError,
+    },
 };
 
+use super::assets::{Asset, AssetLoader, SyncAsset};
 use super::math::Vector2i;
-/// This is a [`rustyray_ffi::texture::Texture`] that uses the concept of RAII.
-///
-/// It implements the Drop trait so when it goes out of scope the texture will automatically unload.
-///
-/// # Examples
-/// ```no_run
-/// use rustyray::prelude::OwnedTexture;
-///
-/// let texture = OwnedTexture::new(String::from("assets/character.png"));
-/// ```
-#[repr(C)]
+
 #[derive(Debug, PartialEq)]
-pub struct OwnedTexture(Texture);
+pub struct Texture {
+    inner: RayTexture,
+}
 
-/// This is a `raylib` [`rustyray_ffi::texture::RenderTexture`] that uses the concept of RAII.
-///
-/// It implements the Drop trait so when it goes out of scope the texture will automatically unload.
-///
-/// # Examples
-/// ```no_run
-/// use rustyray::prelude::OwnedTexture;
-///
-/// let texture = OwnedTexture::new(String::from("assets/character.png"));
-/// ```
-#[repr(C)]
 #[derive(Debug)]
-pub struct OwnedRenderTexture(RenderTexture);
+pub struct RenderTexture {
+    inner: RayRenderTexture,
+}
 
-impl OwnedTexture {
-    #[inline]
-    pub fn new(path: String) -> Result<Self, TextureLoadError> {
-        Ok(Self(Texture::new(path)?))
+impl Texture {
+    pub(crate) fn from_image(image: RayImage) -> Self {
+        Self {
+            inner: unsafe { load_texture_from_image(image) },
+        }
     }
 
     pub fn size(&self) -> Vector2i {
         Vector2i {
-            x: self.0.width,
-            y: self.0.height,
+            x: self.inner.width,
+            y: self.inner.height,
         }
     }
 
     pub fn width(&self) -> i32 {
-        self.0.width
+        self.inner.width
     }
 
     pub fn height(&self) -> i32 {
-        self.0.height
+        self.inner.height
     }
 
-    pub fn from_bytes(bytes: &[u8]) -> Self {
+    pub(crate) fn as_ray(&self) -> RayTexture {
+        self.inner.clone()
+    }
+}
+
+impl RenderTexture {
+    pub(crate) fn from_size(width: i32, height: i32) -> Result<Self, RenderTextureLoadError> {
+        Ok(Self {
+            inner: RayRenderTexture::new(width, height)?,
+        })
+    }
+
+    pub fn size(&self) -> Vector2i {
+        Vector2i {
+            x: self.inner.texture.width,
+            y: self.inner.texture.height,
+        }
+    }
+
+    pub fn width(&self) -> i32 {
+        self.inner.texture.width
+    }
+
+    pub fn height(&self) -> i32 {
+        self.inner.texture.height
+    }
+
+    pub(crate) fn as_ray(&self) -> RayRenderTexture {
+        self.inner.clone()
+    }
+}
+
+impl Drop for Texture {
+    fn drop(&mut self) {
+        unsafe {
+            ffi::unload_texture(self.inner.clone());
+        }
+    }
+}
+
+impl Drop for RenderTexture {
+    fn drop(&mut self) {
+        unsafe {
+            ffi::unload_render_texture(self.inner.clone());
+        }
+    }
+}
+
+impl Asset for Texture {}
+
+impl AssetLoader for Texture {
+    type Key = String;
+    type Error = TextureLoadError;
+
+    async fn load(path: Self::Key) -> Result<Self, Self::Error> {
+        let bytes = async_fs::read(&path)
+            .await
+            .map_err(|_| TextureLoadError::FileNotFound(path.clone()))?;
+
+        if !unsafe { is_window_ready() } {
+            return Err(TextureLoadError::WindowNotReady());
+        }
+
+        let extension = Path::new(&path)
+            .extension()
+            .and_then(|ext| ext.to_str())
+            .unwrap_or("png")
+            .to_ascii_lowercase();
+
+        let ext = CString::new(format!(".{extension}"))
+            .map_err(|_| TextureLoadError::FileNotFound(String::from("invalid file extension")))?;
         let image =
-            unsafe { load_image_from_memory(c".png".as_ptr(), bytes.as_ptr(), bytes.len() as i32) };
+            unsafe { load_image_from_memory(ext.as_ptr(), bytes.as_ptr(), bytes.len() as i32) };
 
-        OwnedTexture::from(image)
-    }
-}
-
-impl OwnedRenderTexture {
-    #[inline]
-    pub fn new(width: i32, height: i32) -> Result<Self, RenderTextureLoadError> {
-        Ok(Self(RenderTexture::new(width, height)?))
-    }
-
-    pub fn size(&self) -> Vector2i {
-        Vector2i {
-            x: self.0.texture.width,
-            y: self.0.texture.height,
+        if image.data.is_null() || image.width <= 0 || image.height <= 0 {
+            return Err(TextureLoadError::FileNotFound(String::from(
+                "failed to decode image",
+            )));
         }
-    }
 
-    pub fn width(&self) -> i32 {
-        self.0.texture.width
-    }
-
-    pub fn height(&self) -> i32 {
-        self.0.texture.height
-    }
-
-    pub fn texture(&self) -> &Texture {
-        &self.0.texture
+        Ok(Self::from_image(image))
     }
 }
 
-impl From<Image> for OwnedTexture {
-    fn from(value: Image) -> Self {
-        Self(unsafe { load_texture_from_image(value) })
-    }
-}
+impl Asset for RenderTexture {}
 
-impl From<texture::Texture> for OwnedTexture {
-    fn from(value: texture::Texture) -> Self {
-        Self(value)
-    }
-}
+impl SyncAsset for RenderTexture {
+    type Key = (i32, i32);
+    type Error = RenderTextureLoadError;
 
-impl From<texture::RenderTexture> for OwnedRenderTexture {
-    fn from(value: texture::RenderTexture) -> Self {
-        Self(value)
-    }
-}
-
-impl From<OwnedTexture> for texture::Texture {
-    fn from(value: OwnedTexture) -> Self {
-        value.0.clone()
-    }
-}
-
-impl From<&OwnedTexture> for texture::Texture {
-    fn from(value: &OwnedTexture) -> Self {
-        value.0.clone()
-    }
-}
-
-impl From<OwnedRenderTexture> for texture::RenderTexture {
-    fn from(value: OwnedRenderTexture) -> Self {
-        value.0.clone()
-    }
-}
-
-impl From<&OwnedRenderTexture> for texture::RenderTexture {
-    fn from(value: &OwnedRenderTexture) -> Self {
-        value.0.clone()
-    }
-}
-
-impl From<OwnedRenderTexture> for texture::Texture {
-    fn from(value: OwnedRenderTexture) -> Self {
-        value.texture().clone()
-    }
-}
-
-impl From<&OwnedRenderTexture> for texture::Texture {
-    fn from(value: &OwnedRenderTexture) -> Self {
-        value.texture().clone()
-    }
-}
-
-impl AsRef<RenderTexture> for OwnedRenderTexture {
-    fn as_ref(&self) -> &RenderTexture {
-        &self.0
-    }
-}
-
-impl AsRef<Texture> for OwnedRenderTexture {
-    fn as_ref(&self) -> &Texture {
-        &self.0.texture
-    }
-}
-
-impl AsRef<Texture> for OwnedTexture {
-    fn as_ref(&self) -> &Texture {
-        &self.0
-    }
-}
-
-impl Drop for OwnedTexture {
-    fn drop(&mut self) {
-        unsafe {
-            ffi::unload_texture(self.0.clone());
-        }
-    }
-}
-
-impl Drop for OwnedRenderTexture {
-    fn drop(&mut self) {
-        unsafe {
-            ffi::unload_render_texture(self.0.clone());
-        }
+    fn create((width, height): Self::Key) -> Result<Self, Self::Error> {
+        Self::from_size(width, height)
     }
 }

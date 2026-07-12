@@ -3,15 +3,18 @@ use std::{ffi::CString, fmt::Debug};
 use rustyray_sys::ffi;
 use thiserror::Error;
 
-use crate::prelude::{DrawingExt, GamepadAxis, GamepadButton, TextureModeExt};
+use crate::prelude::{DrawingExt, GamepadAxis, GamepadButton, HasAssetManager, TextureModeExt};
 
 use super::{
+    assets::AssetManager,
     consts::{ConfigFlag, KeyboardKey, MouseButton},
     math::{Vector2, Vector2i},
 };
 
 #[derive(Debug)]
-pub struct Window;
+pub struct Window {
+    pub assets: AssetManager,
+}
 
 #[derive(Debug, Error)]
 pub enum WindowError {
@@ -66,7 +69,9 @@ impl WindowBuilder {
     }
 
     pub fn build(&self) -> Result<Window, WindowError> {
-        let mut window = Window {};
+        let mut window = Window {
+            assets: AssetManager::new(),
+        };
 
         if window.is_ready() {
             return Err(WindowError::DoubleWindowInit);
@@ -518,8 +523,8 @@ impl Window {
     }
 
     #[inline]
-    pub fn gamepad_button_pressed(&self, gamepad: i32) -> GamepadButton {
-        unsafe { ffi::get_gamepad_button_pressed(gamepad) }
+    pub fn gamepad_button_pressed(&self) -> GamepadButton {
+        GamepadButton::from(unsafe { ffi::get_gamepad_button_pressed() })
     }
 
     #[inline]
@@ -541,6 +546,16 @@ impl Drop for Window {
             }
             ffi::close_window();
         }
+    }
+}
+
+impl HasAssetManager for Window {
+    fn assets(&self) -> &AssetManager {
+        &self.assets
+    }
+
+    fn assets_mut(&mut self) -> &mut AssetManager {
+        &mut self.assets
     }
 }
 
