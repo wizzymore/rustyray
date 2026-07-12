@@ -90,6 +90,13 @@ pub enum GamepadButton {
     RightThumb,
 }
 
+impl From<i32> for GamepadButton {
+    fn from(value: i32) -> Self {
+        // SAFETY: `GamepadButton` is `#[repr(i32)]` with values matching raylib's `GamepadButton`.
+        unsafe { std::mem::transmute(value) }
+    }
+}
+
 /// Gamepad axis
 #[repr(i32)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]

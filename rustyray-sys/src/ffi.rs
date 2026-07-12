@@ -84,6 +84,13 @@
 
 use libc::{c_char, c_double, c_float, c_int, c_uchar, c_uint, c_void};
 
+#[cfg(unix)]
+use libc::va_list;
+/// Windows MSVC ABI: `va_list` is a `char*` pointer.
+#[cfg(windows)]
+#[allow(non_camel_case_types)]
+pub type va_list = *mut c_char;
+
 use crate::{
     audio::{AudioCallback, AudioStream, Music, Sound, Wave},
     camera::Camera2D,
@@ -190,7 +197,7 @@ unsafe extern "C" {
     pub fn set_window_icon(image: Image);
     /// Set icon for window (multiple images, RGBA 32bit)
     #[link_name = "SetWindowIcons"]
-    pub fn set_window_icons(images: *const Image);
+    pub fn set_window_icons(images: *const Image, count: c_int);
     /// Set title for window
     #[link_name = "SetWindowTitle"]
     pub fn set_window_title(title: *const c_char);
@@ -433,7 +440,7 @@ unsafe extern "C" {
 unsafe extern "C" {
     /// Measure string width for default font
     #[link_name = "MeasureText"]
-    pub fn measure_text(text: *const c_char, font_size: c_int);
+    pub fn measure_text(text: *const c_char, font_size: c_int) -> c_int;
 }
 
 // Basic shapes drawing functions
@@ -544,7 +551,7 @@ unsafe extern "C" {
     pub fn is_gamepad_button_up(gamepad: c_int, button: GamepadButton) -> bool;
     /// Get the last gamepad button pressed
     #[link_name = "GetGamepadButtonPressed"]
-    pub fn get_gamepad_button_pressed(gamepad: c_int) -> GamepadButton;
+    pub fn get_gamepad_button_pressed() -> c_int;
     /// Get gamepad axis count for a gamepad
     #[link_name = "GetGamepadAxisCount"]
     pub fn get_gamepad_axis_count(gamepad: c_int) -> c_int;
@@ -595,7 +602,7 @@ unsafe extern "C" {
     pub fn set_mouse_offset(offset_x: c_int, offset_y: c_int);
     /// Set mouse scaling
     #[link_name = "SetMouseScale"]
-    pub fn set_mouse_scale(scale_x: c_int, scale_y: c_int);
+    pub fn set_mouse_scale(scale_x: c_float, scale_y: c_float);
     /// Get mouse wheel movement for X or Y, whichever is larger
     #[link_name = "GetMouseWheelMove"]
     pub fn get_mouse_wheel_move() -> c_float;
@@ -632,13 +639,13 @@ unsafe extern "C" {
     pub fn set_gestures_enabled(flags: Gesture);
     /// Check if a [Gesture] have been detected
     #[link_name = "IsGestureDetected"]
-    pub fn is_gesture_detected(gesture: Gesture);
+    pub fn is_gesture_detected(gesture: Gesture) -> bool;
     /// Get latest detected [Gesture]
     #[link_name = "GetGestureDetected"]
     pub fn get_gesture_detected() -> Gesture;
     /// Get [Gesture] hold time in seconds
     #[link_name = "GetGestureHoldDuration"]
-    pub fn get_gesture_hold_duration() -> c_int;
+    pub fn get_gesture_hold_duration() -> c_float;
     /// Get [Gesture] drag [Vector2]
     #[link_name = "GetGestureDragVector"]
     pub fn get_gesture_drag_vector() -> Vector2;
@@ -787,7 +794,7 @@ unsafe extern "C" {
     pub fn set_sound_pan(sound: Sound, pan: c_float);
     /// Copy the wave to a new wave
     #[link_name = "WaveCopy"]
-    pub fn wave_copy(wave: Wave);
+    pub fn wave_copy(wave: Wave) -> Wave;
     /// Crop a wave to defined frames range
     #[link_name = "WaveCrop"]
     pub fn wave_crop(wave: *mut Wave, init_frame: c_int, final_frame: c_int);
@@ -796,10 +803,10 @@ unsafe extern "C" {
     pub fn wave_format(wave: *mut Wave, sample_rate: c_int, sample_size: c_int, channels: c_int);
     /// Load samples data from wave as a 32bit float data array
     #[link_name = "LoadWaveSamples"]
-    pub fn load_wave_samples(wave: Wave) -> *const c_float;
+    pub fn load_wave_samples(wave: Wave) -> *mut c_float;
     /// Unload samples data loaded with LoadWaveSamples()
     #[link_name = "UnloadWaveSamples"]
-    pub fn unload_wave_samples(samples: *const c_float);
+    pub fn unload_wave_samples(samples: *mut c_float);
 }
 
 unsafe extern "C" {
@@ -870,11 +877,11 @@ unsafe extern "C" {
     #[link_name = "IsAudioStreamValid"]
     pub fn is_audio_stream_valid(stream: AudioStream) -> bool;
     /// Unload audio stream and free memory
-    #[link_name = "UnloadStreamValid"]
-    pub fn unload_stream_valid(stream: AudioStream);
+    #[link_name = "UnloadAudioStream"]
+    pub fn unload_audio_stream(stream: AudioStream);
     /// Update audio stream buffers with data
-    #[link_name = "UpdateStreamValid"]
-    pub fn update_stream_valid(stream: AudioStream, data: *const c_void, frame_count: c_int);
+    #[link_name = "UpdateAudioStream"]
+    pub fn update_audio_stream(stream: AudioStream, data: *const c_void, frame_count: c_int);
     /// Check if any audio stream buffers requires refill
     #[link_name = "IsAudioStreamProcessed"]
     pub fn is_audio_stream_processed(stream: AudioStream) -> bool;
@@ -967,7 +974,7 @@ unsafe extern "C" {
         point: Vector2,
         p1: Vector2,
         p2: Vector2,
-        treshold: c_float,
+        threshold: c_int,
     ) -> bool;
     /// Check if point is within a polygon described by array of vertices
     #[link_name = "CheckCollisionPointPoly"]
@@ -982,7 +989,7 @@ unsafe extern "C" {
 }
 
 // Logging
-pub type TraceLogCallback = extern "C" fn(log_level: i32, text: *const c_char, args: *mut c_void);
+pub type TraceLogCallback = extern "C" fn(log_level: c_int, text: *const c_char, args: va_list);
 
 unsafe extern "C" {
     #[link_name = "SetTraceLogCallback"]
