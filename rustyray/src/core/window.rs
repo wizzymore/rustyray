@@ -1,4 +1,4 @@
-use std::{ffi::CString, fmt::Debug};
+use std::{ffi::CString, fmt::Debug, mem::ManuallyDrop};
 
 use rustyray_sys::ffi;
 use thiserror::Error;
@@ -13,7 +13,7 @@ use super::{
 
 #[derive(Debug)]
 pub struct Window {
-    pub assets: AssetManager,
+    pub assets: ManuallyDrop<AssetManager>,
 }
 
 #[derive(Debug, Error)]
@@ -70,7 +70,7 @@ impl WindowBuilder {
 
     pub fn build(&self) -> Result<Window, WindowError> {
         let mut window = Window {
-            assets: AssetManager::new(),
+            assets: ManuallyDrop::new(AssetManager::new()),
         };
 
         if window.is_ready() {
@@ -541,7 +541,9 @@ impl Window {
 impl Drop for Window {
     fn drop(&mut self) {
         unsafe {
-            if self.is_audio_device_ready() {
+            ManuallyDrop::drop(&mut self.assets);
+
+            if ffi::is_audio_device_ready() {
                 ffi::close_audio_device();
             }
             ffi::close_window();
