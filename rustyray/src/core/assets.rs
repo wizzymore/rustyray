@@ -243,16 +243,14 @@ impl AssetManager {
         let waker = noop_waker();
         let mut cx = Context::from_waker(&waker);
 
-        let pending = std::mem::take(&mut self.pending);
-        let mut remaining = Vec::with_capacity(pending.len());
+        let pending_len = self.pending.len();
+        let pending = std::mem::replace(&mut self.pending, Vec::with_capacity(pending_len));
 
         for mut load in pending {
             if load.poll.as_mut()(self, &mut cx).is_pending() {
-                remaining.push(load);
+                self.pending.push(load);
             }
         }
-
-        self.pending = remaining;
     }
 
     pub fn get<T: Asset>(&self, handle: &Handle<T>) -> Option<&T> {
