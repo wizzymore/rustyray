@@ -152,8 +152,8 @@ mod tests {
     fn test_does_not_collides_rect() {
         let rect_a = Rectangle::new(0.0, 0.0, 10.0, 10.0);
         let rect_b = Rectangle::new(10.0, 10.0, 10.0, 10.0);
-        assert!(rect_a.collides_rect(&rect_b) == false);
-        assert!(rect_b.collides_rect(&rect_a) == false);
+        assert!(!rect_a.collides_rect(&rect_b));
+        assert!(!rect_b.collides_rect(&rect_a));
     }
 
     #[test]
@@ -169,7 +169,7 @@ mod tests {
         let rect_a = Rectangle::new(0.0, 0.0, 10.0, 10.0);
         let center = Vector2::new(12.0, 12.0);
         let radius = 2.0;
-        assert!(rect_a.collides_circle(center, radius) == false);
+        assert!(!rect_a.collides_circle(center, radius));
     }
 
     // For when benches become stable

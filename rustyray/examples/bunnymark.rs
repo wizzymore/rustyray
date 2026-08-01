@@ -1,6 +1,6 @@
 extern crate rustyray;
 
-use rand::Rng;
+use rand::RngExt;
 use rustyray::prelude::*;
 
 struct Bunny {

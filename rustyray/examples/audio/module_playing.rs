@@ -1,4 +1,4 @@
-use rand::{Rng, rngs::ThreadRng};
+use rand::{RngExt, rngs::ThreadRng};
 use rustyray::prelude::*;
 
 struct CircleWave {
@@ -103,23 +103,23 @@ fn main() {
             (time_played, playing)
         });
 
-        if let Some((_, playing)) = frame {
-            if playing {
-                circles.iter_mut().for_each(|circle| {
-                    circle.alpha += circle.speed;
-                    circle.radius += circle.speed * 10.;
+        if let Some((_, playing)) = frame
+            && playing
+        {
+            circles.iter_mut().for_each(|circle| {
+                circle.alpha += circle.speed;
+                circle.radius += circle.speed * 10.;
 
-                    if circle.alpha > 1. {
-                        circle.speed *= -1.;
-                    }
+                if circle.alpha > 1. {
+                    circle.speed *= -1.;
+                }
 
-                    if circle.alpha <= 0. {
-                        *circle = create_circle(&mut rng);
-                    }
+                if circle.alpha <= 0. {
+                    *circle = create_circle(&mut rng);
+                }
 
-                    circle.color.fade(circle.alpha);
-                });
-            }
+                circle.color.fade(circle.alpha);
+            });
         }
 
         window.draw(|d| {

@@ -24,15 +24,15 @@ fn main() {
         let ready = window.assets.is_ready(&fx_wav) && window.assets.is_ready(&fx_ogg);
 
         if ready {
-            if window.is_key_pressed(KeyboardKey::Space) {
-                if let Some(fx) = window.assets.get(&fx_wav) {
-                    fx.play();
-                }
+            if window.is_key_pressed(KeyboardKey::Space)
+                && let Some(fx) = window.assets.get(&fx_wav)
+            {
+                fx.play();
             }
-            if window.is_key_pressed(KeyboardKey::Enter) {
-                if let Some(fx) = window.assets.get(&fx_ogg) {
-                    fx.play();
-                }
+            if window.is_key_pressed(KeyboardKey::Enter)
+                && let Some(fx) = window.assets.get(&fx_ogg)
+            {
+                fx.play();
             }
         }
 

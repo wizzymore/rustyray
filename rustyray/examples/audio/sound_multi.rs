@@ -33,15 +33,13 @@ fn main() {
 
         let ready = !sounds.is_empty();
 
-        if ready {
-            if window.is_key_pressed(KeyboardKey::Space) {
-                if let Some(fx) = window.assets.get(&sounds[current_sound]) {
-                    fx.play();
-                }
-                current_sound += 1;
-                if current_sound >= sounds.len() {
-                    current_sound = 0;
-                }
+        if ready && window.is_key_pressed(KeyboardKey::Space) {
+            if let Some(fx) = window.assets.get(&sounds[current_sound]) {
+                fx.play();
+            }
+            current_sound += 1;
+            if current_sound >= sounds.len() {
+                current_sound = 0;
             }
         }
 
