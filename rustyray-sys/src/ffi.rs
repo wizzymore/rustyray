@@ -1,16 +1,16 @@
 /**********************************************************************************************
 *
-*   raylib v5.5 - A simple and easy-to-use library to enjoy videogames programming (www.raylib.com)
+*   raylib v6.0 - A simple and easy-to-use library to enjoy videogames programming (www.raylib.com)
 *
 *   FEATURES:
 *       - NO external dependencies, all required libraries included with raylib
-*       - Multiplatform: Windows, Linux, FreeBSD, OpenBSD, NetBSD, DragonFly,
-*                        MacOS, Haiku, Android, Raspberry Pi, DRM native, HTML5.
+*       - Multiplatform: Windows, Linux, macOS, FreeBSD, Web, Android, Raspberry Pi, DRM native...
 *       - Written in plain C code (C99) in PascalCase/camelCase notation
 *       - Hardware accelerated with OpenGL (1.1, 2.1, 3.3, 4.3, ES2, ES3 - choose at compile)
-*       - Unique OpenGL abstraction layer (usable as standalone module): [rlgl]
+*       - Software renderer optional, for systems with no GPU: [rlsw]
+*       - Custom OpenGL abstraction layer (usable as standalone module): [rlgl]
 *       - Multiple Fonts formats supported (TTF, OTF, FNT, BDF, Sprite fonts)
-*       - Outstanding texture formats support, including compressed formats (DXT, ETC, ASTC)
+*       - Many texture formats supported, including compressed formats (DXT, ETC, ASTC)
 *       - Full 3d support for 3d Shapes, Models, Billboards, Heightmaps and more!
 *       - Flexible Materials system, supporting classic maps and PBR maps
 *       - Animated 3D models supported (skeletal bones animation) (IQM, M3D, GLTF)
@@ -26,24 +26,23 @@
 *       - One default Shader is loaded on rlglInit()->rlLoadShaderDefault() [rlgl] (OpenGL 3.3 or ES2)
 *       - One default RenderBatch is loaded on rlglInit()->rlLoadRenderBatch() [rlgl] (OpenGL 3.3 or ES2)
 *
-*   DEPENDENCIES (included):
-*       [rcore][GLFW] rglfw (Camilla Löwy - github.com/glfw/glfw) for window/context management and input
-*       [rcore][RGFW] rgfw (ColleagueRiley - github.com/ColleagueRiley/RGFW) for window/context management and input
-*       [rlgl] glad/glad_gles2 (David Herberth - github.com/Dav1dde/glad) for OpenGL 3.3 extensions loading
+*   DEPENDENCIES:
+*       [rcore] Depends on the selected platform backend, check rcore.c header for details
+*       [rlgl] glad/glad_gles2 (David Herberth - github.com/Dav1dde/glad) for OpenGL extensions loading
 *       [raudio] miniaudio (David Reid - github.com/mackron/miniaudio) for audio device/context management
 *
 *   OPTIONAL DEPENDENCIES (included):
-*       [rcore] msf_gif (Miles Fogle) for GIF recording
 *       [rcore] sinfl (Micha Mettke) for DEFLATE decompression algorithm
 *       [rcore] sdefl (Micha Mettke) for DEFLATE compression algorithm
-*       [rcore] rprand (Ramon Snatamaria) for pseudo-random numbers generation
-*       [rtextures] qoi (Dominic Szablewski - https://phoboslab.org) for QOI image manage
-*       [rtextures] stb_image (Sean Barret) for images loading (BMP, TGA, PNG, JPEG, HDR...)
-*       [rtextures] stb_image_write (Sean Barret) for image writing (BMP, TGA, PNG, JPG)
-*       [rtextures] stb_image_resize2 (Sean Barret) for image resizing algorithms
-*       [rtextures] stb_perlin (Sean Barret) for Perlin Noise image generation
-*       [rtext] stb_truetype (Sean Barret) for ttf fonts loading
-*       [rtext] stb_rect_pack (Sean Barret) for rectangles packing
+*       [rcore] rprand (Ramon Santamaria) for pseudo-random numbers generation
+*       [rtextures] qoi (Dominic Szablewski - https://phoboslab.org) for QOI image management
+*       [rtextures] stb_image (Sean Barrett) for images loading (BMP, TGA, PNG, JPEG, HDR...)
+*       [rtextures] stb_image_write (Sean Barrett) for image writing (BMP, TGA, PNG, JPG)
+*       [rtextures] stb_image_resize2 (Sean Barrett) for image resizing algorithms
+*       [rtextures] stb_perlin (Sean Barrett) for Perlin Noise image generation
+*       [rtextures] rltexgpu (Ramon Santamaria) for GPU-compressed texture formats
+*       [rtext] stb_truetype (Sean Barrett) for ttf fonts loading
+*       [rtext] stb_rect_pack (Sean Barrett) for rectangles packing
 *       [rmodels] par_shapes (Philip Rideout) for parametric 3d shapes generation
 *       [rmodels] tinyobj_loader_c (Syoyo Fujita) for models loading (OBJ, MTL)
 *       [rmodels] cgltf (Johannes Kuhlmann) for models loading (glTF)
@@ -52,10 +51,10 @@
 *       [raudio] dr_wav (David Reid) for WAV audio file loading
 *       [raudio] dr_flac (David Reid) for FLAC audio file loading
 *       [raudio] dr_mp3 (David Reid) for MP3 audio file loading
-*       [raudio] stb_vorbis (Sean Barret) for OGG audio loading
+*       [raudio] stb_vorbis (Sean Barrett) for OGG audio loading
 *       [raudio] jar_xm (Joshua Reisenauer) for XM audio module loading
 *       [raudio] jar_mod (Joshua Reisenauer) for MOD audio module loading
-*       [raudio] qoa (Dominic Szablewski - https://phoboslab.org) for QOA audio manage
+*       [raudio] qoa (Dominic Szablewski - https://phoboslab.org) for QOA audio management
 *
 *
 *   LICENSE: zlib/libpng
@@ -63,7 +62,7 @@
 *   raylib is licensed under an unmodified zlib/libpng license, which is an OSI-certified,
 *   BSD-like license that allows static linking with closed source software:
 *
-*   Copyright (c) 2013-2024 Ramon Santamaria (@raysan5)
+*   Copyright (c) 2013-2026 Ramon Santamaria (@raysan5)
 *
 *   This software is provided "as-is", without any express or implied warranty. In no event
 *   will the authors be held liable for any damages arising from the use of this software.
