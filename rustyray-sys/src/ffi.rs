@@ -82,7 +82,7 @@
 *
 **********************************************************************************************/
 
-use libc::{c_char, c_double, c_float, c_int, c_uchar, c_uint, c_void};
+use std::ffi::{c_char, c_double, c_float, c_int, c_uchar, c_uint, c_void};
 use va_list::VaList;
 
 use crate::{

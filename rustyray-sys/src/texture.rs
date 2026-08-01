@@ -1,8 +1,7 @@
-use std::ffi::CString;
+use std::ffi::{CString, c_int, c_uint, c_void};
 use std::fmt::Debug;
 use std::fs;
 
-use libc::{c_int, c_uint, c_void};
 use thiserror::Error;
 
 use crate::ffi::{is_window_ready, load_render_texture, load_texture};
